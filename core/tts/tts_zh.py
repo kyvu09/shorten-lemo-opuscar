@@ -29,14 +29,14 @@ async def synth(text, voice, rate, pitch, path):
     part = path + '.part'
     last = None
     try:
-        for attempt in range(3):   # retry twice on occasional network hiccups
+        for attempt in range(4):   # retry on occasional network hiccups or transient NoAudioReceived
             try:
+                if attempt > 0: await asyncio.sleep(1.2 * attempt)
                 await edge_tts.Communicate(text, voice, rate=rate, pitch=pitch).save(part)
                 if os.path.getsize(part) == 0: raise OSError('the service returned an empty file')
-                os.replace(part, path); return
+                os.replace(part, path); await asyncio.sleep(0.35); return
             except Exception as e:
                 last = e
-                if type(e).__name__ == 'NoAudioReceived': break   # wrong voice name/text; retrying won't help
                 await asyncio.sleep(1.5 * (attempt + 1))
         raise last
     finally:

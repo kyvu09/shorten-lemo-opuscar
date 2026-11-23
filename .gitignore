@@ -18,6 +18,7 @@ core/audio/*.wav
 films/*/out/
 films/*/stills/
 films/*/voices/
+films/*/voices_*/
 films/*/fonts/*.ttf
 films/*/fonts/*.otf
 films/*/music/stems/

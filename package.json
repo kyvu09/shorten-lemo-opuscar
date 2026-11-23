@@ -6,6 +6,9 @@
   "description": "Lean code-driven Crayon Picture Book video studio (WebGL2 crayon & watercolour resist, Kokoro/edge-tts voice, CC0 storybook sampler, FFmpeg -14 LUFS master).",
   "engines": { "node": ">=20" },
   "license": "SEE LICENSE IN LICENSE",
+  "scripts": {
+    "studio": "node studio/server.mjs"
+  },
   "dependencies": {
     "playwright-core": "^1.63.0"
   }

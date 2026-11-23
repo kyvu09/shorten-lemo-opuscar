@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crayon Book Studio — Video Editor</title>
+  <link rel="stylesheet" href="/films/one-little-seed/fonts/fonts.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <!-- TOP TOOLBAR -->
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-icon">🖍️</span>
+        <span class="brand-title">Crayon Book Studio</span>
+      </div>
+
+      <div class="toolbar-group">
+        <select id="projSelect" class="select-proj" title="Chọn dự án phim"></select>
+        <button id="btnNew" class="btn btn-ghost" title="Tạo tập phim mới">+ Tập mới</button>
+        <button id="btnDup" class="btn btn-ghost" title="Nhân bản tập hiện tại">📋 Nhân bản</button>
+      </div>
+
+      <div class="toolbar-group">
+        <div class="segmented" role="group" aria-label="Tỉ lệ khung hình">
+          <button id="btnAspect169" class="seg-btn active" data-aspect="16:9">16:9</button>
+          <button id="btnAspect916" class="seg-btn" data-aspect="9:16">9:16</button>
+        </div>
+        <button id="btnDragMode" class="btn btn-toggle active" title="Kéo thả nhân vật, tiêu đề, thẻ từ vựng trực tiếp trên canvas">✋ Kéo thả</button>
+        <button id="btnGuides" class="btn btn-toggle" title="Hiện lưới an toàn & vùng phụ đề">⊞ Lưới</button>
+      </div>
+
+      <div class="toolbar-group toolbar-right">
+        <span id="saveStatus" class="save-badge">Đã lưu</span>
+        <button id="btnSave" class="btn btn-secondary" title="Lưu project.json (Ctrl+S)">💾 Lưu</button>
+        <button id="btnTTS" class="btn btn-accent-soft" title="Tạo giọng đọc Kokoro / Edge-TTS & kiểm tra Whisper">🎙️ Tạo Giọng</button>
+        <button id="btnAudio" class="btn btn-accent-soft" title="Soạn nhạc CC0 & trộn foley + voice">🎵 Trộn Nhạc</button>
+        <button id="btnExport" class="btn btn-primary" title="Render 24fps & Master -14 LUFS thành MP4">🎬 Xuất MP4</button>
+      </div>
+    </header>
+
+    <!-- MAIN WORKSPACE: CENTER STAGE + RIGHT INSPECTOR -->
+    <main class="workspace">
+      <section class="stage-pane">
+        <div class="stage-wrap" id="stageWrap">
+          <div class="canvas-shell" id="canvasShell">
+            <canvas id="gl" width="1920" height="1080"></canvas>
+            <canvas id="overlay" width="1920" height="1080"></canvas>
+            <div id="stageTooltip" class="stage-tooltip hidden"></div>
+          </div>
+        </div>
+        <div class="stage-statusbar">
+          <div class="cam-readout">
+            <span id="camReadout">Camera: x=1600 y=900 · 0.60×</span>
+            <button id="btnCamReset" class="btn-mini hidden" title="Trở về camera theo timeline">↩ Theo Timeline</button>
+            <button id="btnCamSnap" class="btn-mini" title="Lưu góc máy hiện tại thành keyframe mới">📌 Lưu Keyframe Camera</button>
+          </div>
+          <div class="stage-hints">
+            <span>Kéo phần tử để di chuyển · Cuộn chuột để zoom thử · <kbd>Space</kbd> Phát/Dừng</span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="inspector">
+        <nav class="tabs" id="inspectorTabs">
+          <button class="tab active" data-tab="subs">📖 Thoại</button>
+          <button class="tab" data-tab="tags">🏷️ Từ vựng</button>
+          <button class="tab" data-tab="cast">🧸 Nhân vật</button>
+          <button class="tab" data-tab="scene">🎨 Cảnh &amp; Màu</button>
+          <button class="tab" data-tab="audio">🎵 Âm thanh</button>
+        </nav>
+        <div class="tab-body" id="tabBody"></div>
+      </aside>
+    </main>
+
+    <!-- BOTTOM MULTI-TRACK NLE TIMELINE -->
+    <footer class="timeline-pane">
+      <div class="transport">
+        <div class="transport-left">
+          <button id="btnStart" class="t-btn" title="Về đầu (Home)">⏮</button>
+          <button id="btnPrevF" class="t-btn" title="Lùi 1 frame (,)">◀</button>
+          <button id="btnPlay" class="t-btn t-play" title="Phát / Tạm dừng (Space)">▶</button>
+          <button id="btnNextF" class="t-btn" title="Tiến 1 frame (.)">▶|</button>
+          <span id="timecode" class="timecode">00:00.00 / 00:56.00</span>
+        </div>
+        <div class="transport-mid">
+          <span id="audioBadge" class="audio-badge">🔇 Chưa có mix.wav</span>
+          <button id="btnPreviewMp4" class="btn-mini hidden">▶ Xem MP4 đã xuất</button>
+        </div>
+        <div class="transport-right">
+          <label class="mini-field">Tổng thời lượng (s)
+            <input id="inpDuration" type="number" min="4" max="300" step="0.5" value="56">
+          </label>
+          <label class="mini-field">Zoom
+            <input id="inpTlZoom" type="range" min="1" max="4" step="0.1" value="1">
+          </label>
+        </div>
+      </div>
+
+      <div class="tracks-scroll" id="tracksScroll">
+        <div class="tracks-canvas" id="tracksCanvas">
+          <div class="ruler-row">
+            <div class="track-label">Thời gian</div>
+            <div class="ruler-bar" id="rulerBar"></div>
+          </div>
+          <div class="track-row">
+            <div class="track-label">🎥 Camera</div>
+            <div class="track-lane" id="laneCamera"></div>
+          </div>
+          <div class="track-row">
+            <div class="track-label">💧 Wash &amp; Lặng</div>
+            <div class="track-lane" id="laneFx"></div>
+          </div>
+          <div class="track-row">
+            <div class="track-label">🏷️ Từ vựng</div>
+            <div class="track-lane" id="laneTags"></div>
+          </div>
+          <div class="track-row">
+            <div class="track-label">📖 Thoại &amp; Phụ đề</div>
+            <div class="track-lane" id="laneSubs"></div>
+          </div>
+          <div id="playhead" class="playhead"></div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- MODAL: NEW / DUPLICATE PROJECT -->
+  <div id="modalNew" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="modalNewTitle">Tạo tập phim mới</h3>
+        <button class="modal-close" data-close="modalNew">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="field">Tiêu đề tiếng Anh
+          <input id="newTitle" type="text" placeholder="Ví dụ: Five Red Apples" value="Five Red Apples">
+        </label>
+        <label class="field">Tiêu đề tiếng Việt
+          <input id="newTitleVi" type="text" placeholder="Ví dụ: Năm Quả Táo Đỏ" value="Năm Quả Táo Đỏ">
+        </label>
+        <label class="field">Tên thư mục (slug, không dấu)
+          <input id="newSlug" type="text" placeholder="five-red-apples" value="five-red-apples">
+        </label>
+        <div class="field-row">
+          <label class="field">Khung hình
+            <select id="newAspect">
+              <option value="16:9">16:9 Ngang (1920×1080 · YouTube)</option>
+              <option value="9:16">9:16 Dọc (1080×1920 · Shorts/TikTok)</option>
+            </select>
+          </label>
+          <label class="field" id="newDurWrap">Thời lượng (giây)
+            <input id="newDur" type="number" min="5" max="180" step="1" value="20">
+          </label>
+        </div>
+        <div id="newErr" class="err-box hidden"></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" data-close="modalNew">Hủy</button>
+        <button id="btnConfirmNew" class="btn btn-primary">Tạo dự án</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: LIVE JOB PROGRESS & MP4 PLAYER -->
+  <div id="modalJob" class="modal hidden">
+    <div class="modal-card modal-wide">
+      <div class="modal-head">
+        <h3 id="jobTitle">Đang xử lý...</h3>
+        <button id="btnCloseJob" class="modal-close" data-close="modalJob">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="prog-wrap">
+          <div id="jobBar" class="prog-bar" style="width:0%"></div>
+        </div>
+        <div id="jobLabel" class="job-label">Đang khởi tạo...</div>
+        <pre id="jobLog" class="job-log"></pre>
+        <div id="jobResult" class="job-result hidden"></div>
+      </div>
+      <div class="modal-foot">
+        <button id="btnDoneJob" class="btn btn-secondary" data-close="modalJob">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <audio id="mixAudio" preload="auto"></audio>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

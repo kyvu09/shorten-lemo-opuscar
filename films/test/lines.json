@@ -1,0 +1,24 @@
+[
+  {
+    "id": "l01",
+    "text": "Look at the bright sun!",
+    "en": "Look at the bright sun!",
+    "vi": "Nhìn ông mặt trời rực rỡ kìa!",
+    "key": "sun",
+    "engine": "kokoro",
+    "voice": "af_heart",
+    "speed": 0.86,
+    "lang": "en-us"
+  },
+  {
+    "id": "l02",
+    "text": "Here is a big green tree.",
+    "en": "Here is a big green tree.",
+    "vi": "Đây là một cái cây xanh thật to.",
+    "key": "tree",
+    "engine": "kokoro",
+    "voice": "af_heart",
+    "speed": 0.86,
+    "lang": "en-us"
+  }
+]

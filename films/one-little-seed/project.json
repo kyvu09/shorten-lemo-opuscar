@@ -1,0 +1,626 @@
+{
+  "version": 1,
+  "meta": {
+    "slug": "one-little-seed",
+    "title": "One Little Seed",
+    "titleVi": "Một Hạt Giống Nhỏ",
+    "titlePos": {
+      "x": 2715,
+      "y": 825,
+      "t": 1.8
+    },
+    "duration": 56,
+    "fps": 24,
+    "aspect": "16:9"
+  },
+  "palette": {
+    "paper": "#f4efe3",
+    "crayons": {
+      "ink": "#472e1e",
+      "ochre": "#c88a3b",
+      "yellow": "#f2be2c",
+      "red": "#d94436",
+      "pink": "#e8877d",
+      "green": "#5a9c46",
+      "sky": "#5da7d6",
+      "rain": "#6b7ca8",
+      "peach": "#f5cca7",
+      "white": "#fbfaf4"
+    },
+    "washColor": "#70b58f",
+    "washEnabled": true,
+    "washStart": 30,
+    "waxPreset": "rain-and-roots"
+  },
+  "world": {
+    "preset": "garden-cross-section",
+    "horizonY": 1090,
+    "seedX": 1680,
+    "seedY": 1365
+  },
+  "camera": [
+    {
+      "t": 0,
+      "x": 1680,
+      "y": 1365,
+      "s": 1.88
+    },
+    {
+      "t": 0.45,
+      "x": 1680,
+      "y": 1365,
+      "s": 1.88
+    },
+    {
+      "t": 2.55,
+      "x": 2245,
+      "y": 1175,
+      "s": 0.94
+    },
+    {
+      "t": 7.55,
+      "x": 2220,
+      "y": 1165,
+      "s": 0.94
+    },
+    {
+      "t": 9,
+      "x": 1280,
+      "y": 955,
+      "s": 1.06
+    },
+    {
+      "t": 12.1,
+      "x": 1315,
+      "y": 945,
+      "s": 1.05
+    },
+    {
+      "t": 13.45,
+      "x": 1980,
+      "y": 625,
+      "s": 0.86
+    },
+    {
+      "t": 17.2,
+      "x": 2000,
+      "y": 615,
+      "s": 0.86
+    },
+    {
+      "t": 18,
+      "x": 1350,
+      "y": 1125,
+      "s": 1.06
+    },
+    {
+      "t": 23.25,
+      "x": 1350,
+      "y": 1125,
+      "s": 1.06
+    },
+    {
+      "t": 24.35,
+      "x": 1460,
+      "y": 575,
+      "s": 1.01
+    },
+    {
+      "t": 28.55,
+      "x": 1510,
+      "y": 560,
+      "s": 1
+    },
+    {
+      "t": 29.35,
+      "x": 1510,
+      "y": 560,
+      "s": 1
+    },
+    {
+      "t": 30.25,
+      "x": 1615,
+      "y": 1020,
+      "s": 0.66
+    },
+    {
+      "t": 41.2,
+      "x": 1615,
+      "y": 1020,
+      "s": 0.66
+    },
+    {
+      "t": 42.15,
+      "x": 1495,
+      "y": 1055,
+      "s": 1.04
+    },
+    {
+      "t": 44.9,
+      "x": 1325,
+      "y": 765,
+      "s": 0.96
+    },
+    {
+      "t": 47.25,
+      "x": 1325,
+      "y": 765,
+      "s": 0.96
+    },
+    {
+      "t": 48.55,
+      "x": 1600,
+      "y": 900,
+      "s": 0.6
+    },
+    {
+      "t": 56,
+      "x": 1600,
+      "y": 900,
+      "s": 0.6
+    }
+  ],
+  "entities": [
+    {
+      "id": "sun",
+      "type": "sun",
+      "x": 2420,
+      "y": 340,
+      "scale": 1,
+      "tStart": 12.2,
+      "drawDur": 1.4,
+      "fillDur": 2.5,
+      "states": [
+        {
+          "t": 12.2,
+          "mood": "warm"
+        },
+        {
+          "t": 16.4,
+          "mood": "blaze"
+        },
+        {
+          "t": 25.8,
+          "mood": "warm"
+        }
+      ]
+    },
+    {
+      "id": "cloud",
+      "type": "cloud",
+      "x": 1740,
+      "y": 330,
+      "scale": 1.06,
+      "tStart": 23.5,
+      "drawDur": 1.6,
+      "fillDur": 2.4,
+      "states": [
+        {
+          "t": 23.5,
+          "mood": "happy"
+        },
+        {
+          "t": 26.8,
+          "mood": "wink"
+        },
+        {
+          "t": 27.7,
+          "mood": "puff"
+        },
+        {
+          "t": 35.5,
+          "mood": "happy"
+        }
+      ]
+    },
+    {
+      "id": "seed",
+      "type": "seed",
+      "x": 1680,
+      "y": 1365,
+      "scale": 1.08,
+      "tStart": 0.35,
+      "drawDur": 1.1,
+      "fillDur": 1.1,
+      "states": [
+        {
+          "t": 0,
+          "mood": "sleep"
+        },
+        {
+          "t": 17.5,
+          "mood": "hot"
+        },
+        {
+          "t": 23.8,
+          "mood": "sleep"
+        },
+        {
+          "t": 35.6,
+          "mood": "wake"
+        },
+        {
+          "t": 38.6,
+          "mood": "sprout"
+        },
+        {
+          "t": 41.55,
+          "mood": "wake"
+        }
+      ]
+    },
+    {
+      "id": "flower",
+      "type": "flower",
+      "x": 1680,
+      "y": 1088,
+      "rootY": 1325,
+      "scale": 1.08,
+      "tStart": 41.45,
+      "drawDur": 2.85,
+      "fillDur": 1.85,
+      "states": [
+        {
+          "t": 41.45,
+          "mood": "bloom"
+        }
+      ]
+    },
+    {
+      "id": "leo",
+      "type": "boy_leo",
+      "x": 1100,
+      "y": 1095,
+      "scale": 1.02,
+      "tStart": 0,
+      "drawDur": 0,
+      "states": [
+        {
+          "t": 0,
+          "view": "r34",
+          "expr": "curious",
+          "pose": "crouch"
+        },
+        {
+          "t": 9.5,
+          "view": "r34",
+          "expr": "curious",
+          "pose": "stand"
+        },
+        {
+          "t": 11.15,
+          "view": "r34",
+          "expr": "idea",
+          "pose": "idea"
+        },
+        {
+          "t": 12.25,
+          "view": "r34",
+          "expr": "happy",
+          "pose": "colour_loop"
+        },
+        {
+          "t": 16.5,
+          "view": "r34",
+          "expr": "happy",
+          "pose": "stand"
+        },
+        {
+          "t": 17.5,
+          "view": "r34",
+          "expr": "hot",
+          "pose": "hot"
+        },
+        {
+          "t": 20.4,
+          "view": "r34",
+          "expr": "uhoh",
+          "pose": "stand"
+        },
+        {
+          "t": 22.3,
+          "view": "r34",
+          "expr": "idea",
+          "pose": "ideaBlue"
+        },
+        {
+          "t": 23.5,
+          "view": "r34",
+          "expr": "happy",
+          "pose": "cloud_loop"
+        },
+        {
+          "t": 27.2,
+          "view": "r34",
+          "expr": "curious",
+          "pose": "stand"
+        },
+        {
+          "t": 29.8,
+          "view": "front",
+          "expr": "amazed",
+          "pose": "rain"
+        },
+        {
+          "t": 38.6,
+          "view": "front",
+          "expr": "excited",
+          "pose": "rain"
+        },
+        {
+          "t": 41.5,
+          "view": "r34",
+          "expr": "amazed",
+          "pose": "stand"
+        },
+        {
+          "t": 44.5,
+          "view": "r34",
+          "expr": "excited",
+          "pose": "jumpB"
+        },
+        {
+          "t": 45.35,
+          "view": "r34",
+          "expr": "excited",
+          "pose": "jumpA"
+        },
+        {
+          "t": 45.88,
+          "view": "r34",
+          "expr": "excited",
+          "pose": "jumpB"
+        },
+        {
+          "t": 46.35,
+          "view": "r34",
+          "expr": "excited",
+          "pose": "jumpA"
+        },
+        {
+          "t": 46.92,
+          "view": "r34",
+          "expr": "excited",
+          "pose": "jumpB"
+        },
+        {
+          "t": 47.4,
+          "view": "r34",
+          "expr": "happy",
+          "pose": "stand"
+        }
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag_seed",
+      "t": 3.65,
+      "x": 1975,
+      "y": 1345,
+      "en": "SEED",
+      "vi": "hạt giống",
+      "col": "#b07124"
+    },
+    {
+      "id": "tag_sun",
+      "t": 13.7,
+      "x": 2445,
+      "y": 580,
+      "en": "SUN",
+      "vi": "mặt trời",
+      "col": "#d98a16"
+    },
+    {
+      "id": "tag_cloud",
+      "t": 25.1,
+      "x": 1345,
+      "y": 325,
+      "en": "CLOUD",
+      "vi": "đám mây",
+      "col": "#4a8ec2"
+    },
+    {
+      "id": "tag_rain",
+      "t": 31.3,
+      "x": 1355,
+      "y": 655,
+      "en": "RAIN",
+      "vi": "cơn mưa",
+      "col": "#2f6d52"
+    },
+    {
+      "id": "tag_roots",
+      "t": 35.4,
+      "x": 1300,
+      "y": 1485,
+      "en": "ROOTS",
+      "vi": "rễ cây",
+      "col": "#2f6d52"
+    },
+    {
+      "id": "tag_flower",
+      "t": 47.55,
+      "x": 2025,
+      "y": 625,
+      "en": "FLOWER",
+      "vi": "bông hoa",
+      "col": "#d94436"
+    }
+  ],
+  "subtitles": [
+    {
+      "id": "l01",
+      "vt": 2.6,
+      "dur": 1.348,
+      "t0": 2.45,
+      "t1": 5.25,
+      "en": "Here is a little seed.",
+      "vi": "Đây là một hạt giống nhỏ.",
+      "key": "seed",
+      "hiCol": "#c88a3b",
+      "engine": "kokoro",
+      "voice": "af_heart",
+      "speed": 0.85
+    },
+    {
+      "id": "l02",
+      "vt": 5.5,
+      "dur": 1.361,
+      "t0": 5.4,
+      "t1": 8.1,
+      "en": "It is fast asleep.",
+      "vi": "Nó đang ngủ say giấc.",
+      "key": "",
+      "hiCol": "#472e1e",
+      "engine": "kokoro",
+      "voice": "af_heart",
+      "speed": 0.84
+    },
+    {
+      "id": "l03",
+      "vt": 8.95,
+      "dur": 1.363,
+      "t0": 8.8,
+      "t1": 11.75,
+      "en": "Leo wants a flower.",
+      "vi": "Leo muốn có một bông hoa.",
+      "key": "flower",
+      "hiCol": "#d94436",
+      "engine": "kokoro",
+      "voice": "af_heart",
+      "speed": 0.86
+    },
+    {
+      "id": "l04",
+      "vt": 12.6,
+      "dur": 2.339,
+      "t0": 12.45,
+      "t1": 16.7,
+      "en": "Wake up, seed! Here comes the sun.",
+      "vi": "Dậy đi hạt nhỏ! Mặt trời tới rồi.",
+      "key": "sun",
+      "hiCol": "#d98a16",
+      "engine": "kokoro",
+      "voice": "af_heart",
+      "speed": 0.86
+    },
+    {
+      "id": "l05",
+      "vt": 20.55,
+      "dur": 1.408,
+      "t0": 20.4,
+      "t1": 23.15,
+      "en": "Oh no! Too hot!",
+      "vi": "Ôi không! Nóng quá!",
+      "key": "hot",
+      "hiCol": "#d94436",
+      "engine": "kokoro",
+      "voice": "af_heart",
+      "speed": 0.85
+    },
+    {
+      "id": "l06",
+      "vt": 24,
+      "dur": 1.853,
+      "t0": 23.85,
+      "t1": 27.6,
+      "en": "Leo draws a big blue cloud.",
+      "vi": "Leo vẽ một đám mây xanh thật to.",
+      "key": "cloud",
+      "hiCol": "#4a8ec2",
+      "engine": "kokoro",
+      "voice": "af_heart",
+      "speed": 0.86
+    },
+    {
+      "id": "l07",
+      "vt": 30.6,
+      "dur": 1.548,
+      "t0": 30.45,
+      "t1": 33.8,
+      "en": "Down comes the cool rain!",
+      "vi": "Cơn mưa mát lành rơi xuống!",
+      "key": "rain",
+      "hiCol": "#3b785c",
+      "engine": "kokoro",
+      "voice": "af_heart",
+      "speed": 0.86
+    },
+    {
+      "id": "l08",
+      "vt": 35.1,
+      "dur": 2.069,
+      "t0": 34.95,
+      "t1": 39.2,
+      "en": "Look! Hidden roots drink the water.",
+      "vi": "Nhìn kìa! Rễ cây ẩn mình đang uống nước.",
+      "key": "roots",
+      "hiCol": "#3b785c",
+      "engine": "kokoro",
+      "voice": "af_heart",
+      "speed": 0.85
+    },
+    {
+      "id": "l09",
+      "vt": 47.65,
+      "dur": 1.836,
+      "t0": 47.5,
+      "t1": 51.05,
+      "en": "Hooray! A tall red flower!",
+      "vi": "Hoan hô! Một bông hoa đỏ thật cao!",
+      "key": "flower",
+      "hiCol": "#d94436",
+      "engine": "kokoro",
+      "voice": "af_heart",
+      "speed": 0.86
+    },
+    {
+      "id": "l10",
+      "vt": 51.6,
+      "dur": 1.486,
+      "t0": 51.45,
+      "t1": 55.2,
+      "en": "Well done, little seed.",
+      "vi": "Giỏi lắm, hạt giống nhỏ ơi.",
+      "key": "seed",
+      "hiCol": "#c88a3b",
+      "engine": "kokoro",
+      "voice": "af_heart",
+      "speed": 0.82
+    }
+  ],
+  "silences": [
+    {
+      "id": "sil_hot",
+      "t0": 19.2,
+      "t1": 20.45
+    },
+    {
+      "id": "sil_cloud",
+      "t0": 28.3,
+      "t1": 29.6
+    }
+  ],
+  "ending": {
+    "type": "fridge",
+    "tStart": 50.8,
+    "tEnd": 54.4,
+    "fridgeColor": "#cbe3d7"
+  },
+  "music": {
+    "preset": "morning-garden",
+    "key": "F",
+    "bpm": 108,
+    "gains": {
+      "ukulele": 0.92,
+      "marimba": 0.85,
+      "recorder": 0.95,
+      "bassoon": 0.78,
+      "glock": 1.25,
+      "perc": 0.72,
+      "foley": 0.76,
+      "voice": 1
+    }
+  }
+}

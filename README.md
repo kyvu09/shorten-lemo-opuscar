@@ -2,10 +2,28 @@
 
 Công cụ dựng video kể chuyện phong cách **Crayon Picture Book** (*Sách tranh sáp màu*) hoàn toàn bằng code, được tinh gọn riêng cho quy trình sản xuất video của bạn (nền tảng từ `lemo-opuscar` — giữ lại toàn bộ công nghệ render WebGL2 sáp màu + màu nước *wax resist*, giọng đọc TTS, bộ 18 nhạc cụ CC0 sách tranh và master âm thanh −14 LUFS).
 
+## Giao diện Web Studio tương tác (Không cần AI Agent)
+
+Chạy máy chủ cục bộ để mở trình dựng video trực quan ngay trên trình duyệt:
+
+```sh
+npm run studio
+```
+
+Sau đó mở trình duyệt tại **http://127.0.0.1:4173/studio/** để:
+- Chọn hoặc tạo mới/nhân bản dự án video trong `films/<ten-phim>/`.
+- Sửa kịch bản lời thoại song ngữ EN–VI, thẻ từ vựng, chọn giọng đọc (Kokoro EN offline hoặc Edge-TTS VI/EN online).
+- Kéo thả trực tiếp nhân vật, đạo cụ, tiêu đề và nhãn từ vựng trên khung hình WebGL2 sáp màu thật; xoay góc nhìn & bắt keyframe camera; đổi nhanh khung hình `16:9 Ngang` (1920×1080) ↔ `9:16 Dọc` (1080×1920).
+- Tua và kéo thanh thời gian 4 track (Nhân vật, Thẻ từ, Phụ đề, Im lặng) kèm phát âm thanh đồng bộ.
+- Chỉnh 12 màu sáp, bật/tắt lớp màu nước wax-resist, chọn giai điệu nhạc CC0 & độ lớn từng nhạc cụ.
+- Bấm 1 nút để tạo giọng TTS, phối nhạc & foley, chạy kiểm tra tốc độ đọc (`readcheck`) và xuất file MP4 chuẩn `−14 LUFS`.
+
 ## Cấu trúc thư mục
 
 ```text
 .
+├── engine/                     # Engine WebGL2 sáp màu dùng chung, thư viện 15 nhân vật/đạo cụ, bộ sinh nhạc/mix dữ liệu
+├── studio/                     # Giao diện Web Studio 3 vùng (index.html, app.js, styles.css) & server cục bộ (server.mjs)
 ├── core/
 │   ├── lib.js                  # Hàm easing, seeded hash/noise
 │   ├── render/                 # Render frame-by-frame (Playwright), readcheck, sheet, srt, mux (-14 LUFS)
@@ -14,7 +32,7 @@ Công cụ dựng video kể chuyện phong cách **Crayon Picture Book** (*Sác
 ├── styles/
 │   └── crayon-book/            # Đặc tả phong cách chuẩn (STYLE.md) & tham khảo kỹ thuật engine
 ├── films/
-│   └── one-little-seed/        # Phim mẫu hoàn chỉnh đầu tiên (template để nhân bản cho các tập mới)
+│   └── one-little-seed/        # Phim mẫu hoàn chỉnh đầu tiên (tương thích Web Studio qua project.json)
 ├── DIRECTOR.md                 # Quy chuẩn đạo diễn (nhịp điệu, camera, âm thanh, tự kiểm tra)
 ├── TECHNIQUE.md                # Pipeline kỹ thuật render / âm thanh / phụ đề
 ├── AGENTS.md                   # Hướng dẫn ngắn gọn cho AI coding agent khi dựng video mới
