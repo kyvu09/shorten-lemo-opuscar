@@ -1,0 +1,17 @@
+CREDITS — One Little Seed (Một Hạt Giống Nhỏ)
+
+Fonts (SIL Open Font License 1.1, self-hosted from Google Fonts):
+- Patrick Hand (Patrick Wagesreiter): https://github.com/google/fonts/tree/main/ofl/patrickhand
+- Mali (Cadson Demak): https://github.com/google/fonts/tree/main/ofl/mali
+
+Audio Sample Libraries (CC0 1.0 Universal):
+- Samples (CC0): FreePats project (freepats.zenvoid.org), VS Chamber Orchestra: Community Edition (Versilian Studios / Sam Gossner), Versilian Community Sample Library (Versilian Studios)
+  Instruments used: ukulele (FreePats), bassoon & bassoon_stac (VSCO 2 CE), recorder, marimba, glockenspiel, hand_chimes, woodblock, shaker (VCSL).
+
+Voice Engine:
+- Kokoro-82M via kokoro-onnx (Apache License 2.0, voice: af_heart): https://github.com/thewh1teagle/kokoro-onnx
+- Speech-to-text verification: faster-whisper (MIT License)
+
+Rendering & Shader Engine Techniques:
+- WebGL2 paper-tooth/crayon/watercolour shader and Canvas2D stroke helpers adapted from the Crayon Picture Book toolkit (MIT License).
+- All story writing, character designs (Leo, Seed, Sun, Cloud, Flower), cross-section garden world, kitchen fridge ending, musical score, foley design, and bilingual English–Vietnamese curriculum are original works created for this film.

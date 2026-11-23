@@ -1,0 +1,44 @@
+# Dependencies & virtual environments
+node_modules/
+.venv/
+.lemo-deps.lock/
+/.release/
+__pycache__/
+*.pyc
+.DS_Store
+*.log
+
+# Downloaded voice models & sample packs (re-fetchable via tools/fetch.sh)
+core/tts/*.onnx
+core/tts/*.bin
+core/audio/instruments/
+core/audio/*.wav
+
+# Generated film outputs, intermediate renders, audio caches & downloaded fonts
+films/*/out/
+films/*/stills/
+films/*/voices/
+films/*/fonts/*.ttf
+films/*/fonts/*.otf
+films/*/music/stems/
+films/**/*.mp4
+films/**/*.wav
+films/**/*.mp3
+films/**/*.part
+
+# Reference style demo intermediates
+styles/*/demo/out/
+styles/*/demo/voices/*.wav
+styles/*/demo/music/*.wav
+styles/*/demo/music/*.mp3
+styles/*/demo/music/stems/
+styles/*/demo/fonts/*.ttf
+styles/*/demo/fonts/*.otf
+styles/*/*.mp4
+
+# Temp & backup files
+*.bak
+*.orig
+*~
+**/tmp/
+**/scratch/
