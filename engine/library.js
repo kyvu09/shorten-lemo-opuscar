@@ -659,11 +659,14 @@ function drawLittleDog(G, C, x, y, o = {}) {
   const fsh = view === 'front' ? 0 : flip * 14 * sc;
   const step12 = Math.floor(t * 12);
   const walkPh = pose === 'walk' ? Math.sin(step12 * 1.15) : 0;
+  const climbPh = pose === 'climb' ? Math.sin(step12 * 1.15) : 0;
   const cheerPh = pose === 'cheer' ? Math.abs(Math.sin(step12 * 0.9)) : 0;
-  const wag = pose === 'scared' ? -0.7 : Math.sin(step12 * 0.95) * (pose === 'cheer' || pose === 'wave' ? 0.55 : 0.35);
+  const wag = pose === 'scared' ? -0.7 : Math.sin(step12 * 0.95) * (pose === 'cheer' || pose === 'wave' || pose === 'lift' ? 0.55 : 0.35);
 
-  const sitting = pose === 'sit_eat';
-  const bodyDy = (sitting ? 34 : (pose === 'scared' ? 8 : (pose === 'cheer' ? -24 * cheerPh : -Math.abs(walkPh) * 8))) * sc;
+  const sitting = pose === 'sit' || pose === 'sit_eat';
+  const climbing = pose === 'climb';
+  const lookingUp = pose === 'look_up';
+  const bodyDy = (sitting ? 34 : (pose === 'scared' ? 8 : (pose === 'cheer' ? -24 * cheerPh : (climbing ? -Math.abs(climbPh) * 10 : -Math.abs(walkPh) * 8)))) * sc;
   const bodyDx = (pose === 'scared' ? -flip * 10 : 0) * sc;
   const cx = x + bodyDx, cy = y + bodyDy;
 
@@ -677,7 +680,9 @@ function drawLittleDog(G, C, x, y, o = {}) {
   // 2. Back Leg & Back Arm
   const bLegX = cx + flip * (18 + walkPh * 18) * sc;
   if (!sitting) {
-    const bl = curve([[cx + flip * 14 * sc, cy - 52 * sc], [bLegX, cy - 26 * sc], [bLegX + flip * 4 * sc, y - 4 * sc]], 4);
+    const bFootY = climbing ? y - (14 + Math.max(0, climbPh) * 26) * sc : y - 4 * sc;
+    const bKneeX = climbing ? cx + flip * (34 + climbPh * 10) * sc : bLegX;
+    const bl = curve([[cx + flip * 14 * sc, cy - 52 * sc], [bKneeX, cy - 28 * sc], [bKneeX + flip * 4 * sc, bFootY]], 4);
     part(G, tube(bl, 22 * sc, 17 * sc), { col: C.ochre, p: 0.88, gap: 6, w: 8, over: 2, seed: seed + 3 }, OL(C, 5.5, seed + 4));
   }
   const shBack = [cx + flip * 28 * sc, cy - 124 * sc];
@@ -687,7 +692,11 @@ function drawLittleDog(G, C, x, y, o = {}) {
     bPaw = [cx + flip * 82 * sc + wv, cy - 186 * sc];
   } else if (pose === 'scared')      bPaw = [cx + flip * 62 * sc, cy - 176 * sc];
   else if (pose === 'cheer')         bPaw = [cx + flip * 86 * sc, cy - 208 * sc];
+  else if (pose === 'lift')          bPaw = [cx + flip * 78 * sc, cy - 148 * sc];
+  else if (climbing)                 bPaw = [cx + flip * 68 * sc, cy - (158 + climbPh * 22) * sc];
+  else if (lookingUp)                bPaw = [cx + flip * 56 * sc, cy - 108 * sc];
   else if (pose === 'offer_apple')   bPaw = [cx + flip * 78 * sc, cy - 118 * sc];
+  else if (pose === 'sit')           bPaw = [cx + flip * 46 * sc, cy - 78 * sc];
   else if (pose === 'sit_eat')       bPaw = [cx + flip * 52 * sc, cy - 106 * sc];
   const ba = curve([shBack, [(shBack[0] + bPaw[0]) * 0.5 + flip * 8 * sc, (shBack[1] + bPaw[1]) * 0.5 + 8 * sc], bPaw], 4);
   part(G, tube(ba, 19 * sc, 15 * sc), { col: C.ochre, p: 0.88, gap: 6, w: 8, over: 2, seed: seed + 5 }, OL(C, 5.5, seed + 6));
@@ -711,7 +720,9 @@ function drawLittleDog(G, C, x, y, o = {}) {
     dab(G.f, cx - flip * 14 * sc, y - 13 * sc, 8 * sc, { col: C.peach, p: 0.9, seed: seed + 15 });
   } else {
     const fLegX = cx - flip * (16 + walkPh * 18) * sc;
-    const fl = curve([[cx - flip * 14 * sc, cy - 52 * sc], [fLegX, cy - 26 * sc], [fLegX + flip * 4 * sc, y - 4 * sc]], 4);
+    const fFootY = climbing ? y - (14 + Math.max(0, -climbPh) * 26) * sc : y - 4 * sc;
+    const fKneeX = climbing ? cx + flip * (16 - climbPh * 10) * sc : fLegX;
+    const fl = curve([[cx - flip * 14 * sc, cy - 52 * sc], [fKneeX, cy - 26 * sc], [fKneeX + flip * 4 * sc, fFootY]], 4);
     part(G, tube(fl, 22 * sc, 17 * sc), { col: C.ochre, p: 0.9, gap: 6, w: 8, over: 2, seed: seed + 10 }, OL(C, 5.5, seed + 11));
   }
 
@@ -725,8 +736,8 @@ function drawLittleDog(G, C, x, y, o = {}) {
 
   // 6. Head + Floppy Ears
   const hx = cx + (pose === 'scared' ? -flip * 4 : 0) * sc;
-  const hy = cy - 196 * sc;
-  const earLift = pose === 'scared' || pose === 'cheer' ? -18 * sc : 0;
+  const hy = cy - (lookingUp || climbing ? 204 : 196) * sc;
+  const earLift = pose === 'scared' || pose === 'cheer' || lookingUp ? -18 * sc : 0;
 
   // Back floppy ear (behind head)
   const bEarX = hx + flip * 44 * sc;
@@ -758,7 +769,7 @@ function drawLittleDog(G, C, x, y, o = {}) {
   dab(G.f, hx + fsh + 32 * sc, hy + 18 * sc, 11 * sc, { col: C.pink, p: 0.72, sq: 0.75, seed: seed + 28 });
 
   // Eyes + Eyebrows
-  const exL = hx + fsh - 20 * sc, exR = hx + fsh + 20 * sc, ey = hy - 10 * sc;
+  const exL = hx + fsh - 20 * sc, exR = hx + fsh + 20 * sc, ey = hy - (lookingUp || climbing ? 17 : 10) * sc;
   if (expr === 'wish' || pose === 'blow') {
     // Tightly closed eyes making a birthday wish!
     line(G.l, curve([[exL - 10 * sc, ey - 2 * sc], [exL, ey + 6 * sc], [exL + 10 * sc, ey - 2 * sc]], 4), OL(C, 5.2, seed + 29));
@@ -823,16 +834,26 @@ function drawLittleDog(G, C, x, y, o = {}) {
   } else if (pose === 'offer_apple') {
     fPaw = [cx + flip * 86 * sc, cy - 124 * sc];
     holdApple = true;
+  } else if (pose === 'sit') {
+    fPaw = [cx - flip * 34 * sc, cy - 76 * sc];
   } else if (pose === 'sit_eat') {
     fPaw = [cx + flip * 44 * sc, cy - 120 * sc];
     holdApple = true; biteApple = true;
+  } else if (pose === 'lift') {
+    fPaw = [cx + flip * 62 * sc, cy - 140 * sc];
+  } else if (climbing) {
+    fPaw = [cx + flip * 58 * sc, cy - (142 - climbPh * 22) * sc];
+  } else if (lookingUp) {
+    fPaw = [cx - flip * 42 * sc, cy - 106 * sc];
   } else if (pose === 'cheer') {
     fPaw = [cx - flip * 86 * sc, cy - 208 * sc];
   }
-  const fElb = [
-    pose === 'offer_apple' ? cx + flip * 20 * sc : (shFront[0] + fPaw[0]) * 0.5 - flip * 14 * sc,
-    (shFront[1] + fPaw[1]) * 0.5 + 16 * sc
-  ];
+  const fElb = (pose === 'lift' || climbing)
+    ? [cx + flip * 12 * sc, cy - 104 * sc]
+    : [
+        pose === 'offer_apple' ? cx + flip * 20 * sc : (shFront[0] + fPaw[0]) * 0.5 - flip * 14 * sc,
+        (shFront[1] + fPaw[1]) * 0.5 + 16 * sc
+      ];
   const fa = curve([shFront, fElb, fPaw], 4);
   part(G, tube(fa, 20 * sc, 15 * sc), { col: C.ochre, p: 0.9, gap: 6, w: 8, over: 2, seed: seed + 42 }, OL(C, 5.5, seed + 43));
 
@@ -847,11 +868,14 @@ function drawTabbyCat(G, C, x, y, o = {}) {
   const fsh = view === 'front' ? 0 : flip * 13 * sc;
   const step12 = Math.floor(t * 12);
   const walkPh = pose === 'walk' ? Math.sin(step12 * 1.15 + 1.2) : 0;
+  const climbPh = pose === 'climb' ? Math.sin(step12 * 1.15 + 0.5) : 0;
   const cheerPh = pose === 'cheer' ? Math.abs(Math.sin(step12 * 0.9 + 0.6)) : 0;
   const sway = Math.sin(step12 * 0.7) * 10 * sc;
 
-  const sitting = pose === 'sit_eat';
-  const bodyDy = (sitting ? 32 : (pose === 'scared' ? 8 : (pose === 'cheer' ? -24 * cheerPh : -Math.abs(walkPh) * 7))) * sc;
+  const sitting = pose === 'sit' || pose === 'sit_eat';
+  const climbing = pose === 'climb';
+  const lookingUp = pose === 'look_up';
+  const bodyDy = (sitting ? 32 : (pose === 'scared' ? 8 : (pose === 'cheer' ? -24 * cheerPh : (climbing ? -Math.abs(climbPh) * 10 : -Math.abs(walkPh) * 7)))) * sc;
   const bodyDx = (pose === 'scared' ? -flip * 10 : 0) * sc;
   const cx = x + bodyDx, cy = y + bodyDy;
 
@@ -873,7 +897,9 @@ function drawTabbyCat(G, C, x, y, o = {}) {
   // 2. Back Leg & Back Arm
   if (!sitting) {
     const bLegX = cx + flip * (16 + walkPh * 17) * sc;
-    const bl = curve([[cx + flip * 12 * sc, cy - 50 * sc], [bLegX, cy - 24 * sc], [bLegX + flip * 4 * sc, y - 4 * sc]], 4);
+    const bFootY = climbing ? y - (14 + Math.max(0, climbPh) * 26) * sc : y - 4 * sc;
+    const bKneeX = climbing ? cx + flip * (32 + climbPh * 10) * sc : bLegX;
+    const bl = curve([[cx + flip * 12 * sc, cy - 50 * sc], [bKneeX, cy - 26 * sc], [bKneeX + flip * 4 * sc, bFootY]], 4);
     part(G, tube(bl, 20 * sc, 15 * sc), { col: C.yellow, p: 0.88, gap: 6, w: 8, over: 2, seed: seed + 3 }, OL(C, 5.5, seed + 4));
   }
   const shBack = [cx + flip * 26 * sc, cy - 122 * sc];
@@ -883,7 +909,11 @@ function drawTabbyCat(G, C, x, y, o = {}) {
     bPaw = [cx + flip * 78 * sc + wv, cy - 182 * sc];
   } else if (pose === 'scared')      bPaw = [cx + flip * 60 * sc, cy - 172 * sc];
   else if (pose === 'cheer')         bPaw = [cx + flip * 82 * sc, cy - 204 * sc];
+  else if (pose === 'lift')          bPaw = [cx + flip * 74 * sc, cy - 144 * sc];
+  else if (climbing)                 bPaw = [cx + flip * 64 * sc, cy - (154 + climbPh * 22) * sc];
+  else if (lookingUp)                bPaw = [cx + flip * 52 * sc, cy - 104 * sc];
   else if (pose === 'offer_apple')   bPaw = [cx + flip * 74 * sc, cy - 116 * sc];
+  else if (pose === 'sit')           bPaw = [cx + flip * 42 * sc, cy - 76 * sc];
   else if (pose === 'sit_eat')       bPaw = [cx + flip * 46 * sc, cy - 104 * sc];
   const ba = curve([shBack, [(shBack[0] + bPaw[0]) * 0.5 + flip * 8 * sc, (shBack[1] + bPaw[1]) * 0.5 + 8 * sc], bPaw], 4);
   part(G, tube(ba, 17 * sc, 14 * sc), { col: C.yellow, p: 0.88, gap: 6, w: 8, over: 2, seed: seed + 5 }, OL(C, 5.5, seed + 6));
@@ -907,7 +937,9 @@ function drawTabbyCat(G, C, x, y, o = {}) {
     part(G, ellipse(cx - flip * 14 * sc, y - 13 * sc, 20 * sc, 14 * sc, 18), { col: C.yellow, p: 0.9, gap: 5, w: 7, over: 2, seed: seed + 14 }, OL(C, 5.5, seed + 15));
   } else {
     const fLegX = cx - flip * (15 + walkPh * 17) * sc;
-    const fl = curve([[cx - flip * 13 * sc, cy - 50 * sc], [fLegX, cy - 24 * sc], [fLegX + flip * 4 * sc, y - 4 * sc]], 4);
+    const fFootY = climbing ? y - (14 + Math.max(0, -climbPh) * 26) * sc : y - 4 * sc;
+    const fKneeX = climbing ? cx + flip * (14 - climbPh * 10) * sc : fLegX;
+    const fl = curve([[cx - flip * 13 * sc, cy - 50 * sc], [fKneeX, cy - 24 * sc], [fKneeX + flip * 4 * sc, fFootY]], 4);
     part(G, tube(fl, 20 * sc, 15 * sc), { col: C.yellow, p: 0.9, gap: 6, w: 8, over: 2, seed: seed + 12 }, OL(C, 5.5, seed + 13));
   }
 
@@ -920,7 +952,7 @@ function drawTabbyCat(G, C, x, y, o = {}) {
   part(G, handCircle(bx, by, 8 * sc, seed + 20, 0.08, 12), { col: C.sky, p: 0.96, gap: 3, w: 5, over: 0, seed: seed + 21 }, OL(C, 4, seed + 22));
 
   // 6. Pointy Cat Ears (flatten slightly outward when scared!)
-  const hx = cx, hy = cy - 192 * sc;
+  const hx = cx, hy = cy - (lookingUp || climbing ? 200 : 192) * sc;
   const flat = pose === 'scared' ? 16 * sc : 0;
   const earL = smooth([[hx - 48 * sc, hy - 22 * sc], [hx - 54 * sc - flat, hy - 84 * sc + flat * 0.9], [hx - 12 * sc, hy - 48 * sc]], 3, true);
   const earR = smooth([[hx + 12 * sc, hy - 48 * sc], [hx + 54 * sc + flat, hy - 84 * sc + flat * 0.9], [hx + 48 * sc, hy - 22 * sc]], 3, true);
@@ -954,7 +986,7 @@ function drawTabbyCat(G, C, x, y, o = {}) {
   dab(G.f, mx + 28 * sc, hy + 16 * sc, 11 * sc, { col: C.pink, p: 0.74, sq: 0.75, seed: seed + 39 });
 
   // Smart bright cat eyes
-  const exL = mx - 21 * sc, exR = mx + 21 * sc, ey = hy - 6 * sc;
+  const exL = mx - 21 * sc, exR = mx + 21 * sc, ey = hy - (lookingUp || climbing ? 13 : 6) * sc;
   if (expr === 'yummy' || expr === 'excited') {
     line(G.l, curve([[exL - 10 * sc, ey + 2 * sc], [exL, ey - 8 * sc], [exL + 10 * sc, ey + 2 * sc]], 4), OL(C, 5, seed + 40));
     line(G.l, curve([[exR - 10 * sc, ey + 2 * sc], [exR, ey - 8 * sc], [exR + 10 * sc, ey + 2 * sc]], 4), OL(C, 5, seed + 41));
@@ -1001,18 +1033,28 @@ function drawTabbyCat(G, C, x, y, o = {}) {
   } else if (pose === 'offer_apple') {
     fPaw = [cx + flip * 82 * sc, cy - 122 * sc];
     holdApple = true;
+  } else if (pose === 'sit') {
+    fPaw = [cx - flip * 32 * sc, cy - 74 * sc];
   } else if (pose === 'sit_eat') {
     fPaw = [cx + flip * 42 * sc, cy - 118 * sc];
     holdApple = true; biteApple = true;
+  } else if (pose === 'lift') {
+    fPaw = [cx + flip * 58 * sc, cy - 136 * sc];
+  } else if (climbing) {
+    fPaw = [cx + flip * 54 * sc, cy - (138 - climbPh * 22) * sc];
+  } else if (lookingUp) {
+    fPaw = [cx - flip * 38 * sc, cy - 102 * sc];
   } else if (pose === 'cheer' || pose === 'sing') {
     fPaw = [cx - flip * 82 * sc, cy - 204 * sc];
   } else if (pose === 'gift') {
     fPaw = [cx + flip * 62 * sc, cy - 118 * sc];
   }
-  const fElb = [
-    (pose === 'offer_apple' || pose === 'gift') ? cx + flip * 18 * sc : (shFront[0] + fPaw[0]) * 0.5 - flip * 14 * sc,
-    (shFront[1] + fPaw[1]) * 0.5 + 16 * sc
-  ];
+  const fElb = (pose === 'lift' || climbing)
+    ? [cx + flip * 12 * sc, cy - 104 * sc]
+    : [
+        (pose === 'offer_apple' || pose === 'gift') ? cx + flip * 18 * sc : (shFront[0] + fPaw[0]) * 0.5 - flip * 14 * sc,
+        (shFront[1] + fPaw[1]) * 0.5 + 16 * sc
+      ];
   const fa = curve([shFront, fElb, fPaw], 4);
   part(G, tube(fa, 18 * sc, 14 * sc), { col: C.yellow, p: 0.9, gap: 6, w: 8, over: 2, seed: seed + 62 }, OL(C, 5.5, seed + 63));
 
@@ -1029,13 +1071,16 @@ function drawGrayWolf(G, C, x, y, o = {}) {
   const fsh = view === 'front' ? 0 : flip * 22 * sc;
   const step12 = Math.floor(t * 12);
   const walkPh = pose === 'walk' ? Math.sin(step12 * 1.0) : 0;
+  const climbPh = pose === 'climb' ? Math.sin(step12 * 1.05) : 0;
   const laughBob = pose === 'laugh' ? Math.sin(step12 * 2.2) * 8 * sc : 0;
   const cheerPh = pose === 'cheer' ? Math.abs(Math.sin(step12 * 0.85)) : 0;
-  const wag = pose === 'sad_hungry' ? -0.5 : Math.sin(step12 * 0.8) * (pose === 'cheer' || pose === 'eat_apple' ? 0.5 : 0.25);
+  const wag = pose === 'sad_hungry' ? -0.5 : Math.sin(step12 * 0.8) * (pose === 'cheer' || pose === 'eat_apple' || pose === 'lift' ? 0.5 : 0.25);
 
-  const sitting = pose === 'sit_eat';
+  const sitting = pose === 'sit' || pose === 'sit_eat';
+  const climbing = pose === 'climb';
+  const lookingUp = pose === 'look_up';
   const sad = pose === 'sad_hungry' || expr === 'sad';
-  const bodyDy = (sitting ? 68 : (sad ? 16 : (pose === 'cheer' ? -22 * cheerPh : laughBob - Math.abs(walkPh) * 9))) * sc;
+  const bodyDy = (sitting ? 68 : (sad ? 16 : (pose === 'cheer' ? -22 * cheerPh : (climbing ? -Math.abs(climbPh) * 12 : laughBob - Math.abs(walkPh) * 9)))) * sc;
   const bodyDx = (pose === 'peek' ? flip * 22 : 0) * sc;
   const cx = x + bodyDx, cy = y + bodyDy;
 
@@ -1057,7 +1102,9 @@ function drawGrayWolf(G, C, x, y, o = {}) {
   // 2. Back Leg & Back Arm
   if (!sitting) {
     const bLegX = cx + flip * (26 + walkPh * 22) * sc;
-    const bl = curve([[cx + flip * 22 * sc, cy - 78 * sc], [bLegX, cy - 38 * sc], [bLegX + flip * 6 * sc, y - 5 * sc]], 4);
+    const bFootY = climbing ? y - (18 + Math.max(0, climbPh) * 32) * sc : y - 5 * sc;
+    const bKneeX = climbing ? cx + flip * (46 + climbPh * 12) * sc : bLegX;
+    const bl = curve([[cx + flip * 22 * sc, cy - 78 * sc], [bKneeX, cy - 38 * sc], [bKneeX + flip * 6 * sc, bFootY]], 4);
     part(G, tube(bl, 30 * sc, 22 * sc), { col: C.rain, p: 0.88, gap: 7, w: 9, over: 2.5, seed: seed + 4 }, OL(C, 6.2, seed + 5));
   }
   const shBack = [cx + flip * 44 * sc, cy - 196 * sc];
@@ -1067,7 +1114,11 @@ function drawGrayWolf(G, C, x, y, o = {}) {
   else if (pose === 'laugh')     bPaw = [cx + flip * 44 * sc,  cy - 122 * sc];
   else if (pose === 'sad_hungry')bPaw = [cx + flip * 36 * sc,  cy - 118 * sc];
   else if (pose === 'eat_apple') bPaw = [cx + flip * 68 * sc,  cy - 144 * sc];
+  else if (pose === 'sit')       bPaw = [cx + flip * 58 * sc,  cy - 122 * sc];
   else if (pose === 'sit_eat')   bPaw = [cx + flip * 62 * sc,  cy - 150 * sc];
+  else if (pose === 'lift')      bPaw = [cx + flip * 112 * sc, cy - 210 * sc];
+  else if (climbing)             bPaw = [cx + flip * 96 * sc,  cy - (232 + climbPh * 28) * sc];
+  else if (lookingUp)            bPaw = [cx + flip * 80 * sc,  cy - 156 * sc];
   else if (pose === 'cheer')     bPaw = [cx + flip * 104 * sc, cy - 278 * sc];
   const ba = curve([shBack, [(shBack[0] + bPaw[0]) * 0.5 + flip * 16 * sc, (shBack[1] + bPaw[1]) * 0.5 + 14 * sc], bPaw], 4);
   part(G, tube(ba, 26 * sc, 20 * sc), { col: C.rain, p: 0.88, gap: 7, w: 9, over: 2.5, seed: seed + 6 }, OL(C, 6.2, seed + 7));
@@ -1101,13 +1152,15 @@ function drawGrayWolf(G, C, x, y, o = {}) {
     dab(G.f, cx - flip * 22 * sc, y - 17 * sc, 11 * sc, { col: C.peach, p: 0.88, seed: seed + 17 });
   } else {
     const fLegX = cx - flip * (24 + walkPh * 22) * sc;
-    const fl = curve([[cx - flip * 20 * sc, cy - 78 * sc], [fLegX, cy - 38 * sc], [fLegX + flip * 6 * sc, y - 5 * sc]], 4);
+    const fFootY = climbing ? y - (18 + Math.max(0, -climbPh) * 32) * sc : y - 5 * sc;
+    const fKneeX = climbing ? cx + flip * (22 - climbPh * 12) * sc : fLegX;
+    const fl = curve([[cx - flip * 20 * sc, cy - 78 * sc], [fKneeX, cy - 38 * sc], [fKneeX + flip * 6 * sc, fFootY]], 4);
     part(G, tube(fl, 30 * sc, 22 * sc), { col: C.rain, p: 0.9, gap: 7, w: 9, over: 2.5, seed: seed + 12 }, OL(C, 6.2, seed + 13));
   }
 
   // 5. Tall Pointed Wolf Ears (droop softly outward when sad!)
   const hx = cx + (sad ? flip * 6 : 0) * sc;
-  const hy = cy - 278 * sc + (sad ? 12 : 0) * sc;
+  const hy = cy - (lookingUp || climbing ? 288 : 278) * sc + (sad ? 12 : 0) * sc;
   const droop = sad ? 38 * sc : 0;
   const earL = smooth([[hx - 54 * sc, hy - 28 * sc], [hx - 64 * sc - droop * 0.9, hy - 118 * sc + droop * 1.4], [hx - 14 * sc, hy - 62 * sc]], 3, true);
   const earR = smooth([[hx + 14 * sc, hy - 62 * sc], [hx + 64 * sc + droop * 0.9, hy - 118 * sc + droop * 1.4], [hx + 54 * sc, hy - 28 * sc]], 3, true);
@@ -1148,7 +1201,7 @@ function drawGrayWolf(G, C, x, y, o = {}) {
   }
 
   // Expressive Wolf Eyes & Eyebrows
-  const exL = hx + fsh * 0.75 - 24 * sc, exR = hx + fsh * 0.75 + 24 * sc, ey = hy - 14 * sc;
+  const exL = hx + fsh * 0.75 - 24 * sc, exR = hx + fsh * 0.75 + 24 * sc, ey = hy - (lookingUp || climbing ? 22 : 14) * sc;
   if (expr === 'laugh' || expr === 'yummy' || expr === 'happy') {
     line(G.l, curve([[exL - 12 * sc, ey + 3 * sc], [exL, ey - 10 * sc], [exL + 12 * sc, ey + 3 * sc]], 4), OL(C, 6, seed + 31));
     line(G.l, curve([[exR - 12 * sc, ey + 3 * sc], [exR, ey - 10 * sc], [exR + 12 * sc, ey + 3 * sc]], 4), OL(C, 6, seed + 32));
@@ -1204,18 +1257,28 @@ function drawGrayWolf(G, C, x, y, o = {}) {
   } else if (pose === 'eat_apple') {
     fPaw = [cx + flip * 54 * sc, cy - 222 * sc];
     holdApple = true;
+  } else if (pose === 'sit') {
+    fPaw = [cx - flip * 42 * sc, cy - 122 * sc];
   } else if (pose === 'sit_eat') {
     fPaw = [cx + flip * 48 * sc, cy - 198 * sc];
     holdApple = true;
+  } else if (pose === 'lift') {
+    fPaw = [cx + flip * 88 * sc, cy - 196 * sc];
+  } else if (climbing) {
+    fPaw = [cx + flip * 78 * sc, cy - (204 - climbPh * 28) * sc];
+  } else if (lookingUp) {
+    fPaw = [cx - flip * 58 * sc, cy - 154 * sc];
   } else if (pose === 'gift') {
     fPaw = [cx + flip * 66 * sc, cy - 160 * sc];
   } else if (pose === 'cheer' || pose === 'sing') {
     fPaw = [cx - flip * 104 * sc, cy - 278 * sc];
   }
-  const fElb = [
-    (pose === 'sad_hungry' || pose === 'laugh') ? cx - flip * 68 * sc : (shFront[0] + fPaw[0]) * 0.5 - flip * 16 * sc,
-    (shFront[1] + fPaw[1]) * 0.5 + 22 * sc
-  ];
+  const fElb = (pose === 'lift' || climbing)
+    ? [cx + flip * 18 * sc, cy - 154 * sc]
+    : [
+        (pose === 'sad_hungry' || pose === 'laugh') ? cx - flip * 68 * sc : (shFront[0] + fPaw[0]) * 0.5 - flip * 16 * sc,
+        (shFront[1] + fPaw[1]) * 0.5 + 22 * sc
+      ];
   const fa = curve([shFront, fElb, fPaw], 4);
   part(G, tube(fa, 26 * sc, 20 * sc), { col: C.rain, p: 0.9, gap: 7, w: 9, over: 2.5, seed: seed + 44 }, OL(C, 6.2, seed + 45));
 
@@ -1409,43 +1472,101 @@ function resolveCrayonColor(C, name) {
 
 export function drawCustomProp(G, C, x, y, o = {}, spec = null) {
   if (!spec || !Array.isArray(spec.shapes)) return;
-  const sc = o.sc ?? 1, seed = o.seed ?? 1400;
-  const mapPt = ([px, py]) => [x + Number(px || 0) * sc, y + Number(py || 0) * sc];
+  const drawP = clamp(o.draw ?? 1, 0, 1);
+  if (drawP <= 0) return;
+  const fillP = clamp(o.fillP ?? 1, 0, 1);
+  const sc = o.sc ?? 1, seed = o.seed ?? 1400, t = o.t ?? 0;
+  const pose = o.pose || 'idle', expr = o.expr || 'happy';
+  const step12 = Math.floor(t * 12);
+  const flip = o.view === 'l34' ? -1 : 1;
+  let hopY = 0, wobX = 0;
+  if (pose === 'walk' || pose === 'climb') {
+    hopY = -Math.abs(Math.sin(step12 * 1.05)) * 14 * sc;
+  } else if (pose === 'cheer' || pose === 'jumpA') {
+    hopY = -Math.abs(Math.sin(step12 * 1.15)) * 26 * sc;
+  } else if (expr === 'sad' || expr === 'cry') {
+    wobX = Math.sin(step12 * 1.8) * 2.5 * sc;
+  } else if (pose === 'wave' || pose === 'sing' || pose === 'lift') {
+    hopY = -Math.abs(Math.sin(step12 * 0.7)) * 8 * sc;
+  }
+
+  const totalN = Math.max(1, spec.shapes.length);
+  const animPt = (sh, px, py) => {
+    let lx = Number(px || 0), ly = Number(py || 0);
+    const anim = sh.anim;
+    if (anim) {
+      const amp = Number(sh.amp ?? 1);
+      if (anim === 'flap' || anim === 'wag') {
+        const piv = Array.isArray(sh.pivot)
+          ? sh.pivot
+          : (Array.isArray(sh.pts) && sh.pts[0] ? sh.pts[0] : [Number(sh.x || 0), Number(sh.y || 0)]);
+        const ang = anim === 'flap'
+          ? Math.sin(step12 * 1.55) * 0.42 * amp
+          : Math.sin(step12 * 1.25) * 0.36 * amp;
+        const dx = lx - Number(piv[0] || 0), dy = ly - Number(piv[1] || 0);
+        const ca = Math.cos(ang), sa = Math.sin(ang);
+        lx = Number(piv[0] || 0) + dx * ca - dy * sa;
+        ly = Number(piv[1] || 0) + dx * sa + dy * ca;
+      } else if (anim === 'bob') {
+        ly += Math.sin(step12 * 0.7) * 9 * amp;
+      } else if (anim === 'sway') {
+        lx += Math.sin(step12 * 0.75) * 8 * amp * clamp(-ly / 120, 0.2, 1.5);
+      }
+    }
+    return [x + wobX + lx * sc * flip, y + hopY + ly * sc];
+  };
+
   spec.shapes.forEach((sh, i) => {
+    const shDraw = drawP >= 0.999 ? 1 : clamp(drawP * totalN - i, 0, 1);
+    if (shDraw <= 0) return;
+    const shFill = fillP >= 0.999 ? 1 : clamp(fillP * totalN - i, 0, 1);
     const sd = seed + i * 7;
     const fillCol = sh.fill ? resolveCrayonColor(C, sh.fill) : null;
     const strokeCol = resolveCrayonColor(C, sh.col || 'ink');
     const w = Math.max(2, Math.min(18, Number(sh.w || 6))) * sc;
     const p = clamp(Number(sh.p ?? 0.88), 0.25, 0.98);
+    const mapPt = ([px, py]) => animPt(sh, px, py);
+
     if (sh.kind === 'poly' && Array.isArray(sh.pts) && sh.pts.length >= 3) {
       const raw = sh.pts.map(mapPt);
       const pts = sh.smooth ? smooth(raw, 4, true) : raw;
-      if (fillCol && !sh.noOutline) part(G, pts, { col: fillCol, p, gap: 8, w: 10, over: 4, seed: sd, cross: true, crossP: 0.35 }, OL(C, w / sc, sd + 1, { col: strokeCol }));
-      else if (fillCol) fill(G.f, pts, { col: fillCol, p, gap: 8, w: 10, over: 3, seed: sd });
-      else line(G.l, [...pts, pts[0]], OL(C, w / sc, sd + 1, { col: strokeCol }));
+      const fo = (fillCol && shFill > 0) ? { col: fillCol, p, gap: 8, w: 10, over: 4, seed: sd, draw: shFill, cross: true, crossP: 0.35 } : null;
+      const lo = !sh.noOutline ? OL(C, w / sc, sd + 1, { col: strokeCol, draw: shDraw }) : null;
+      if (fo && lo) part(G, pts, fo, lo);
+      else if (fo) fill(G.f, pts, fo);
+      else if (lo) line(G.l, pts, { closed: true, ...lo });
     } else if (sh.kind === 'circle') {
       const [cx, cy] = mapPt([sh.x, sh.y]), r = Math.max(3, Number(sh.r || 20)) * sc;
       const pts = handCircle(cx, cy, r, sd, 0.08, 22);
-      if (fillCol && !sh.noOutline) part(G, pts, { col: fillCol, p, gap: 7, w: 9, over: 3, seed: sd + 1 }, OL(C, w / sc, sd + 2, { col: strokeCol }));
-      else if (fillCol) fill(G.f, pts, { col: fillCol, p, gap: 7, w: 9, over: 2, seed: sd + 1 });
-      else line(G.l, pts, OL(C, w / sc, sd + 2, { col: strokeCol }));
+      const fo = (fillCol && shFill > 0) ? { col: fillCol, p, gap: 7, w: 9, over: 3, seed: sd + 1, draw: shFill } : null;
+      const lo = !sh.noOutline ? OL(C, w / sc, sd + 2, { col: strokeCol, draw: shDraw }) : null;
+      if (fo && lo) part(G, pts, fo, lo);
+      else if (fo) fill(G.f, pts, fo);
+      else if (lo) line(G.l, pts, lo);
     } else if (sh.kind === 'ellipse') {
       const [cx, cy] = mapPt([sh.x, sh.y]);
-      const pts = ellipse(cx, cy, Math.max(3, Number(sh.rx || 24)) * sc, Math.max(3, Number(sh.ry || 16)) * sc, 20, 0, Math.PI * 2, Number(sh.rot || 0));
-      if (fillCol && !sh.noOutline) part(G, pts, { col: fillCol, p, gap: 7, w: 9, over: 3, seed: sd + 1 }, OL(C, w / sc, sd + 2, { col: strokeCol }));
-      else if (fillCol) fill(G.f, pts, { col: fillCol, p, gap: 7, w: 9, over: 2, seed: sd + 1 });
-      else line(G.l, pts, OL(C, w / sc, sd + 2, { col: strokeCol }));
+      const animRot = sh.anim === 'flap' ? Math.sin(step12 * 1.55) * 0.42 * Number(sh.amp ?? 1)
+        : (sh.anim === 'wag' ? Math.sin(step12 * 1.25) * 0.36 * Number(sh.amp ?? 1) : 0);
+      const pts = ellipse(cx, cy, Math.max(3, Number(sh.rx || 24)) * sc, Math.max(3, Number(sh.ry || 16)) * sc, 20, 0, Math.PI * 2, (Number(sh.rot || 0) + animRot) * flip);
+      const fo = (fillCol && shFill > 0) ? { col: fillCol, p, gap: 7, w: 9, over: 3, seed: sd + 1, draw: shFill } : null;
+      const lo = !sh.noOutline ? OL(C, w / sc, sd + 2, { col: strokeCol, draw: shDraw }) : null;
+      if (fo && lo) part(G, pts, fo, lo);
+      else if (fo) fill(G.f, pts, fo);
+      else if (lo) line(G.l, pts, lo);
     } else if (sh.kind === 'line' && Array.isArray(sh.pts) && sh.pts.length >= 2) {
       const raw = sh.pts.map(mapPt);
       const pts = sh.curve && raw.length >= 3 ? curve(raw, 5) : raw;
-      line(G.l, pts, OL(C, w / sc, sd + 1, { col: strokeCol, p }));
+      line(G.l, pts, OL(C, w / sc, sd + 1, { col: strokeCol, p, draw: shDraw }));
     } else if (sh.kind === 'dab') {
-      const [cx, cy] = mapPt([sh.x, sh.y]), r = Math.max(2, Number(sh.r || 8)) * sc;
-      dab(sh.layer === 'fill' ? G.f : G.l, cx, cy, r, { col: resolveCrayonColor(C, sh.col || sh.fill || 'ink'), p, gap: 3, w: 4.5, over: 0, seed: sd + 1 });
+      if (shDraw >= 0.4) {
+        const [cx, cy] = mapPt([sh.x, sh.y]), r = Math.max(2, Number(sh.r || 8)) * sc;
+        dab(sh.layer === 'fill' ? G.f : G.l, cx, cy, r, { col: resolveCrayonColor(C, sh.col || sh.fill || 'ink'), p, gap: 3, w: 4.5, over: 0, seed: sd + 1 });
+      }
     } else if (sh.kind === 'tube' && Array.isArray(sh.pts) && sh.pts.length >= 2) {
       const pts = curve(sh.pts.map(mapPt), 5);
       const r0 = Math.max(4, Number(sh.r0 || 14)) * sc, r1 = Math.max(4, Number(sh.r1 || sh.r0 || 12)) * sc;
-      part(G, tube(pts, r0, r1), { col: fillCol || C.ochre, p, gap: 6, w: 8, over: 2, seed: sd + 1 }, OL(C, w / sc, sd + 2, { col: strokeCol }));
+      const fo = shFill > 0 ? { col: fillCol || C.ochre, p, gap: 6, w: 8, over: 2, seed: sd + 1, draw: shFill } : null;
+      part(G, tube(pts, r0, r1), fo, OL(C, w / sc, sd + 2, { col: strokeCol, draw: shDraw }));
     }
   });
 }

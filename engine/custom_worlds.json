@@ -1,0 +1,863 @@
+[
+  {
+    "id": "sunny_beach",
+    "preset": "world_sunny_beach",
+    "icon": "🏖️",
+    "label": "Bãi biển nắng vàng (Sunny Beach)",
+    "keywords": [
+      "beach",
+      "ocean",
+      "sea",
+      "sand",
+      "bãi biển",
+      "biển"
+    ],
+    "horizonY": 1090,
+    "groundCol": "yellow",
+    "groundP": 0.44,
+    "groundLine": true,
+    "grassTufts": false,
+    "shapes": [
+      {
+        "kind": "poly",
+        "pts": [
+          [
+            -420,
+            1090
+          ],
+          [
+            3760,
+            1090
+          ],
+          [
+            3760,
+            840
+          ],
+          [
+            -420,
+            840
+          ]
+        ],
+        "fill": "sky",
+        "w": 13,
+        "fw": 13,
+        "gap": 12,
+        "p": 0.66,
+        "ang": 0.08,
+        "smooth": false,
+        "cross": true,
+        "wave": false
+      },
+      {
+        "kind": "line",
+        "pts": [
+          [
+            -420,
+            840
+          ],
+          [
+            3760,
+            840
+          ]
+        ],
+        "col": "ink",
+        "w": 5,
+        "p": 0.68,
+        "curve": false,
+        "wave": false
+      },
+      {
+        "kind": "line",
+        "pts": [
+          [
+            180,
+            910
+          ],
+          [
+            680,
+            910
+          ]
+        ],
+        "col": "white",
+        "w": 6,
+        "p": 0.88,
+        "curve": false,
+        "wave": true
+      },
+      {
+        "kind": "line",
+        "pts": [
+          [
+            960,
+            985
+          ],
+          [
+            1520,
+            985
+          ]
+        ],
+        "col": "white",
+        "w": 6,
+        "p": 0.88,
+        "curve": false,
+        "wave": true
+      },
+      {
+        "kind": "line",
+        "pts": [
+          [
+            1840,
+            920
+          ],
+          [
+            2460,
+            920
+          ]
+        ],
+        "col": "white",
+        "w": 6,
+        "p": 0.88,
+        "curve": false,
+        "wave": true
+      },
+      {
+        "kind": "line",
+        "pts": [
+          [
+            2620,
+            1005
+          ],
+          [
+            3120,
+            1005
+          ]
+        ],
+        "col": "white",
+        "w": 6,
+        "p": 0.88,
+        "curve": false,
+        "wave": true
+      },
+      {
+        "kind": "ellipse",
+        "x": 680,
+        "y": 1260,
+        "rx": 22,
+        "ry": 14,
+        "rot": 0,
+        "fill": "pink",
+        "col": "ink",
+        "w": 3.5,
+        "p": 0.76,
+        "cross": false,
+        "wave": false
+      },
+      {
+        "kind": "ellipse",
+        "x": 2420,
+        "y": 1285,
+        "rx": 24,
+        "ry": 15,
+        "rot": 0,
+        "fill": "peach",
+        "col": "ink",
+        "w": 3.5,
+        "p": 0.76,
+        "cross": false,
+        "wave": false
+      },
+      {
+        "kind": "dab",
+        "x": 2080,
+        "y": 1340,
+        "r": 14,
+        "col": "red",
+        "sq": 1,
+        "p": 0.88,
+        "bob": false
+      }
+    ]
+  },
+  {
+    "id": "sunny_forest",
+    "preset": "world_sunny_forest",
+    "icon": "🌲",
+    "label": "Khu rừng xanh đầy nắng (Sunny Green Forest)",
+    "keywords": [
+      "green forest",
+      "sunny forest",
+      "forest",
+      "woods",
+      "khu rừng xanh",
+      "khu rừng"
+    ],
+    "horizonY": 1090,
+    "groundCol": "green",
+    "groundP": 0.54,
+    "groundLine": true,
+    "grassTufts": true,
+    "shapes": [
+      {
+        "kind": "poly",
+        "pts": [
+          [
+            180,
+            140
+          ],
+          [
+            420,
+            140
+          ],
+          [
+            980,
+            1090
+          ],
+          [
+            680,
+            1090
+          ]
+        ],
+        "fill": "yellow",
+        "w": 5.5,
+        "fw": 15,
+        "gap": 16,
+        "p": 0.2,
+        "ang": 0.55,
+        "smooth": false,
+        "cross": false,
+        "wave": false
+      },
+      {
+        "kind": "poly",
+        "pts": [
+          [
+            1360,
+            140
+          ],
+          [
+            1620,
+            140
+          ],
+          [
+            2180,
+            1090
+          ],
+          [
+            1860,
+            1090
+          ]
+        ],
+        "fill": "yellow",
+        "w": 5.5,
+        "fw": 15,
+        "gap": 16,
+        "p": 0.2,
+        "ang": 0.55,
+        "smooth": false,
+        "cross": false,
+        "wave": false
+      },
+      {
+        "kind": "poly",
+        "pts": [
+          [
+            2280,
+            140
+          ],
+          [
+            2560,
+            140
+          ],
+          [
+            3100,
+            1090
+          ],
+          [
+            2760,
+            1090
+          ]
+        ],
+        "fill": "yellow",
+        "w": 5.5,
+        "fw": 15,
+        "gap": 16,
+        "p": 0.22,
+        "ang": 0.55,
+        "smooth": false,
+        "cross": false,
+        "wave": false
+      },
+      {
+        "kind": "poly",
+        "pts": [
+          [
+            -440,
+            1100
+          ],
+          [
+            -80,
+            940
+          ],
+          [
+            440,
+            985
+          ],
+          [
+            960,
+            900
+          ],
+          [
+            1520,
+            960
+          ],
+          [
+            2140,
+            895
+          ],
+          [
+            2720,
+            965
+          ],
+          [
+            3320,
+            920
+          ],
+          [
+            3760,
+            1100
+          ]
+        ],
+        "fill": "green",
+        "w": 5.5,
+        "fw": 15,
+        "gap": 17,
+        "p": 0.26,
+        "ang": 0.1,
+        "smooth": true,
+        "cross": false,
+        "wave": false
+      },
+      {
+        "kind": "line",
+        "pts": [
+          [
+            -380,
+            990
+          ],
+          [
+            -80,
+            940
+          ],
+          [
+            440,
+            985
+          ],
+          [
+            960,
+            900
+          ],
+          [
+            1520,
+            960
+          ],
+          [
+            2140,
+            895
+          ],
+          [
+            2720,
+            965
+          ],
+          [
+            3320,
+            920
+          ],
+          [
+            3680,
+            1000
+          ]
+        ],
+        "col": "green",
+        "w": 4.5,
+        "p": 0.52,
+        "curve": true,
+        "wave": false
+      },
+      {
+        "kind": "poly",
+        "pts": [
+          [
+            122,
+            1085
+          ],
+          [
+            138,
+            735
+          ],
+          [
+            180,
+            735
+          ],
+          [
+            196,
+            1085
+          ]
+        ],
+        "fill": "ochre",
+        "w": 5.5,
+        "fw": 11,
+        "gap": 12,
+        "p": 0.4,
+        "ang": 1.5,
+        "smooth": true,
+        "cross": false,
+        "wave": false
+      },
+      {
+        "kind": "ellipse",
+        "x": 110,
+        "y": 685,
+        "rx": 105,
+        "ry": 72,
+        "rot": 0,
+        "fill": "green",
+        "w": 5,
+        "p": 0.3,
+        "cross": false,
+        "wave": false
+      },
+      {
+        "kind": "ellipse",
+        "x": 215,
+        "y": 680,
+        "rx": 105,
+        "ry": 74,
+        "rot": 0,
+        "fill": "green",
+        "w": 5,
+        "p": 0.3,
+        "cross": false,
+        "wave": false
+      },
+      {
+        "kind": "ellipse",
+        "x": 162,
+        "y": 620,
+        "rx": 128,
+        "ry": 84,
+        "rot": 0,
+        "fill": "green",
+        "w": 5,
+        "p": 0.34,
+        "cross": false,
+        "wave": false
+      },
+      {
+        "kind": "poly",
+        "pts": [
+          [
+            3012,
+            1085
+          ],
+          [
+            3028,
+            715
+          ],
+          [
+            3072,
+            715
+          ],
+          [
+            3092,
+            1085
+          ]
+        ],
+        "fill": "ochre",
+        "w": 5.5,
+        "fw": 11,
+        "gap": 12,
+        "p": 0.4,
+        "ang": 1.5,
+        "smooth": true,
+        "cross": false,
+        "wave": false
+      },
+      {
+        "kind": "ellipse",
+        "x": 2990,
+        "y": 660,
+        "rx": 115,
+        "ry": 78,
+        "rot": 0,
+        "fill": "green",
+        "w": 5,
+        "p": 0.3,
+        "cross": false,
+        "wave": false
+      },
+      {
+        "kind": "ellipse",
+        "x": 3115,
+        "y": 655,
+        "rx": 110,
+        "ry": 76,
+        "rot": 0,
+        "fill": "green",
+        "w": 5,
+        "p": 0.3,
+        "cross": false,
+        "wave": false
+      },
+      {
+        "kind": "ellipse",
+        "x": 3052,
+        "y": 595,
+        "rx": 135,
+        "ry": 88,
+        "rot": 0,
+        "fill": "green",
+        "w": 5,
+        "p": 0.34,
+        "cross": false,
+        "wave": false
+      },
+      {
+        "kind": "poly",
+        "pts": [
+          [
+            1082,
+            1085
+          ],
+          [
+            1094,
+            855
+          ],
+          [
+            1124,
+            855
+          ],
+          [
+            1136,
+            1085
+          ]
+        ],
+        "fill": "ochre",
+        "w": 5.5,
+        "fw": 11,
+        "gap": 13,
+        "p": 0.32,
+        "ang": 1.5,
+        "smooth": true,
+        "cross": false,
+        "wave": false
+      },
+      {
+        "kind": "ellipse",
+        "x": 1065,
+        "y": 818,
+        "rx": 78,
+        "ry": 55,
+        "rot": 0,
+        "fill": "green",
+        "w": 5,
+        "p": 0.26,
+        "cross": false,
+        "wave": false
+      },
+      {
+        "kind": "ellipse",
+        "x": 1155,
+        "y": 815,
+        "rx": 78,
+        "ry": 55,
+        "rot": 0,
+        "fill": "green",
+        "w": 5,
+        "p": 0.26,
+        "cross": false,
+        "wave": false
+      },
+      {
+        "kind": "ellipse",
+        "x": 1110,
+        "y": 772,
+        "rx": 92,
+        "ry": 62,
+        "rot": 0,
+        "fill": "green",
+        "w": 5,
+        "p": 0.28,
+        "cross": false,
+        "wave": false
+      },
+      {
+        "kind": "poly",
+        "pts": [
+          [
+            2542,
+            1085
+          ],
+          [
+            2554,
+            850
+          ],
+          [
+            2586,
+            850
+          ],
+          [
+            2600,
+            1085
+          ]
+        ],
+        "fill": "ochre",
+        "w": 5.5,
+        "fw": 11,
+        "gap": 13,
+        "p": 0.32,
+        "ang": 1.5,
+        "smooth": true,
+        "cross": false,
+        "wave": false
+      },
+      {
+        "kind": "ellipse",
+        "x": 2522,
+        "y": 812,
+        "rx": 82,
+        "ry": 58,
+        "rot": 0,
+        "fill": "green",
+        "w": 5,
+        "p": 0.26,
+        "cross": false,
+        "wave": false
+      },
+      {
+        "kind": "ellipse",
+        "x": 2618,
+        "y": 810,
+        "rx": 80,
+        "ry": 56,
+        "rot": 0,
+        "fill": "green",
+        "w": 5,
+        "p": 0.26,
+        "cross": false,
+        "wave": false
+      },
+      {
+        "kind": "ellipse",
+        "x": 2570,
+        "y": 768,
+        "rx": 96,
+        "ry": 64,
+        "rot": 0,
+        "fill": "green",
+        "w": 5,
+        "p": 0.28,
+        "cross": false,
+        "wave": false
+      },
+      {
+        "kind": "ellipse",
+        "x": 1640,
+        "y": 1280,
+        "rx": 620,
+        "ry": 135,
+        "rot": 0,
+        "fill": "yellow",
+        "w": 5,
+        "p": 0.28,
+        "cross": false,
+        "wave": false
+      },
+      {
+        "kind": "ellipse",
+        "x": 840,
+        "y": 1275,
+        "rx": 360,
+        "ry": 110,
+        "rot": 0,
+        "fill": "yellow",
+        "w": 5,
+        "p": 0.24,
+        "cross": false,
+        "wave": false
+      },
+      {
+        "kind": "ellipse",
+        "x": 2460,
+        "y": 1285,
+        "rx": 460,
+        "ry": 125,
+        "rot": 0,
+        "fill": "yellow",
+        "w": 5,
+        "p": 0.3,
+        "cross": false,
+        "wave": false
+      },
+      {
+        "kind": "dab",
+        "x": 420,
+        "y": 1190,
+        "r": 10,
+        "col": "yellow",
+        "sq": 1,
+        "p": 0.9,
+        "bob": false
+      },
+      {
+        "kind": "dab",
+        "x": 420,
+        "y": 1190,
+        "r": 4,
+        "col": "white",
+        "sq": 1,
+        "p": 0.95,
+        "bob": false
+      },
+      {
+        "kind": "dab",
+        "x": 680,
+        "y": 1365,
+        "r": 10,
+        "col": "pink",
+        "sq": 1,
+        "p": 0.9,
+        "bob": false
+      },
+      {
+        "kind": "dab",
+        "x": 680,
+        "y": 1365,
+        "r": 4,
+        "col": "white",
+        "sq": 1,
+        "p": 0.95,
+        "bob": false
+      },
+      {
+        "kind": "dab",
+        "x": 1220,
+        "y": 1395,
+        "r": 10,
+        "col": "yellow",
+        "sq": 1,
+        "p": 0.9,
+        "bob": false
+      },
+      {
+        "kind": "dab",
+        "x": 1220,
+        "y": 1395,
+        "r": 4,
+        "col": "white",
+        "sq": 1,
+        "p": 0.95,
+        "bob": false
+      },
+      {
+        "kind": "dab",
+        "x": 1760,
+        "y": 1175,
+        "r": 10,
+        "col": "pink",
+        "sq": 1,
+        "p": 0.9,
+        "bob": false
+      },
+      {
+        "kind": "dab",
+        "x": 1760,
+        "y": 1175,
+        "r": 4,
+        "col": "white",
+        "sq": 1,
+        "p": 0.95,
+        "bob": false
+      },
+      {
+        "kind": "dab",
+        "x": 2280,
+        "y": 1385,
+        "r": 10,
+        "col": "yellow",
+        "sq": 1,
+        "p": 0.9,
+        "bob": false
+      },
+      {
+        "kind": "dab",
+        "x": 2280,
+        "y": 1385,
+        "r": 4,
+        "col": "white",
+        "sq": 1,
+        "p": 0.95,
+        "bob": false
+      },
+      {
+        "kind": "dab",
+        "x": 2740,
+        "y": 1210,
+        "r": 10,
+        "col": "pink",
+        "sq": 1,
+        "p": 0.9,
+        "bob": false
+      },
+      {
+        "kind": "dab",
+        "x": 2740,
+        "y": 1210,
+        "r": 4,
+        "col": "white",
+        "sq": 1,
+        "p": 0.95,
+        "bob": false
+      },
+      {
+        "kind": "dab",
+        "x": 980,
+        "y": 680,
+        "r": 6,
+        "col": "yellow",
+        "sq": 1,
+        "p": 0.78,
+        "bob": true
+      },
+      {
+        "kind": "dab",
+        "x": 1560,
+        "y": 620,
+        "r": 6,
+        "col": "yellow",
+        "sq": 1,
+        "p": 0.78,
+        "bob": true
+      },
+      {
+        "kind": "dab",
+        "x": 2140,
+        "y": 650,
+        "r": 6,
+        "col": "yellow",
+        "sq": 1,
+        "p": 0.78,
+        "bob": true
+      },
+      {
+        "kind": "dab",
+        "x": 2640,
+        "y": 610,
+        "r": 6,
+        "col": "yellow",
+        "sq": 1,
+        "p": 0.78,
+        "bob": true
+      }
+    ]
+  }
+]

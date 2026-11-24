@@ -81,9 +81,18 @@ const VOCAB_DICT = [
   { en: 'FLOWER',   vi: 'bông hoa',   col: '#d94436', re: /\bflowers?\b/i,                         zone: 'picnic' },
   { en: 'TREE',     vi: 'cái cây',    col: '#5a9c46', re: /\btrees?\b/i,                           zone: 'mid_tree' },
   { en: 'HOUSE',    vi: 'ngôi nhà',   col: '#d94436', re: /\bhouse\b|\bhome\b/i,                   zone: 'mid_tree' },
+  { en: 'DUCK',     vi: 'vịt con',    col: '#d98a16', re: /\bducks?\b|\bducklings?\b/i,          zone: 'mid_left' },
+  { en: 'MOMMY',    vi: 'mẹ',         col: '#e8877d', re: /\bmomm?y\b|\bmother\b|\bmama\b/i,     zone: 'picnic' },
+  { en: 'FAMILY',   vi: 'gia đình',   col: '#d94436', re: /\bfamily\b/i,                         zone: 'river' },
+  { en: 'CRY',      vi: 'khóc',       col: '#4a8ec2', re: /\bcry(?:ing|ies)?\b/i,                zone: 'mid_tree' },
+  { en: 'HELP',     vi: 'giúp đỡ',    col: '#5a9c46', re: /\bhelp(?:ing)?\b/i,                   zone: 'mid_right' },
+  { en: 'BALL',     vi: 'quả bóng',   col: '#d94436', re: /\bballs?\b/i,                         zone: 'mid_left' },
+  { en: 'PLAY',     vi: 'vui chơi',   col: '#d98a16', re: /\bplay(?:ing|s)?\b/i,                 zone: 'left_mid' },
+  { en: 'POND',     vi: 'ao nước',    col: '#4a8ec2', re: /\bponds?\b|\blake\b/i,                zone: 'river' },
+  { en: 'NIGHT',    vi: 'ban đêm',    col: '#6b7ca8', re: /\bnight\b|\bmoon\b/i,                 zone: 'sky_mid' },
   { en: 'STAR',     vi: 'ngôi sao',   col: '#d98a16', re: /\bstars?\b/i,                           zone: 'sky_right' },
   { en: 'RAINBOW',  vi: 'cầu vồng',   col: '#d94436', re: /\brainbow\b/i,                          zone: 'sky_mid' },
-  { en: 'HAPPY',    vi: 'vui vẻ',     col: '#d98a16', re: /\bhappy\b|\byay\b/i,                    zone: 'left_mid' },
+  { en: 'HAPPY',    vi: 'vui vẻ',     col: '#d98a16', re: /\bhappy\b|\byay\b|\bhooray\b/i,         zone: 'left_mid' },
 ];
 
 // Built-in prop matchers (to know which mentioned objects are ALREADY built-in!)
@@ -215,6 +224,12 @@ function pickKeyword(en) {
   return { key: '', col: '#472e1e' };
 }
 
+const GENERIC_PROP_STOP = new Set([
+  'red', 'blue', 'yellow', 'green', 'pink', 'white', 'brown', 'gray', 'grey', 'big', 'little', 'small',
+  'happy', 'cute', 'nice', 'play', 'toy', 'friend', 'story', 'đỏ', 'xanh', 'vàng', 'hồng', 'trắng',
+  'lớn', 'nhỏ', 'to', 'bé', 'vui', 'chơi', 'đồ chơi', 'bạn', 'mẹ', 'bố', 'mother', 'mom', 'dad', 'baby'
+]);
+
 /**
  * Detect built-in matched props, saved custom props, and missing props that Gemini AI can auto-draw!
  */
@@ -222,7 +237,9 @@ export function detectStoryProps(fullText, customProps = []) {
   const matchedBuiltins = BUILTIN_PROP_MATCHERS.filter(m => m.re.test(fullText)).map(m => m.type);
   const matchedCustom = [];
   for (const cp of customProps || []) {
-    const kw = (cp.keywords || [cp.id || cp.type.replace(/^custom_/, '')]).filter(Boolean);
+    const rawKws = (cp.keywords || [cp.id || cp.type.replace(/^custom_/, '')]).filter(Boolean);
+    const filtered = rawKws.filter(w => !GENERIC_PROP_STOP.has(String(w).toLowerCase()));
+    const kw = filtered.length ? filtered : [String(cp.id || cp.type.replace(/^custom_/, '')).replace(/_/g, ' ')];
     if (kw.some(w => new RegExp(`\\b${String(w).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}s?\\b`, 'i').test(fullText))) {
       matchedCustom.push(cp);
     }
@@ -277,23 +294,59 @@ export function parseStoryScript(rawText, customProps = []) {
 
   // Group body lines accurately, keeping speaker active across multi-line quoted speech!
   const rawBeats = [];
-  let curSpeaker = null; // null = Narrator, 'all' = ALL, or cast object
+  const guestSpeakers = new Map();
+  const hasEmoji = s => /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(s || '');
+  const pickGuestVoice = (name) => {
+    const n = String(name || '').toLowerCase();
+    if (/dad|father|papa|bear|lion|king|giant|ông|bố|gấu|sư tử/i.test(n)) {
+      return { enVoice: 'am_adam', enSpeed: 0.87, enLang: 'en-us', viVoice: 'vi-VN-NamMinhNeural', viRate: '-4%', viPitch: '-2Hz' };
+    }
+    if (/mom|mother|mama|queen|mẹ|bà/i.test(n)) {
+      return { enVoice: 'af_nova', enSpeed: 0.88, enLang: 'en-us', viVoice: 'vi-VN-HoaiMyNeural', viRate: '-2%', viPitch: '+1Hz' };
+    }
+    return { enVoice: 'af_bella', enSpeed: 0.92, enLang: 'en-us', viVoice: 'vi-VN-HoaiMyNeural', viRate: '+4%', viPitch: '+5Hz' };
+  };
+  const ensureGuestSpeaker = (rawLeft, cleanName) => {
+    const key = cleanName.toLowerCase();
+    if (guestSpeakers.has(key)) return guestSpeakers.get(key);
+    const em = (rawLeft.match(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u) || ['🎭'])[0];
+    // Try linking to an AI-drawn custom prop if available!
+    const matchedProp = (customProps || []).find(cp => {
+      const kws = [cp.id, cp.label, ...(cp.keywords || [])].map(x => String(x || '').toLowerCase());
+      return kws.some(k => k && !GENERIC_PROP_STOP.has(k) && key.includes(k));
+    });
+    const guest = {
+      type: matchedProp?.type || ('guest_' + key.replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '')),
+      name: cleanName,
+      icon: matchedProp?.icon || em,
+      isGuest: true,
+      rule: pickGuestVoice(cleanName),
+    };
+    guestSpeakers.set(key, guest);
+    return guest;
+  };
+  let curSpeaker = null; // null = Narrator, 'all' = ALL, or cast/guest object
   let speakerAwaitFirst = false;
 
   for (let i = 0; i < bodyLines.length; i++) {
     const ln = bodyLines[i];
     if (!ln) continue;
 
-    // 1. Check "Speaker:" header or "Speaker: line"
+    // 1. Check "Speaker:" header or "Speaker: line" (supports built-in cast AND any new guest/AI character like "🐥 Little Duck:")
     const spMatch = /^([^:]{1,42}):\s*(.*)$/.exec(ln);
     if (spMatch) {
       const left = spMatch[1].trim(), right = spMatch[2].trim();
       const leftClean = stripEmoji(left);
       const isNarratorLbl = /^(narrator|người kể|dẫn chuyện|kể chuyện)$/i.test(leftClean);
       const isAllLbl = /^(all|everyone|cả nhóm|tất cả|cả ba)$/i.test(leftClean);
-      const rule = (isNarratorLbl || isAllLbl) ? null : matchCastRule(left, aliases);
-      if (isNarratorLbl || isAllLbl || rule) {
-        curSpeaker = isNarratorLbl ? null : (isAllLbl ? 'all' : ensureCast(rule, leftClean));
+      const isMetaLbl = /^(scene|act|title|note|moral|lesson|bài học|cảnh|tiêu đề|ghi chú)\b/i.test(leftClean);
+      const rule = (isNarratorLbl || isAllLbl || isMetaLbl) ? null : matchCastRule(left, aliases);
+      const wordCount = leftClean ? leftClean.split(/\s+/).length : 0;
+      const looksLikeGuestSpeaker = !rule && !isNarratorLbl && !isAllLbl && !isMetaLbl && leftClean.length >= 2 && wordCount <= 4 && !/[.!?]/.test(leftClean) && (
+        right === '' || hasEmoji(left) || startsWithQuote(right)
+      );
+      if (isNarratorLbl || isAllLbl || rule || looksLikeGuestSpeaker) {
+        curSpeaker = isNarratorLbl ? null : (isAllLbl ? 'all' : (rule ? ensureCast(rule, leftClean) : ensureGuestSpeaker(left, leftClean)));
         speakerAwaitFirst = Boolean(curSpeaker);
         if (right) {
           speakerAwaitFirst = false;
@@ -359,14 +412,37 @@ export function parseStoryScript(rawText, customProps = []) {
   if (castMap.size === 0) ensureCast(CAST_RULES[0]);
   const cast = [...castMap.values()].sort((a, b) => a.rule.roleOrder - b.rule.roleOrder);
 
-  // Detect theme automatically!
+  // Detect rich story archetype & world automatically (so different stories NEVER repeat the same camera!)
   const isBirthday = /\bbirthday\b|\bcake\b|\bballoons?\b|\bcandles?\b|\bparty\b|sinh nhật|bánh sinh nhật|bóng bay|thổi tắt/i.test(fullText);
+  const isRescue   = /\bcry(?:ing)?\b|\blost\b|can't find|\bfound you\b|\bmommy\b|\bfamily\b|\bhelp you\b|khóc|lạc|tìm thấy mẹ|đoàn tụ|giúp bạn/i.test(fullText);
+  const hasPond    = /\bducks?\b|\bducklings?\b|\bfrogs?\b|\bfish\b|\bponds?\b|\bswim/i.test(fullText) || /vịt|ếch|ao nước|bơi/i.test(fullText);
+  const hasNight   = /\bnight\b|\bstars?\b|\bmoon\b|\bbedtime\b|\bdream\b|ban đêm|ngôi sao|mặt trăng|đi ngủ/i.test(fullText);
+  const hasGarden  = /\bseed\b|\broots?\b|\bwatering\b|\bplant\b|hạt giống|rễ cây|tưới cây/i.test(fullText);
+  const hasWolfEnc = /\bwolf\b|\bloud sound\b|\bbehind a tree\b|\bscared\b|\bdon't eat\b|con sói|tiếng động lớn|phía sau cái cây/i.test(fullText);
   const hasForest  = /\bforest\b|\bwoods\b|\briver\b|trong rừng|bờ sông/i.test(fullText);
-  const hasGarden  = /\bseed\b|\broots?\b|\bflower\b|\bwatering\b|hạt giống|rễ cây/i.test(fullText);
-  const hasNight   = /\bnight\b|\bstars?\b|\bmoon\b|ban đêm|ngôi sao/i.test(fullText);
 
-  const theme = isBirthday ? 'birthday' : (hasForest ? 'forest' : (hasGarden ? 'garden' : 'meadow'));
-  const suggestedWorld = isBirthday ? 'cozy-room' : (hasForest ? 'forest-clearing' : (hasGarden ? 'garden-cross-section' : 'sunny-meadow'));
+  const theme = isBirthday
+    ? 'birthday'
+    : (isRescue
+      ? 'rescue_reunion'
+      : (hasNight
+        ? 'starry_adventure'
+        : (hasGarden
+          ? 'garden'
+          : ((hasWolfEnc || (hasForest && /\bapples?\b|\briver\b|quả táo|bờ sông/i.test(fullText)))
+            ? 'forest_encounter'
+            : 'playtime_park'))));
+
+  const suggestedWorld = isBirthday
+    ? 'cozy-room'
+    : (hasPond
+      ? 'riverside-pond'
+      : (hasNight
+        ? 'starry-hill'
+        : (hasGarden
+          ? 'garden-cross-section'
+          : (theme === 'forest_encounter' ? 'forest-clearing' : 'sunny-meadow'))));
+
   const suggestedWash = hasNight
     ? { color: '#2b3975', waxPreset: 'starry-night' }
     : (isBirthday
@@ -587,9 +663,377 @@ function buildBirthdayScene({ cast, B, silences, finalWash, totalDur, fridgeStar
 }
 
 /**
+ * Helper: Pick clean bilingual vocabulary tags for non-birthday scenes, placed cleanly inside each beat's shot!
+ */
+function pickSmartTags(B, slots, totalDur, excludeTitleBox = null) {
+  const tags = [];
+  const used = new Set();
+  for (const v of VOCAB_DICT) {
+    if (tags.length >= Math.min(6, slots.length)) break;
+    const hitBeat = B.find(b => v.re.test(b.en));
+    if (!hitBeat || used.has(v.en)) continue;
+    used.add(v.en);
+    const slot = slots[tags.length];
+    let tx = slot.x, ty = slot.y;
+    if (excludeTitleBox && Math.abs(tx - excludeTitleBox.x) < 480 && Math.abs(ty - excludeTitleBox.y) < 175) {
+      ty += 185;
+    }
+    const tgT = Number(Math.min(totalDur - 2.6, hitBeat.vt + Math.min(1.0, hitBeat.dur * 0.25)).toFixed(2));
+    if (tgT > 0.4) {
+      tags.push({ id: 'tag_' + v.en.toLowerCase().replace(/\s+/g, '_'), t: tgT, x: tx, y: ty, en: v.en, vi: v.vi, col: v.col });
+    }
+  }
+  return tags.sort((a, b) => a.t - b.t);
+}
+
+/**
+ * Choreograph GEMINI AI BESPOKE STORYBOARD (unique camera framing, scenery, moving AI actors, custom tags!)
+ */
+function buildGeminiStoryboardScene({ cast, B, geminiPlan, allCustomProps, totalDur, fridgeStart, finalWorld }) {
+  const shots = geminiPlan.shots || [];
+  const entities = [];
+
+  // 1. Curated scenery from Gemini (guaranteed at least sun/star sky anchor if not indoors)
+  const scList = geminiPlan.scenery || [];
+  if (finalWorld !== 'cozy-room' && !scList.some(s => s.type === 'sun' || s.type === 'star')) {
+    entities.push(finalWorld === 'starry-hill'
+      ? { id: 'sc_star_0', type: 'star', x: 1620, y: 310, scale: 1.0, tStart: 0.0, drawDur: 0.0, states: [{ t: 0.0, mood: 'twinkle' }] }
+      : { id: 'sc_sun_0', type: 'sun', x: 2540, y: 295, scale: 0.92, tStart: 0.0, drawDur: 0.0, states: [{ t: 0.0, mood: 'warm' }] });
+  }
+  scList.forEach((s, i) => {
+    entities.push({
+      id: `sc_${s.type}_${i}`, type: s.type, x: s.x, y: s.y, scale: s.scale ?? 1.0,
+      tStart: 0.0, drawDur: 0.0, states: [{ t: 0.0, mood: s.mood || 'plain' }]
+    });
+  });
+
+  // 2. Build dynamic state timelines for every actor appearing across Gemini's shots!
+  const actorMap = new Map();
+  const castScale = new Map(cast.map(c => [c.type, c.rule?.defaultScale || 1.0]));
+  const customMap = new Map(allCustomProps.map(cp => [cp.type, cp]));
+
+  shots.forEach((sh, si) => {
+    const bt = B[Math.min(B.length - 1, sh.beat)] || B[0] || { vt: si * 3.0 };
+    const tShot = si === 0 ? 0.0 : Number(Math.max(0.2, bt.vt - 0.35).toFixed(2));
+    for (const a of (sh.actors || [])) {
+      if (!actorMap.has(a.type)) {
+        const sc = castScale.get(a.type) || customMap.get(a.type)?.defaultScale || 1.0;
+        actorMap.set(a.type, {
+          id: a.type, type: a.type, x: a.x, y: a.y, scale: sc,
+          tStart: si === 0 ? 0.0 : tShot,
+          drawDur: si === 0 ? 0.0 : 0.65,
+          fillDur: si === 0 ? 0.0 : 0.60,
+          states: [],
+        });
+      }
+      const rec = actorMap.get(a.type);
+      const prevSt = rec.states[rec.states.length - 1];
+      const moved = prevSt && (Math.abs(prevSt.x - a.x) > 35 || Math.abs(prevSt.y - a.y) > 20);
+      rec.states.push({
+        t: tShot, x: a.x, y: a.y,
+        ...(moved ? { moveDur: 1.25 } : {}),
+        view: a.view || 'r34',
+        pose: a.pose || 'stand',
+        expr: a.expr || 'happy',
+        ...(a.hat ? { hat: true } : {}),
+      });
+    }
+  });
+
+  // Ensure main cast members appear even if Gemini omitted one
+  const shot0 = shots[0] || { cam: { x: 1600, y: 960, s: 0.84 } };
+  let fallbackOff = -260;
+  for (const c of cast) {
+    if (!actorMap.has(c.type)) {
+      const fx = Math.max(420, Math.min(2780, shot0.cam.x + fallbackOff));
+      fallbackOff += 240;
+      actorMap.set(c.type, {
+        id: c.type, type: c.type, x: fx, y: 1265, scale: c.rule?.defaultScale || 1.0,
+        tStart: 0.0, drawDur: 0.0, states: [{ t: 0.0, x: fx, y: 1265, view: 'r34', pose: 'stand', expr: 'happy' }]
+      });
+    }
+  }
+  for (const ent of actorMap.values()) {
+    ent.states = dedupStates(ent.states);
+    entities.push(ent);
+  }
+
+  // 3. Camera path directly from Gemini's shots + smooth fridge pull-back
+  const camera = [];
+  shots.forEach((sh, si) => {
+    const bt = B[Math.min(B.length - 1, sh.beat)] || B[0] || { vt: si * 3.0 };
+    const tShot = si === 0 ? 0.0 : Number(Math.max(0.25, bt.vt - 0.35).toFixed(2));
+    camera.push({ t: tShot, x: sh.cam.x, y: sh.cam.y, s: sh.cam.s });
+    // Hold gently on final shot before fridge zoom-out
+    if (si === shots.length - 1 && fridgeStart - tShot > 2.2) {
+      camera.push({ t: Number((fridgeStart - 1.2).toFixed(2)), x: sh.cam.x, y: sh.cam.y, s: sh.cam.s });
+    }
+  });
+  camera.push({ t: Number(fridgeStart.toFixed(2)), x: 1600, y: 900, s: 0.60 });
+  camera.push({ t: totalDur, x: 1600, y: 900, s: 0.60 });
+
+  // 4. Title placed cleanly inside Shot 0 top-left/top sky + Gemini tags placed cleanly above their shots!
+  const titleX = Math.max(540, Math.min(2620, Math.round(shot0.cam.x - 280)));
+  const titlePos = { x: titleX, y: 490, t: 0.50 };
+
+  const tags = [];
+  const usedTagPos = [];
+  const rawTags = (geminiPlan.tags && geminiPlan.tags.length) ? geminiPlan.tags : [];
+  for (const tg of rawTags) {
+    const bt = B[Math.min(B.length - 1, tg.beat)] || B[0];
+    if (!bt) continue;
+    // Find active shot for this beat so the tag is GUARANTEED inside frame!
+    let activeShot = shots[0];
+    for (const sh of shots) { if (sh.beat <= tg.beat) activeShot = sh; }
+    let tx = Math.max(460, Math.min(2740, activeShot.cam.x + ((tags.length % 2 === 0) ? 180 : -140)));
+    let ty = 690 + (tags.length % 2) * 105;
+    if (Math.abs(tx - titlePos.x) < 360 && Math.abs(ty - titlePos.y) < 175) {
+      tx = Math.min(2720, activeShot.cam.x + 310);
+      ty = 720;
+    }
+    for (const prev of usedTagPos) {
+      if (Math.abs(prev.x - tx) < 230 && Math.abs(prev.y - ty) < 120) {
+        tx = tx + 240 <= 2740 ? tx + 240 : Math.max(480, tx - 240);
+        ty = ty < 770 ? ty + 110 : ty - 105;
+      }
+    }
+    usedTagPos.push({ x: tx, y: ty });
+    const tgT = Number(Math.min(totalDur - 2.6, bt.vt + Math.min(0.9, bt.dur * 0.25)).toFixed(2));
+    if (tgT > 0.4) {
+      tags.push({ id: 'tag_' + tg.en.toLowerCase().replace(/[^a-z0-9]+/g, '_'), t: tgT, x: Math.round(tx), y: Math.round(ty), en: tg.en, vi: tg.vi, col: tg.col });
+    }
+  }
+
+  const washIdx = Number.isInteger(geminiPlan.wash?.beatIndex) ? geminiPlan.wash.beatIndex : Math.floor(B.length * 0.65);
+  const washBeat = B[Math.min(B.length - 1, Math.max(0, washIdx))] || B[B.length - 1] || { vt: 10 };
+  const washStart = Number((washBeat.vt + 0.35).toFixed(2));
+
+  return { entities, camera, tags, washStart, titlePos };
+}
+
+/**
+ * Choreograph RESCUE & REUNION story (e.g. Lost Little Duckling -> Comfort Close-up -> Duck Pond Family Reunion!)
+ */
+function buildRescueReunionScene({ cast, B, allCustomProps, totalDur, fridgeStart, finalWorld }) {
+  const findIdx = pred => B.findIndex(pred);
+  const iFindLost = Math.max(1, findIdx(b => /cry|lost|can't find|little duck|vịt nhỏ|khóc|lạc/i.test(`${b.en} ${b.vi}`)));
+  const iHelp     = findIdx((b, i) => i >= iFindLost && /help|don't worry|giúp|đừng lo/i.test(`${b.en} ${b.vi}`));
+  const iSpotMom  = findIdx((b, i) => i >= Math.max(iFindLost + 1, iHelp) && /is that your|found you|mommy!|mẹ bạn|tìm thấy mẹ/i.test(`${b.en} ${b.vi}`));
+  const iCheer    = findIdx((b, i) => i >= Math.max(1, iSpotMom) && /hooray|yay|family|happy|helping|hoan hô|đoàn tụ|hạnh phúc/i.test(`${b.en} ${b.vi}`));
+
+  const tLost    = B[Math.min(B.length - 1, iFindLost)]?.vt ?? 4.0;
+  const tHelp    = iHelp >= 0 ? B[iHelp].vt : tLost + 5.0;
+  const tReunion = iSpotMom >= 0 ? B[iSpotMom].vt : Math.max(tHelp + 4.0, B[Math.floor(B.length * 0.6)]?.vt ?? 14.0);
+  const tCheer   = iCheer >= 0 ? B[iCheer].vt : tReunion + 3.0;
+  const washStart = Number((tReunion + 0.35).toFixed(2));
+
+  const entities = [
+    { id: 'sun', type: 'sun', x: 2660, y: 295, scale: 0.92, tStart: 0.0, drawDur: 0.0, states: [{ t: 0.0, mood: 'warm' }] },
+    { id: 'tree_left', type: 'tree', x: 340, y: 1125, scale: 1.06, tStart: 0.0, drawDur: 0.0, states: [{ t: 0.0, mood: 'plain' }] },
+    { id: 'cloud_l', type: 'cloud', x: 1120, y: 310, scale: 0.90, tStart: 0.0, drawDur: 0.0, states: [{ t: 0.0, mood: 'fluffy' }] },
+    { id: 'bird_pond', type: 'bird', x: 2740, y: 740, scale: 0.88, tStart: 0.0, drawDur: 0.0, states: [{ t: 0.0, mood: 'perch' }, { t: tReunion, mood: 'fly' }] },
+  ];
+  if (finalWorld !== 'riverside-pond') {
+    entities.push({ id: 'house_far', type: 'house', x: 2740, y: 1120, scale: 0.95, tStart: 0.0, drawDur: 0.0, states: [{ t: 0.0, mood: 'day' }] });
+  }
+
+  // Detect custom baby/lost animal & parent animal (e.g. custom_yellow_duckling + custom_mother_duck!)
+  const childCustom  = allCustomProps.find(cp => /duckling|baby|little|puppy|kitten|bunny|vịt con/i.test(`${cp.type} ${cp.label}`)) || allCustomProps[0] || null;
+  const parentCustom = allCustomProps.find(cp => cp !== childCustom && /mother|mom|mama|parent|dad|mẹ/i.test(`${cp.type} ${cp.label}`)) || null;
+
+  // Main helpers (e.g. Little Dog & Tabby Cat)
+  const helpers = cast.filter(c => c.type !== 'bird').slice(0, 3);
+  const startXs = [780, 1080, 560];
+  const comfortXs = [1040, 1265, 840];
+  const pondXs = [1710, 1955, 1500];
+
+  helpers.forEach((c, ci) => {
+    const isAnimal = c.type === 'little_dog' || c.type === 'tabby_cat' || c.type === 'gray_wolf';
+    const st = [
+      { t: 0.0, x: startXs[ci], y: 1265, view: ci === 1 ? 'l34' : 'r34', expr: 'happy', pose: 'wave' },
+      { t: Number(Math.max(0.5, tLost - 0.3).toFixed(2)), x: comfortXs[ci], y: 1265, moveDur: 1.2, view: 'r34', expr: 'curious', pose: isAnimal ? 'walk' : 'stand' },
+      { t: Number((tLost + 1.0).toFixed(2)), view: 'r34', expr: 'kind', pose: 'stand' },
+      { t: tHelp, view: 'r34', expr: 'kind', pose: 'wave' },
+      { t: Number(Math.max(tHelp + 0.5, tReunion - 1.1).toFixed(2)), x: pondXs[ci], y: 1265, moveDur: 1.5, view: 'r34', expr: 'happy', pose: isAnimal ? 'walk' : 'stand' },
+      { t: Number((tReunion + 0.4).toFixed(2)), view: 'r34', expr: 'excited', pose: 'wave' },
+      { t: tCheer, view: 'front', expr: 'excited', pose: 'cheer' },
+    ];
+    entities.push({ id: c.type, type: c.type, x: startXs[ci], y: 1265, scale: c.rule?.defaultScale || 1.0, tStart: 0.0, drawDur: 0.0, states: dedupStates(st) });
+  });
+
+  // Animate Lost Baby Animal (crying teardrops -> hops along -> runs happily to Mommy!)
+  if (childCustom) {
+    const cSt = [
+      { t: 0.0, x: 1545, y: 1272, view: 'l34', expr: 'cry', pose: 'stand' },
+      { t: tHelp, x: 1545, y: 1272, view: 'l34', expr: 'happy', pose: 'wave' },
+      { t: Number(Math.max(tHelp + 0.6, tReunion - 0.9).toFixed(2)), x: 2235, y: 1272, moveDur: 1.45, view: 'r34', expr: 'excited', pose: 'walk' },
+      { t: Number((tReunion + 0.65).toFixed(2)), x: 2235, y: 1272, view: 'r34', expr: 'excited', pose: 'cheer' },
+      { t: tCheer, view: 'front', expr: 'excited', pose: 'cheer' },
+    ];
+    entities.push({
+      id: childCustom.type, type: childCustom.type, x: 1545, y: 1272, scale: Number(childCustom.defaultScale || 1.0),
+      tStart: Number(Math.max(0, tLost - 0.4).toFixed(2)), drawDur: 0.65, fillDur: 0.6, states: dedupStates(cSt)
+    });
+  }
+
+  // Animate Parent Animal waiting by the duck pond (waves & cheers on reunion!)
+  if (parentCustom) {
+    const pSt = [
+      { t: 0.0, x: 2495, y: 1268, view: 'l34', expr: 'happy', pose: 'stand' },
+      { t: Number((tReunion + 0.2).toFixed(2)), x: 2465, y: 1268, moveDur: 0.8, view: 'l34', expr: 'excited', pose: 'wave' },
+      { t: tCheer, view: 'front', expr: 'excited', pose: 'cheer' },
+    ];
+    entities.push({
+      id: parentCustom.type, type: parentCustom.type, x: 2495, y: 1268, scale: Number(parentCustom.defaultScale || 1.12),
+      tStart: 0.0, drawDur: 0.0, states: dedupStates(pSt)
+    });
+  }
+
+  // Distinct Rescue Camera: Opening Mid-Wide -> Emotional Close-up Push-in on Crying Friend -> Pond Glide -> Reunion Pull-Back!
+  const camera = [
+    { t: 0.00,                                            x: 1020, y: 950,  s: 0.84 },
+    { t: Number(Math.max(1.5, tLost - 0.4).toFixed(2)),   x: 1320, y: 1010, s: 1.04 },
+    { t: Number(Math.max(3.0, tHelp).toFixed(2)),         x: 1300, y: 1005, s: 1.02 },
+    { t: Number(Math.max(5.0, tReunion - 0.6).toFixed(2)), x: 2140, y: 980,  s: 0.86 },
+    { t: Number(Math.max(6.5, tCheer).toFixed(2)),        x: 2110, y: 960,  s: 0.78 },
+    { t: Number(fridgeStart.toFixed(2)),                  x: 1600, y: 900,  s: 0.60 },
+    { t: totalDur,                                        x: 1600, y: 900,  s: 0.60 },
+  ];
+
+  const titlePos = { x: 470, y: 540, t: 0.50 };
+  const tagSlots = [
+    { x: 1340, y: 690 }, { x: 1590, y: 805 }, { x: 1120, y: 795 },
+    { x: 2120, y: 695 }, { x: 2440, y: 775 }, { x: 1840, y: 650 },
+  ];
+  const tags = pickSmartTags(B, tagSlots, totalDur, titlePos);
+
+  return { entities, camera, tags, washStart, titlePos };
+}
+
+/**
+ * Choreograph PLAYTIME PARK / SUNNY MEADOW story (Center-out camera, cottage, fence, rainbow — NO scary bush or river!)
+ */
+function buildPlaytimeParkScene({ cast, B, allCustomProps, totalDur, fridgeStart }) {
+  const n = Math.max(1, B.length);
+  const tMid1 = B[Math.floor(n * 0.28)]?.vt ?? 5.0;
+  const tMid2 = B[Math.floor(n * 0.55)]?.vt ?? 10.0;
+  const tClimax = B[Math.floor(n * 0.74)]?.vt ?? 14.0;
+  const washStart = Number((tClimax + 0.35).toFixed(2));
+
+  const entities = [
+    { id: 'sun', type: 'sun', x: 2580, y: 290, scale: 0.94, tStart: 0.0, drawDur: 0.0, states: [{ t: 0.0, mood: 'warm' }] },
+    { id: 'cottage', type: 'house', x: 520, y: 1125, scale: 0.96, tStart: 0.0, drawDur: 0.0, states: [{ t: 0.0, mood: 'day' }] },
+    { id: 'fence_park', type: 'fence', x: 1060, y: 1128, scale: 0.92, tStart: 0.0, drawDur: 0.0, states: [{ t: 0.0, mood: 'idle' }] },
+    { id: 'tree_park_r', type: 'tree', x: 2740, y: 1125, scale: 1.08, tStart: 0.0, drawDur: 0.0, states: [{ t: 0.0, mood: 'apples' }] },
+    { id: 'rainbow_park', type: 'rainbow', x: 2060, y: 620, scale: 1.02, tStart: tClimax, drawDur: 1.3, fillDur: 1.1, states: [{ t: 0.0, mood: 'bright' }] },
+  ];
+
+  // Center-focused playful blocking (characters play right-to-left & center-out!)
+  const players = cast.filter(c => c.type !== 'bird').slice(0, 4);
+  const posA = [1320, 1860, 1020, 2140];
+  const posB = [1060, 1520, 820, 1820];
+  const posC = [1740, 2240, 1480, 2480];
+  const posEnd = [1360, 1680, 1080, 1980];
+
+  players.forEach((c, ci) => {
+    const isAnimal = c.type === 'little_dog' || c.type === 'tabby_cat' || c.type === 'gray_wolf';
+    const st = [
+      { t: 0.0, x: posA[ci], y: 1265, view: ci % 2 === 0 ? 'r34' : 'l34', expr: 'happy', pose: 'wave' },
+      { t: tMid1, x: posB[ci], y: 1265, moveDur: 1.25, view: ci % 2 === 0 ? 'r34' : 'l34', expr: 'happy', pose: isAnimal ? 'walk' : 'stand' },
+      { t: Number((tMid1 + 1.35).toFixed(2)), view: ci % 2 === 0 ? 'r34' : 'l34', expr: 'excited', pose: 'wave' },
+      { t: tMid2, x: posC[ci], y: 1265, moveDur: 1.35, view: ci % 2 === 0 ? 'r34' : 'l34', expr: 'happy', pose: isAnimal ? 'walk' : 'stand' },
+      { t: Number((tMid2 + 1.45).toFixed(2)), view: ci % 2 === 0 ? 'r34' : 'l34', expr: 'happy', pose: 'stand' },
+      { t: tClimax, x: posEnd[ci], y: 1265, moveDur: 1.25, view: 'front', expr: 'excited', pose: 'cheer' },
+    ];
+    entities.push({ id: c.type, type: c.type, x: posA[ci], y: 1265, scale: c.rule?.defaultScale || 1.0, tStart: 0.0, drawDur: 0.0, states: dedupStates(st) });
+  });
+
+  // If there's an AI toy/ball prop, bounce it playfully between the friends across the 3 zones!
+  if (allCustomProps.length) {
+    const toy = allCustomProps[0];
+    entities.push({
+      id: toy.type, type: toy.type, x: 1590, y: 1272, scale: Number(toy.defaultScale || 0.95),
+      tStart: 0.0, drawDur: 0.6, fillDur: 0.5,
+      states: [
+        { t: 0.0, x: 1590, y: 1272, pose: 'wave' },
+        { t: tMid1, x: 1290, y: 1272, moveDur: 1.1, pose: 'walk' },
+        { t: tMid2, x: 1990, y: 1272, moveDur: 1.2, pose: 'walk' },
+        { t: tClimax, x: 1525, y: 1272, moveDur: 1.0, pose: 'cheer' },
+      ]
+    });
+  }
+
+  // Distinct Playtime Camera: Wide Center -> Push Left -> Swing Right -> Pull-back Center Rainbow!
+  const camera = [
+    { t: 0.00,                           x: 1600, y: 945,  s: 0.80 },
+    { t: Number(tMid1.toFixed(2)),       x: 1280, y: 1005, s: 0.98 },
+    { t: Number(tMid2.toFixed(2)),       x: 1980, y: 1000, s: 0.96 },
+    { t: Number(tClimax.toFixed(2)),     x: 1600, y: 925,  s: 0.78 },
+    { t: Number(fridgeStart.toFixed(2)), x: 1600, y: 900,  s: 0.60 },
+    { t: totalDur,                       x: 1600, y: 900,  s: 0.60 },
+  ];
+
+  const titlePos = { x: 1050, y: 550, t: 0.50 };
+  const tagSlots = [
+    { x: 1260, y: 810 }, { x: 2120, y: 765 }, { x: 1640, y: 825 },
+    { x: 1680, y: 655 }, { x: 2380, y: 660 }, { x: 1020, y: 825 },
+  ];
+  const tags = pickSmartTags(B, tagSlots, totalDur, titlePos);
+
+  return { entities, camera, tags, washStart, titlePos };
+}
+
+/**
+ * Choreograph STARRY HILL / NIGHTTIME ADVENTURE (Intimate hilltop -> slow upward skyward tilt to glowing stars!)
+ */
+function buildStarryAdventureScene({ cast, B, totalDur, fridgeStart }) {
+  const n = Math.max(1, B.length);
+  const tMid = B[Math.floor(n * 0.40)]?.vt ?? 6.0;
+  const tSky = B[Math.floor(n * 0.68)]?.vt ?? 11.0;
+  const washStart = Number((tMid + 0.35).toFixed(2));
+
+  const entities = [
+    { id: 'star_main', type: 'star', x: 1600, y: 310, scale: 1.15, tStart: tMid, drawDur: 1.0, fillDur: 0.9, states: [{ t: 0.0, mood: 'twinkle' }] },
+    { id: 'star_l', type: 'star', x: 1180, y: 410, scale: 0.80, tStart: tMid + 0.5, drawDur: 0.8, fillDur: 0.7, states: [{ t: 0.0, mood: 'twinkle' }] },
+    { id: 'star_r', type: 'star', x: 2040, y: 385, scale: 0.85, tStart: tMid + 0.8, drawDur: 0.8, fillDur: 0.7, states: [{ t: 0.0, mood: 'twinkle' }] },
+    { id: 'hill_tree', type: 'tree', x: 640, y: 1095, scale: 1.06, tStart: 0.0, drawDur: 0.0, states: [{ t: 0.0, mood: 'plain' }] },
+  ];
+
+  const friends = cast.filter(c => c.type !== 'bird').slice(0, 3);
+  const xs = [1380, 1780, 1120];
+  friends.forEach((c, ci) => {
+    entities.push({
+      id: c.type, type: c.type, x: xs[ci], y: 1225, scale: c.rule?.defaultScale || 1.0, tStart: 0.0, drawDur: 0.0,
+      states: [
+        { t: 0.0, x: xs[ci], y: 1225, view: ci % 2 === 0 ? 'r34' : 'l34', expr: 'happy', pose: 'stand' },
+        { t: tMid, view: 'front', expr: 'curious', pose: 'wave' },
+        { t: tSky, view: 'front', expr: 'excited', pose: 'cheer' },
+      ]
+    });
+  });
+
+  // Unique Starry Camera: Close-up on Hilltop -> Slow Skyward Tilt Upward to Stars!
+  const camera = [
+    { t: 0.00,                           x: 1580, y: 1010, s: 1.00 },
+    { t: Number(tMid.toFixed(2)),        x: 1600, y: 925,  s: 0.90 },
+    { t: Number(tSky.toFixed(2)),        x: 1600, y: 845,  s: 0.80 },
+    { t: Number(fridgeStart.toFixed(2)), x: 1600, y: 900,  s: 0.60 },
+    { t: totalDur,                       x: 1600, y: 900,  s: 0.60 },
+  ];
+
+  const titlePos = { x: 1600, y: 625, t: 0.50 };
+  const tagSlots = [
+    { x: 1060, y: 815 }, { x: 2140, y: 815 }, { x: 1240, y: 935 },
+    { x: 1960, y: 935 }, { x: 1600, y: 830 },
+  ];
+  const tags = pickSmartTags(B, tagSlots, totalDur, titlePos);
+
+  return { entities, camera, tags, washStart, titlePos };
+}
+
+/**
  * Build a complete, ready-to-render, Studio-editable project.json from any pasted story script!
- * Supports multi-theme offline directing (Birthday Room / Forest / Garden / Meadow),
- * Gemini AI scene blueprints (`geminiPlan`), and AI-generated declarative `customProps`!
+ * Supports 6 distinct story worlds & camera archetypes offline + full Gemini AI bespoke storyboarding!
  */
 export function buildAutoDirectedProject(opts = {}) {
   const {
@@ -606,17 +1050,25 @@ export function buildAutoDirectedProject(opts = {}) {
     geminiPlan = null,
   } = opts;
 
-  const parsed = parseStoryScript(scriptText, customProps);
+  const allKnownCustom = [...(customProps || [])];
+  for (const gp of (geminiPlan?.generatedProps || [])) {
+    if (gp?.type && !allKnownCustom.some(x => x.type === gp.type)) allKnownCustom.push(gp);
+  }
+
+  const parsed = parseStoryScript(scriptText, allKnownCustom);
   const { cast, beats, hints, theme } = parsed;
 
+  const VALID_WORLDS = ['cozy-room', 'forest-clearing', 'riverside-pond', 'sunny-meadow', 'starry-hill', 'garden-cross-section', 'blank-page'];
   const finalWorld = worldPreset !== 'auto'
     ? worldPreset
-    : (geminiPlan?.world && ['cozy-room', 'forest-clearing', 'garden-cross-section', 'sunny-meadow', 'blank-page'].includes(geminiPlan.world)
+    : (geminiPlan?.world && VALID_WORLDS.includes(geminiPlan.world)
       ? geminiPlan.world
       : hints.suggestedWorld);
 
   const washMap = {
-    'auto':         hints.suggestedWash,
+    'auto':         (geminiPlan?.wash?.color || geminiPlan?.wash?.waxPreset)
+      ? { color: geminiPlan.wash.color || hints.suggestedWash.color, waxPreset: geminiPlan.wash.waxPreset || hints.suggestedWash.waxPreset }
+      : hints.suggestedWash,
     'dawn-rose':    { color: '#d47c85', waxPreset: finalWorld === 'cozy-room' ? 'birthday-confetti' : 'friendship-hearts' },
     'sap-green':    { color: '#70b58f', waxPreset: 'rain-and-roots' },
     'ultramarine':  { color: '#2b3975', waxPreset: 'starry-night' },
@@ -688,12 +1140,31 @@ export function buildAutoDirectedProject(opts = {}) {
   const totalDur = Number(Math.max(finalBeat.t1 + 1.85, fridgeEnd + 1.45, 8.0).toFixed(1));
 
   let entities, camera, tags, washStart, titlePos;
+  let directorMode = theme;
+  const matchedAndGenCustom = [];
+  for (const cp of [...(hints.matchedCustom || []), ...(geminiPlan?.generatedProps || [])]) {
+    if (cp?.type && !matchedAndGenCustom.some(x => x.type === cp.type)) matchedAndGenCustom.push(cp);
+  }
 
-  if (finalWorld === 'cozy-room' || theme === 'birthday') {
-    const bday = buildBirthdayScene({ cast, B, silences, finalWash, totalDur, fridgeStart, customProps, geminiPlan });
+  if (geminiPlan?.shots?.length >= 2 && theme !== 'birthday') {
+    // Full Gemini AI bespoke storyboard!
+    directorMode = 'gemini-storyboard';
+    const gs = buildGeminiStoryboardScene({ cast, B, geminiPlan, allCustomProps: allKnownCustom, totalDur, fridgeStart, finalWorld });
+    ({ entities, camera, tags, washStart, titlePos } = gs);
+  } else if (finalWorld === 'cozy-room' || theme === 'birthday') {
+    const bday = buildBirthdayScene({ cast, B, silences, finalWash, totalDur, fridgeStart, customProps: allKnownCustom, geminiPlan });
     ({ entities, camera, tags, washStart, titlePos } = bday);
+  } else if (theme === 'rescue_reunion' || finalWorld === 'riverside-pond') {
+    const resc = buildRescueReunionScene({ cast, B, allCustomProps: matchedAndGenCustom, totalDur, fridgeStart, finalWorld });
+    ({ entities, camera, tags, washStart, titlePos } = resc);
+  } else if (theme === 'starry_adventure' || finalWorld === 'starry-hill') {
+    const star = buildStarryAdventureScene({ cast, B, totalDur, fridgeStart });
+    ({ entities, camera, tags, washStart, titlePos } = star);
+  } else if (theme === 'playtime_park' && finalWorld !== 'forest-clearing') {
+    const park = buildPlaytimeParkScene({ cast, B, allCustomProps: matchedAndGenCustom, totalDur, fridgeStart });
+    ({ entities, camera, tags, washStart, titlePos } = park);
   } else {
-    // Forest / Meadow / Garden theme choreography
+    // Classic Forest Encounter / Garden choreography (only for wolf/forest/apples/garden stories!)
     const picnicBeat = B[idxClimax] || B[B.length - 1] || { vt: 15, end: 18 };
     washStart = Number((picnicBeat.vt + 0.40).toFixed(2));
     titlePos = { x: 265, y: 500, t: 0.55 };
@@ -819,16 +1290,14 @@ export function buildAutoDirectedProject(opts = {}) {
     ];
   }
 
-  // Place any matched AI Custom Props (and Gemini-planned extra props!) right when first mentioned!
-  const usedCustomProps = [];
+  // Place any matched/generated AI Custom Props not yet placed by the scene builder!
   const placedTypes = new Set(entities.map(e => e.type));
   const customSlots = [[1260, 1265], [1620, 1265], [2520, 1265], [820, 1265]];
   let cIdx = 0;
-  for (const cp of [...(hints.matchedCustom || []), ...(geminiPlan?.generatedProps || [])]) {
+  for (const cp of matchedAndGenCustom) {
     if (!cp || !cp.type || placedTypes.has(cp.type)) continue;
     placedTypes.add(cp.type);
-    usedCustomProps.push(cp);
-    const kws = (cp.keywords || [cp.id, cp.type.replace(/^custom_/, '')]).filter(Boolean);
+    const kws = (cp.keywords || [cp.id, cp.type.replace(/^custom_/, '')]).filter(k => k && !GENERIC_PROP_STOP.has(String(k).toLowerCase()));
     const hitBeat = B.find(b => kws.some(w => new RegExp(`\\b${String(w).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}s?\\b`, 'i').test(`${b.en} ${b.vi}`)));
     const [cx, cy] = customSlots[cIdx++ % customSlots.length];
     entities.push({
@@ -837,6 +1306,9 @@ export function buildAutoDirectedProject(opts = {}) {
       states: [{ t: 0.0, mood: 'idle' }]
     });
   }
+  // Ensure every custom prop referenced in entities has its full drawing recipe embedded in project.customProps!
+  const finalEntityTypes = new Set(entities.map(e => e.type));
+  const usedCustomProps = allKnownCustom.filter(cp => cp?.type && finalEntityTypes.has(cp.type));
 
   // Clean strictly increasing camera keyframes
   camera.sort((a, b) => a.t - b.t);

@@ -1,6 +1,6 @@
 #!/bin/sh
-# Mux the finished film: mux.sh video.mp4 mix.wav out.mp4 [fps] [grain]
-# Video is output at the target frame rate (held segments get duplicated frames automatically); grain = grain strength (default 2, 0 = none; use 0 for pixel/vector styles)
+# Mux the finished film: mux.sh video.mp4 mix.wav out.mp4 [fps] [grain] [crf]
+# Video is output at the target frame rate (held segments get duplicated frames automatically); grain = grain strength (default 2, 0 = none; use 0 for pixel/vector styles); crf = libx264 CRF (default 19; use 24-25 for dense paper-tooth crayon films)
 # Audio: two-pass loudnorm → −14 LUFS / TP −1.2 (a single pass is off by about 0.5 LU), then a 4× oversampled limiter at −1.6 dBFS (its look-ahead compensated), because AAC encoding adds
 #   inter-sample peaks loudnorm can't see. If the encoded film still peaks above −1 dBTP, the audio alone is encoded again with the limiter lower (the picture is copied, up to 3 times).
 #   Finally prints the measured I / LRA / true peak and warns if off target (loudness outside ±1 LU or peak above −1 dB)
@@ -20,12 +20,13 @@
 # awk prints and reads decimals the way the locale says: under de_DE or fr_FR macOS awk writes 0,8318, and a comma splits an ffmpeg filter graph
 LC_ALL=C; export LC_ALL
 die() { echo "mux.sh: $*" >&2; exit 1; }
-V="$1"; A="$2"; O="$3"; FPS="${4:-24}"; GR="${5:-2}"
-[ -n "$V" ] && [ -n "$A" ] && [ -n "$O" ] || die "usage: sh core/render/mux.sh video.mp4 mix.wav out.mp4 [fps=24] [grain=2]"
+V="$1"; A="$2"; O="$3"; FPS="${4:-24}"; GR="${5:-2}"; CRF="${6:-19}"
+[ -n "$V" ] && [ -n "$A" ] && [ -n "$O" ] || die "usage: sh core/render/mux.sh video.mp4 mix.wav out.mp4 [fps=24] [grain=2] [crf=19]"
 [ -f "$V" ] || die "video not found: $V"
 [ -f "$A" ] || die "audio not found: $A"
 case "$FPS" in ''|*[!0-9.]*) die "fps must be a number, got '$FPS'";; esac
 case "$GR" in ''|*[!0-9.]*) die "grain must be a number (0 = none), got '$GR'";; esac
+case "$CRF" in ''|*[!0-9.]*) die "crf must be a number (e.g. 19 or 25), got '$CRF'";; esac
 case "${LEMO_COLOR:-}" in ''|bt709) ;; *) die "LEMO_COLOR must be bt709 or unset, got '$LEMO_COLOR'";; esac
 # ffmpeg 7 or newer, as TECHNIQUE.md asks (older ones misreport the audio's length or reject the limiter's options with cryptic errors).
 # Only the newest ffmpeg is supported: an older one stops here with a clear message. A version that isn't a number (a git build) is let through
@@ -119,7 +120,7 @@ trap 'exit 130' INT; trap 'exit 143' TERM
 # shellcheck disable=SC2086  (CARGS must split on spaces into several arguments; empty by default)
 ffmpeg -y -loglevel error -i "$V" -i "$A" \
   -filter_complex "[0:v]$VF[v];[1:a]$LN$(lim $CEIL),aresample=48000$PAD[a]" \
-  -map "[v]" -map "[a]" -c:v libx264 -preset slow -crf 19 -r "$FPS" $CARGS -c:a aac -b:a 256k -movflags +faststart -shortest "$TMP" \
+  -map "[v]" -map "[a]" -c:v libx264 -preset slow -crf "$CRF" -r "$FPS" $CARGS -c:a aac -b:a 256k -movflags +faststart -shortest "$TMP" \
   || die "ffmpeg failed while writing '$O' (its message is above)"
 [ -s "$TMP" ] || die "no output was written to '$O'"
 mv -f "$TMP" "$O" || die "could not move the finished film to '$O'"

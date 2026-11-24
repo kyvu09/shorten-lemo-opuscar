@@ -26,6 +26,7 @@ films/**/*.mp4
 films/**/*.wav
 films/**/*.mp3
 films/**/*.part
+films/*
 
 # Reference style demo intermediates
 styles/*/demo/out/

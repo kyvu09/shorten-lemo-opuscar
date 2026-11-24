@@ -812,8 +812,10 @@ function renderInspector() {
           <select id="selWorld">
             <option value="garden-cross-section" ${P.world?.preset === 'garden-cross-section' ? 'selected' : ''}>Mặt cắt khu vườn &amp; lòng đất</option>
             <option value="forest-clearing" ${P.world?.preset === 'forest-clearing' ? 'selected' : ''}>Khu rừng nắng &amp; Dòng sông xanh</option>
+            <option value="riverside-pond" ${P.world?.preset === 'riverside-pond' ? 'selected' : ''}>Ao vịt hoa sen &amp; Đồng cỏ nắng</option>
+            <option value="sunny-meadow" ${P.world?.preset === 'sunny-meadow' ? 'selected' : ''}>Công viên đồng cỏ, nhà nhỏ &amp; cầu vồng</option>
+            <option value="starry-hill" ${P.world?.preset === 'starry-hill' ? 'selected' : ''}>Ngọn đồi sao đêm &amp; Đom đóm</option>
             <option value="cozy-room" ${P.world?.preset === 'cozy-room' ? 'selected' : ''}>Phòng tiệc ấm cúng (Sinh nhật / Trong nhà)</option>
-            <option value="sunny-meadow" ${P.world?.preset === 'sunny-meadow' ? 'selected' : ''}>Đồng cỏ nắng rộng</option>
             <option value="blank-page" ${P.world?.preset === 'blank-page' ? 'selected' : ''}>Trang giấy trắng tối giản</option>
           </select>
         </label>
@@ -1362,7 +1364,11 @@ function updateAutoDirectPreview() {
     scriptText: txt,
     customProps: STATE.customProps,
   });
-  const worldIcon = summary.world === 'cozy-room' ? '🏠' : (summary.world === 'forest-clearing' ? '🌲' : '🌻');
+  const worldIcons = {
+    'cozy-room': '🏠', 'riverside-pond': '🦆', 'sunny-meadow': '🌈',
+    'starry-hill': '🌙', 'forest-clearing': '🌲', 'garden-cross-section': '🌱', 'blank-page': '📄'
+  };
+  const worldIcon = worldIcons[summary.world] || '🌻';
   const castHtml = summary.cast.map(c => `<span class="ad-pill">${esc(c.icon)} ${esc(c.name)} (${esc(c.enVoice)})</span>`).join('');
   const tagHtml = summary.tags.map(t => `<span class="ad-pill tag">🏷️ ${esc(t)}</span>`).join('');
   const missHtml = (summary.missingProps || []).length

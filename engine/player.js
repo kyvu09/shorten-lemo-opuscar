@@ -2,7 +2,7 @@
 // Guarantees 100% WYSIWYG parity between Web Studio GUI preview and headless video.mjs / still.mjs / readcheck.mjs!
 import { makeComp } from './gl.js';
 import { setView } from './crayon.js';
-import { renderProject, buildEventsFromProject, getVisibleTexts } from './scene.js';
+import { renderProject, buildEventsFromProject, getVisibleTexts, getFrameLayout } from './scene.js';
 import { renderModelSheet } from './sheet.js';
 
 const canvas = document.getElementById('gl');
@@ -22,13 +22,20 @@ window.TEXTS = (t) => {
   return getVisibleTexts(project, t);
 };
 
+window.LAYOUT = (t) => {
+  if (!project || testMode === 'model') return { w: W, h: H, fridgeP: 0, texts: [], actors: [] };
+  return getFrameLayout(project, t);
+};
+
 window.render = (t) => {
-  if (!project) return;
+  if (!project) return true;
   if (testMode === 'model') {
     renderModelSheet(comp, project, sheetPage);
-    return;
+    return true;
   }
-  lastTexts = renderProject(comp, canvas, project, t).visibleTexts;
+  const res = renderProject(comp, canvas, project, t, { allowSkip: true });
+  lastTexts = res.visibleTexts;
+  return !res.skipped;
 };
 
 async function boot() {

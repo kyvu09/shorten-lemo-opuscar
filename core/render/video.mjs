@@ -63,12 +63,17 @@ try { await Promise.all([...Array(WK)].map(async (_, w) => {
   let done; const closed = new Promise(r => { done = r; }); ff.on('close', code => done(code));
   ff.on('error', e => { dead = e.code === 'ENOENT' ? 'ffmpeg is not installed (or not on PATH)' : e.message; done(-1); });
   ff.stdin.on('error', () => { dead ??= 'ffmpeg closed its input early'; });
+  let lastBuf = null, skipped = 0;
   for (let f = a; f < b && !dead && !abort; f++) {
-    await page.evaluate(t => window.render(t), f / FPS);
-    const buf = await page.screenshot({ type: 'jpeg', quality: 95 });
+    const changed = await page.evaluate(t => window.render(t), f / FPS);
+    if (changed === false && lastBuf) {
+      skipped++;
+    } else {
+      lastBuf = await page.screenshot({ type: 'jpeg', quality: 95 });
+    }
     if (dead) break;
-    if (!ff.stdin.write(buf)) await Promise.race([new Promise(r => ff.stdin.once('drain', r)), closed]);
-    if ((f - a) % 60 === 0) console.log(`w${w} ${f - a}/${b - a}  ${((Date.now() - t0) / 1000).toFixed(0)}s`);
+    if (!ff.stdin.write(lastBuf)) await Promise.race([new Promise(r => ff.stdin.once('drain', r)), closed]);
+    if ((f - a) % 60 === 0) console.log(`w${w} ${f - a}/${b - a}  ${((Date.now() - t0) / 1000).toFixed(0)}s${skipped ? ` (${skipped} reused)` : ''}`);
     if ((f - a) % 60 === 59 || f === b - 1) { const lost = await glLost(page);   // see WATCH_GL_LOST in browser.mjs
       if (lost) { abort ??= `the WebGL context (${lost}) was lost during frames ${a}–${f} of worker ${w}: ${GL_LOST_HELP}`; break; } }
   }

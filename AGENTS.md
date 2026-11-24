@@ -3,6 +3,8 @@
 This repository is a dedicated, lean **Crayon Picture Book** video production studio. Every video is built completely in code (WebGL2 paper-tooth + wax adhesion + watercolour resist, Canvas2D strokes, CC0 wooden/metal storybook score, procedural foley, and TTS narration).
 
 ## Key Guides
+- Autonomous video production skill: [`.agents/skills/crayon-story-director/SKILL.md`](.agents/skills/crayon-story-director/SKILL.md)
+- Persistent reusable libraries: [`engine/custom_props.json`](engine/custom_props.json) (models) & [`engine/custom_worlds.json`](engine/custom_worlds.json) (worlds)
 - Style invariants: [`styles/crayon-book/STYLE.md`](styles/crayon-book/STYLE.md)
 - Directing standards: [`DIRECTOR.md`](DIRECTOR.md)
 - Technical pipeline: [`TECHNIQUE.md`](TECHNIQUE.md)

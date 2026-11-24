@@ -18,6 +18,11 @@ const FX_L = layer();
 const TAG_K = layer(), TAG_L = layer();
 const SUB_K = layer(), SUB_L = layer();
 
+// Static BG_F cache & exact duplicate-frame fingerprint cache (for 2-3x faster rendering!)
+let lastBgFillKey = '';
+let lastFrameKey = '';
+let lastFrameResult = { hitTargets: [], visibleTexts: [] };
+
 // Deterministic precomputed white-wax shapes (raindrops, stars, roots)
 const DROPS = (() => {
   const out = [];
@@ -124,38 +129,117 @@ function resolveEntityState(ent, t) {
   return out;
 }
 
-function drawWorldPreset(BG_F, BG_L, C, project, t) {
+function resolveWorldCol(C, name) {
+  if (!name) return null;
+  const k = String(name).trim().toLowerCase();
+  if (C[k]) return C[k];
+  if (/^#?(000|000000|111|111111|222|222222)$/.test(k)) return C.ink;
+  if (/^#[0-9a-f]{6}$/i.test(k)) return k;
+  return C.ochre;
+}
+
+function drawCustomWorld(BG_F, BG_L, C, cw, hy, xMin, xMax, gY, t12, skipFill = false) {
+  const bgFill = (poly, o) => { if (!skipFill) fill(BG_F, poly, o); };
+  const bgDab = (x, y, r, o) => { if (!skipFill) dab(BG_F, x, y, r, o); };
+  // Optional base ground fill below horizon
+  if (cw.groundCol && cw.groundCol !== 'none') {
+    const gc = resolveWorldCol(C, cw.groundCol) || C.green;
+    const hPts = [];
+    for (let x = xMin; x <= xMax; x += 64) hPts.push([x, gY(x)]);
+    if (!skipFill) {
+      const groundPoly = [...hPts, [xMax, 1940], [xMin, 1940]];
+      fill(BG_F, groundPoly, { col: gc, p: clamp(Number(cw.groundP ?? 0.56), 0.15, 0.95), gap: 15, w: 14, over: 6, seed: 12, ang: -0.05, boil: 0 });
+    }
+    if (cw.groundLine !== false) {
+      line(BG_L, hPts, { col: C.ink, w: 7, p: 0.85, seed: 15, boil: 0.45 });
+    }
+    if (cw.grassTufts) {
+      for (let i = 0; i < 20; i++) {
+        const gx = 160 + i * 145 + (hash(i * 9.1) - 0.5) * 40;
+        const gy = gY(gx), h = 22 + hash(i * 4.7) * 18;
+        line(BG_L, [[gx - 10, gy], [gx - 18, gy - h]], { col: C.green, w: 5.5, p: 0.85, seed: 20 + i * 3, boil: 0.35 });
+        line(BG_L, [[gx + 10, gy], [gx + 18, gy - h * 0.9]], { col: C.green, w: 5.5, p: 0.85, seed: 22 + i * 3, boil: 0.35 });
+      }
+    }
+  }
+  const shapes = Array.isArray(cw.shapes) ? cw.shapes : [];
+  shapes.forEach((sh, i) => {
+    const sd = 200 + i * 9;
+    const fillCol = sh.fill ? resolveWorldCol(C, sh.fill) : null;
+    const strokeCol = sh.col ? resolveWorldCol(C, sh.col) : null;
+    const w = clamp(Number(sh.w ?? 5.5), 2, 18);
+    const p = clamp(Number(sh.p ?? 0.78), 0.15, 0.96);
+    const dxWave = sh.wave ? Math.sin(t12 * 2.0 + i * 1.3) * 10 : 0;
+    const mapPt = ([px, py]) => [Number(px || 0) + dxWave, Number(py || 0)];
+    if (sh.kind === 'poly' && Array.isArray(sh.pts) && sh.pts.length >= 3) {
+      const raw = sh.pts.map(mapPt);
+      const pts = sh.smooth ? smooth(raw, 5, true) : raw;
+      if (fillCol) bgFill(pts, { col: fillCol, p, gap: Number(sh.gap ?? 13), w: Number(sh.fw ?? 13), over: 5, seed: sd, ang: Number(sh.ang ?? 0.08), boil: 0, ...(sh.cross ? { cross: true, crossP: 0.34 } : {}) });
+      if (strokeCol) line(BG_L, pts, { col: strokeCol, w, p: Math.min(0.92, p + 0.1), seed: sd + 1, boil: 0.35, closed: true });
+    } else if (sh.kind === 'ellipse') {
+      const pts = ellipse(Number(sh.x || 0) + dxWave, Number(sh.y || 0), Math.max(4, Number(sh.rx || 120)), Math.max(4, Number(sh.ry || 60)), 32, 0, Math.PI * 2, Number(sh.rot || 0));
+      if (fillCol) bgFill(pts, { col: fillCol, p, gap: Number(sh.gap ?? 11), w: Number(sh.fw ?? 12), over: 4, seed: sd, ang: Number(sh.ang ?? 0.05), boil: 0, ...(sh.cross ? { cross: true, crossP: 0.32 } : {}) });
+      if (strokeCol) line(BG_L, pts, { col: strokeCol, w, p: Math.min(0.92, p + 0.1), seed: sd + 1, boil: 0.35, closed: true });
+    } else if (sh.kind === 'circle') {
+      const pts = handCircle(Number(sh.x || 0) + dxWave, Number(sh.y || 0), Math.max(4, Number(sh.r || 60)), sd, 0.08, 28);
+      if (fillCol) bgFill(pts, { col: fillCol, p, gap: Number(sh.gap ?? 10), w: Number(sh.fw ?? 11), over: 4, seed: sd, boil: 0 });
+      if (strokeCol) line(BG_L, pts, { col: strokeCol, w, p: Math.min(0.92, p + 0.1), seed: sd + 1, boil: 0.35 });
+    } else if (sh.kind === 'line' && Array.isArray(sh.pts) && sh.pts.length >= 2) {
+      const raw = sh.pts.map(mapPt);
+      const pts = sh.curve && raw.length >= 3 ? curve(raw, 5) : raw;
+      line(BG_L, pts, { col: strokeCol || fillCol || C.ink, w, p, seed: sd + 1, boil: 0.35 });
+    } else if (sh.kind === 'dab') {
+      const dyBob = sh.bob ? Math.sin(t12 * 2.4 + i * 1.7) * 14 : 0;
+      if (sh.bob || sh.wave) {
+        dab(BG_L, Number(sh.x || 0) + dxWave, Number(sh.y || 0) + dyBob, Math.max(2, Number(sh.r || 10)), { col: strokeCol || fillCol || C.yellow, p, sq: Number(sh.sq ?? 1), seed: sd + 1, boil: 0.2 });
+      } else {
+        bgDab(Number(sh.x || 0), Number(sh.y || 0), Math.max(2, Number(sh.r || 10)), { col: strokeCol || fillCol || C.yellow, p, sq: Number(sh.sq ?? 1), seed: sd + 1, boil: 0 });
+      }
+    }
+  });
+}
+
+function drawWorldPreset(BG_F, BG_L, C, project, t, skipFill = false) {
   const preset = project.world?.preset || 'garden-cross-section';
   if (preset === 'blank-page') return;
   const hy = project.world?.horizonY ?? 1090;
   const seedX = project.world?.seedX ?? 1680;
   const seedY = project.world?.seedY ?? 1365;
   const gY = x => hy + Math.sin(x / 380) * 14 - Math.exp(-(((x - seedX) / 210) ** 2)) * 16;
+  const t12 = BOIL.step / 12;
+  const bgFill = (poly, o) => { if (!skipFill) fill(BG_F, poly, o); };
+  const bgDab = (x, y, r, o) => { if (!skipFill) dab(BG_F, x, y, r, o); };
+
+  // Declarative custom world saved by AI Agent (project.customWorld)!
+  if (project.customWorld && (!project.customWorld.preset || project.customWorld.preset === preset || preset.startsWith('world_'))) {
+    drawCustomWorld(BG_F, BG_L, C, project.customWorld, hy, -420, PW + 560, gY, t12, skipFill);
+    return;
+  }
 
   const horizonPts = [];
-  const xMin = (preset === 'forest-clearing' || preset === 'cozy-room') ? -420 : -40;
-  const xMax = (preset === 'forest-clearing' || preset === 'cozy-room') ? PW + 560 : PW + 40;
-  for (let x = xMin; x <= xMax; x += 48) horizonPts.push([x, gY(x)]);
+  const wide = preset === 'forest-clearing' || preset === 'cozy-room' || preset === 'riverside-pond' || preset === 'starry-hill' || preset === 'sunny-meadow';
+  const xMin = wide ? -420 : -40;
+  const xMax = wide ? PW + 560 : PW + 40;
+  for (let x = xMin; x <= xMax; x += 48) {
+    const hillLift = preset === 'starry-hill' ? -Math.exp(-(((x - 1600) / 950) ** 2)) * 90 : 0;
+    horizonPts.push([x, gY(x) + hillLift]);
+  }
 
   if (preset === 'cozy-room') {
-    // Cozy birthday / indoor storybook room: warm wall + sunlit window + wooden floorboards + festive bunting!
     const fy = hy + 28;
     const floorPoly = [[xMin, fy], [xMax, fy], [xMax, 1940], [xMin, 1940]];
-    fill(BG_F, floorPoly, { col: C.ochre, p: 0.52, gap: 16, w: 14, over: 6, seed: 12, ang: 0.02, boil: 0 });
+    bgFill(floorPoly, { col: C.ochre, p: 0.52, gap: 16, w: 14, over: 6, seed: 12, ang: 0.02, boil: 0 });
     line(BG_L, [[xMin, fy], [xMax, fy]], { col: C.ink, w: 7, p: 0.85, seed: 15, boil: 0.45 });
-    // Subtle wood floor plank lines
     for (let k = 1; k <= 5; k++) {
       const py = fy + k * 115;
       line(BG_L, [[xMin, py], [xMax, py]], { col: C.ink, w: 3.5, p: 0.32, seed: 15 + k, boil: 0.25 });
     }
-    // Cozy sunlit arched/square window looking out at sky & sunshine!
     const wx = 1860, wy = 710, ww = 250, wh = 220;
     const winP = [[wx - ww * 0.5, wy - wh * 0.5], [wx + ww * 0.5, wy - wh * 0.5], [wx + ww * 0.5, wy + wh * 0.5], [wx - ww * 0.5, wy + wh * 0.5]];
-    fill(BG_F, winP, { col: C.sky, p: 0.54, gap: 11, w: 12, over: 3, seed: 24, boil: 0 });
+    bgFill(winP, { col: C.sky, p: 0.54, gap: 11, w: 12, over: 3, seed: 24, boil: 0 });
     line(BG_L, [...winP, winP[0]], { col: C.ink, w: 7, p: 0.85, seed: 25, boil: 0.45 });
     line(BG_L, [[wx, wy - wh * 0.5], [wx, wy + wh * 0.5]], { col: C.ink, w: 5.5, p: 0.82, seed: 26, boil: 0.4 });
     line(BG_L, [[wx - ww * 0.5, wy], [wx + ww * 0.5, wy]], { col: C.ink, w: 5.5, p: 0.82, seed: 27, boil: 0.4 });
-    // Festive party bunting flags draped along top wall (clear above title!)
     const flagCols = [C.red, C.yellow, C.sky, C.pink, C.green];
     const stringPts = [];
     for (let x = -220; x <= 3460; x += 80) {
@@ -167,7 +251,7 @@ function drawWorldPreset(BG_F, BG_L, C, project, t) {
       const a = stringPts[i], b = stringPts[i + 1];
       const mx = (a[0] + b[0]) * 0.5, my = (a[1] + b[1]) * 0.5 + 46;
       const tri = [a, b, [mx, my]];
-      fill(BG_F, tri, { col: flagCols[i % flagCols.length], p: 0.82, gap: 6, w: 7, over: 2, seed: 40 + i, boil: 0 });
+      bgFill(tri, { col: flagCols[i % flagCols.length], p: 0.82, gap: 6, w: 7, over: 2, seed: 40 + i, boil: 0 });
       line(BG_L, [a, [mx, my], b], { col: C.ink, w: 3.8, p: 0.72, seed: 100 + i, boil: 0.35 });
     }
     return;
@@ -175,55 +259,109 @@ function drawWorldPreset(BG_F, BG_L, C, project, t) {
 
   if (preset === 'garden-cross-section') {
     const crust = [...horizonPts, [PW + 40, hy + 125], [2600, hy + 130], [1980, hy + 122], [1680, hy + 135], [1250, hy + 120], [600, hy + 128], [-40, hy + 125]];
-    fill(BG_F, crust, { col: C.ochre, p: 0.42, gap: 16, w: 14, over: 6, seed: 12, ang: 0.06, boil: 0 });
+    bgFill(crust, { col: C.ochre, p: 0.42, gap: 16, w: 14, over: 6, seed: 12, ang: 0.06, boil: 0 });
   } else if (preset === 'forest-clearing') {
-    // Distant gentle woodland hills behind the meadow
     const hills = smooth([
       [-460, hy + 10], [-140, hy - 140], [160, hy - 145], [520, hy - 185], [920, hy - 110], [1340, hy - 210],
       [1820, hy - 155], [2240, hy - 220], [2680, hy - 145], [3060, hy - 180], [3460, hy - 135], [PW + 580, hy + 10]
     ], 5, true);
-    fill(BG_F, hills, { col: C.green, p: 0.30, gap: 18, w: 15, over: 6, seed: 8, ang: 0.14, boil: 0 });
+    bgFill(hills, { col: C.green, p: 0.30, gap: 18, w: 15, over: 6, seed: 8, ang: 0.14, boil: 0 });
     line(BG_L, hills.slice(1, -1), { col: C.green, w: 4.5, p: 0.55, seed: 9, boil: 0.25 });
 
-    // Warm sunlit forest meadow lawn (denser strokes so grass stays lush under warm wash)
     const lawn = [...horizonPts, [xMax, 1940], [xMin, 1940]];
-    fill(BG_F, lawn, { col: C.green, p: 0.64, gap: 14, w: 14, over: 6, seed: 12, ang: -0.08, boil: 0 });
+    bgFill(lawn, { col: C.green, p: 0.64, gap: 14, w: 14, over: 6, seed: 12, ang: -0.08, boil: 0 });
 
-    // Winding ochre woodland footpath (left → central clearing → picnic tree)
     const pathPoly = smooth([
       [-40, hy + 145], [460, hy + 125], [980, hy + 150], [1560, hy + 120], [2180, hy + 145], [2440, hy + 170],
       [2420, hy + 275], [1980, hy + 255], [1480, hy + 235], [920, hy + 265], [380, hy + 245], [-40, hy + 255]
     ], 5, true);
-    fill(BG_F, pathPoly, { col: C.ochre, p: 0.46, gap: 14, w: 12, over: 5, seed: 31, ang: 0.04, boil: 0 });
+    bgFill(pathPoly, { col: C.ochre, p: 0.46, gap: 14, w: 12, over: 5, seed: 31, ang: 0.04, boil: 0 });
 
-    // Sparkling winding blue river curving along the right woodland bank
     const river = smooth([
       [2840, hy - 14], [2970, hy - 12], [3060, hy + 135], [3190, hy + 340], [3260, 1840],
       [2760, 1840], [2680, hy + 380], [2690, hy + 185], [2780, hy + 55]
     ], 5, true);
-    fill(BG_F, river, { col: C.sky, p: 0.78, gap: 11, w: 13, over: 6, seed: 34, ang: 0.12, boil: 0, cross: true, crossP: 0.35 });
+    bgFill(river, { col: C.sky, p: 0.78, gap: 11, w: 13, over: 6, seed: 34, ang: 0.12, boil: 0, cross: true, crossP: 0.35 });
     line(BG_L, curve([[2840, hy - 10], [2780, hy + 58], [2692, hy + 190], [2686, hy + 385], [2760, 1820]], 6), { col: C.ink, w: 5.5, p: 0.72, seed: 35, boil: 0.45 });
     line(BG_L, curve([[2972, hy - 10], [3058, hy + 138], [3188, hy + 342], [3248, 1820]], 6), { col: C.ink, w: 5.5, p: 0.72, seed: 36, boil: 0.45 });
-    // Soft water ripple highlights
     [[2850, hy + 95, 76], [2815, hy + 210, 96], [2860, hy + 330, 110], [2920, hy + 465, 118], [2975, hy + 585, 105]].forEach(([rx, ry, rw], i) => {
-      const sh = Math.sin(t * 2.2 + i * 1.4) * 8;
+      const sh = Math.sin(t12 * 2.2 + i * 1.4) * 8;
       line(BG_L, [[rx - rw * 0.5 + sh, ry], [rx + rw * 0.5 + sh, ry]], { col: C.white, w: 5.5, p: 0.88, seed: 40 + i, boil: 0.35 });
     });
 
-    // Little meadow wildflowers
     [[260, hy + 72, C.yellow], [490, hy + 310, C.pink], [820, hy + 88, C.yellow], [1220, hy + 305, C.pink],
      [1680, hy + 290, C.yellow], [2040, hy + 78, C.pink], [2310, hy + 315, C.yellow], [2540, hy + 140, C.pink]].forEach(([fx, fy, fc], i) => {
-      dab(BG_F, fx, fy, 11, { col: fc, p: 0.9, seed: 50 + i, boil: 0 });
-      dab(BG_F, fx, fy, 4.5, { col: C.white, p: 0.9, seed: 60 + i, boil: 0 });
+      bgDab(fx, fy, 11, { col: fc, p: 0.9, seed: 50 + i, boil: 0 });
+      bgDab(fx, fy, 4.5, { col: C.white, p: 0.9, seed: 60 + i, boil: 0 });
+    });
+  } else if (preset === 'riverside-pond') {
+    const hills = smooth([
+      [-460, hy + 10], [-80, hy - 125], [460, hy - 95], [1080, hy - 165], [1640, hy - 110],
+      [2260, hy - 170], [2880, hy - 115], [3460, hy - 140], [PW + 580, hy + 10]
+    ], 5, true);
+    bgFill(hills, { col: C.green, p: 0.28, gap: 18, w: 15, over: 6, seed: 18, ang: 0.12, boil: 0 });
+    line(BG_L, hills.slice(1, -1), { col: C.green, w: 4, p: 0.5, seed: 19, boil: 0.25 });
+
+    const lawn = [...horizonPts, [xMax, 1940], [xMin, 1940]];
+    bgFill(lawn, { col: C.green, p: 0.58, gap: 15, w: 14, over: 6, seed: 22, ang: -0.06, boil: 0 });
+
+    const pcx = 2360, pcy = hy + 245;
+    const pond = ellipse(pcx, pcy, 430, 148, 36);
+    bgFill(pond, { col: C.sky, p: 0.80, gap: 10, w: 13, over: 5, seed: 34, ang: 0.05, boil: 0, cross: true, crossP: 0.32 });
+    line(BG_L, pond, { col: C.ink, w: 5.5, p: 0.72, seed: 35, boil: 0.45, closed: true });
+    [[pcx - 190, pcy - 32, 95], [pcx + 40, pcy - 54, 110], [pcx - 60, pcy + 34, 130], [pcx + 170, pcy + 42, 95]].forEach(([rx, ry, rw], i) => {
+      const sh = Math.sin(t12 * 2.0 + i * 1.5) * 9;
+      line(BG_L, [[rx - rw * 0.5 + sh, ry], [rx + rw * 0.5 + sh, ry]], { col: C.white, w: 5.5, p: 0.88, seed: 40 + i, boil: 0.35 });
+    });
+    [[pcx - 245, pcy + 54, 42], [pcx + 255, pcy - 22, 38], [pcx + 110, pcy + 88, 36]].forEach(([lx, ly, lr], i) => {
+      const pad = ellipse(lx, ly, lr, lr * 0.45, 18);
+      bgFill(pad, { col: C.green, p: 0.90, gap: 5, w: 7, over: 2, seed: 46 + i, boil: 0 });
+      line(BG_L, pad, { col: C.ink, w: 3.5, p: 0.72, seed: 50 + i, boil: 0.3, closed: true });
+      if (i < 2) bgDab(lx + 4, ly - 10, 12, { col: C.pink, p: 0.92, seed: 55 + i, boil: 0 });
+    });
+    [pcx - 415, pcx - 385, pcx + 395, pcx + 425].forEach((rx, i) => {
+      const ry = pcy - 28 + (i % 2) * 26;
+      line(BG_L, curve([[rx, ry + 40], [rx + (i % 2 ? 12 : -10), ry - 48], [rx + (i % 2 ? 16 : -14), ry - 115]], 4), { col: C.green, w: 6, p: 0.88, seed: 62 + i, boil: 0.35 });
+      bgDab(rx + (i % 2 ? 15 : -13), ry - 98, 11, { col: C.ochre, p: 0.92, sq: 1.8, seed: 68 + i, boil: 0 });
+    });
+    [[420, hy + 120, C.yellow], [860, hy + 260, C.pink], [1240, hy + 135, C.yellow], [1560, hy + 295, C.pink], [1820, hy + 165, C.yellow]].forEach(([fx, fy, fc], i) => {
+      bgDab(fx, fy, 11, { col: fc, p: 0.9, seed: 74 + i, boil: 0 });
+      bgDab(fx, fy, 4.5, { col: C.white, p: 0.9, seed: 80 + i, boil: 0 });
+    });
+  } else if (preset === 'starry-hill') {
+    const farHills = smooth([
+      [-460, hy + 30], [180, hy - 160], [920, hy - 110], [1600, hy - 195], [2340, hy - 125], [3080, hy - 165], [PW + 580, hy + 30]
+    ], 5, true);
+    bgFill(farHills, { col: C.rain, p: 0.36, gap: 18, w: 15, over: 6, seed: 18, ang: 0.1, boil: 0 });
+    const lawn = [...horizonPts, [xMax, 1940], [xMin, 1940]];
+    bgFill(lawn, { col: C.green, p: 0.62, gap: 14, w: 14, over: 6, seed: 22, ang: -0.06, boil: 0 });
+    // Glowing warm yellow firefly dots drawn on BG_L so BG_F stays 100% cacheable!
+    [[540, hy - 70], [1020, hy - 115], [1480, hy - 140], [1920, hy - 120], [2380, hy - 95], [2720, hy - 80]].forEach(([fx, fy], i) => {
+      const bob = Math.sin(t12 * 2.4 + i * 1.7) * 18;
+      dab(BG_L, fx, fy + bob, 9, { col: C.yellow, p: 0.85, seed: 90 + i, boil: 0.3 });
+      dab(BG_L, fx, fy + bob, 4, { col: C.white, p: 0.95, seed: 96 + i, boil: 0.3 });
     });
   } else {
-    // Sunny meadow lush lower lawn
-    const lawn = [...horizonPts, [PW + 40, 1840], [-40, 1840]];
-    fill(BG_F, lawn, { col: C.green, p: 0.46, gap: 18, w: 15, over: 6, seed: 12, ang: -0.1, boil: 0 });
+    const hills = smooth([
+      [-460, hy + 10], [120, hy - 115], [760, hy - 155], [1480, hy - 95], [2180, hy - 165], [2860, hy - 120], [PW + 580, hy + 10]
+    ], 5, true);
+    bgFill(hills, { col: C.green, p: 0.24, gap: 18, w: 15, over: 6, seed: 10, ang: 0.12, boil: 0 });
+    const lawn = [...horizonPts, [xMax, 1940], [xMin, 1940]];
+    bgFill(lawn, { col: C.green, p: 0.50, gap: 16, w: 15, over: 6, seed: 12, ang: -0.09, boil: 0 });
+    const parkPath = smooth([
+      [480, hy + 165], [1120, hy + 125], [1760, hy + 150], [2540, hy + 135],
+      [2520, hy + 245], [1780, hy + 260], [1120, hy + 235], [460, hy + 265]
+    ], 5, true);
+    bgFill(parkPath, { col: C.peach, p: 0.56, gap: 13, w: 12, over: 4, seed: 31, ang: 0.03, boil: 0 });
+    [[340, hy + 95, C.yellow], [680, hy + 305, C.pink], [1180, hy + 95, C.yellow], [1580, hy + 315, C.pink],
+     [2060, hy + 100, C.yellow], [2440, hy + 300, C.pink], [2820, hy + 140, C.yellow]].forEach(([fx, fy, fc], i) => {
+      bgDab(fx, fy, 11, { col: fc, p: 0.9, seed: 50 + i, boil: 0 });
+      bgDab(fx, fy, 4.5, { col: C.white, p: 0.9, seed: 60 + i, boil: 0 });
+    });
   }
 
   const grass = [...horizonPts.map(([x, y]) => [x, y - 22]), ...horizonPts.slice().reverse().map(([x, y]) => [x, y + 18])];
-  fill(BG_F, grass, { col: C.green, p: 0.85, gap: 9, w: 12, over: 6, seed: 14, ang: -0.22, boil: 0 });
+  bgFill(grass, { col: C.green, p: 0.85, gap: 9, w: 12, over: 6, seed: 14, ang: -0.22, boil: 0 });
   line(BG_L, horizonPts, { col: C.ink, w: 7, p: 0.88, seed: 15, boil: 0.55 });
 
   for (let i = 0; i < 24; i++) {
@@ -243,15 +381,14 @@ function drawWorldPreset(BG_F, BG_L, C, project, t) {
         const pp = clamp((burrowP - 0.2 - i * 0.05) / 0.35);
         if (pp <= 0) return;
         const pb = ellipse(px, py, pr, pr * 0.72, 14, 0, Math.PI * 2, hash(i) * 2);
-        fill(BG_F, pb, { col: C.ochre, p: 0.55, gap: 6, w: 7, over: 2, seed: 60 + i, boil: 0 });
+        bgFill(pb, { col: C.ochre, p: 0.55, gap: 6, w: 7, over: 2, seed: 60 + i, boil: 0 });
         line(BG_L, pb, { col: C.ink, w: 4.5, p: 0.72, seed: 70 + i, draw: pp, boil: 0.5, closed: true });
       });
     }
-    // Scenic garden props: fence left, watering can, flowering bush right
     for (let i = 0; i < 5; i++) {
       const fx = 280 + i * 112, fy = gY(fx) + 6, lean = (hash(i * 3.7) - 0.5) * 12;
       const post = [[fx - 16, fy], [fx - 18 + lean, fy - 132], [fx + lean, fy - 156], [fx + 18 + lean, fy - 132], [fx + 16, fy]];
-      fill(BG_F, post, { col: C.ochre, p: 0.72, gap: 9, w: 10, over: 4, seed: 80 + i, ang: 0.9, boil: 0 });
+      bgFill(post, { col: C.ochre, p: 0.72, gap: 9, w: 10, over: 4, seed: 80 + i, ang: 0.9, boil: 0 });
       line(BG_L, post, { col: C.ink, w: 6, p: 0.82, seed: 90 + i, boil: 0.55, closed: true });
     }
     line(BG_L, [[250, hy - 95], [760, hy - 100]], { col: C.ink, w: 7, p: 0.8, seed: 98, boil: 0.5 });
@@ -259,20 +396,20 @@ function drawWorldPreset(BG_F, BG_L, C, project, t) {
 
     const wx = 820, wy = gY(wx) + 2;
     const canBody = [[wx - 44, wy - 76], [wx + 42, wy - 76], [wx + 48, wy], [wx - 48, wy]];
-    fill(BG_F, canBody, { col: C.sky, p: 0.84, gap: 8, w: 10, over: 4, seed: 105, ang: 0.4, boil: 0 });
+    bgFill(canBody, { col: C.sky, p: 0.84, gap: 8, w: 10, over: 4, seed: 105, ang: 0.4, boil: 0 });
     line(BG_L, canBody, { col: C.ink, w: 6, p: 0.88, seed: 106, boil: 0.55, closed: true });
     line(BG_L, [[wx + 44, wy - 24], [wx + 98, wy - 68]], { col: C.sky, w: 12, p: 0.85, seed: 107, boil: 0.5 });
     line(BG_L, [[wx + 44, wy - 24], [wx + 98, wy - 68]], { col: C.ink, w: 5.5, p: 0.88, seed: 108, boil: 0.55 });
     const rose = ellipse(wx + 104, wy - 72, 12, 18, 14, 0, Math.PI * 2, 0.7);
-    fill(BG_F, rose, { col: C.yellow, p: 0.88, gap: 5, w: 6, over: 1, seed: 109, boil: 0 });
+    bgFill(rose, { col: C.yellow, p: 0.88, gap: 5, w: 6, over: 1, seed: 109, boil: 0 });
     line(BG_L, rose, { col: C.ink, w: 4.5, p: 0.88, seed: 110, boil: 0.55, closed: true });
     line(BG_L, curve([[wx - 42, wy - 64], [wx - 84, wy - 64], [wx - 80, wy - 16], [wx - 44, wy - 16]], 5), { col: C.ink, w: 6, p: 0.86, seed: 111, boil: 0.55 });
 
     const bush = smooth([[2660, hy - 2], [2675, hy - 85], [2745, hy - 108], [2810, hy - 92], [2865, hy - 112], [2940, hy - 80], [2960, hy - 2]], 5, true);
-    fill(BG_F, bush, { col: C.green, p: 0.82, gap: 10, w: 12, over: 6, seed: 115, ang: 0.5, boil: 0 });
+    bgFill(bush, { col: C.green, p: 0.82, gap: 10, w: 12, over: 6, seed: 115, ang: 0.5, boil: 0 });
     line(BG_L, bush, { col: C.ink, w: 6.5, p: 0.84, seed: 116, boil: 0.55, closed: true });
     [[2725, hy - 60, C.yellow], [2820, hy - 70, C.pink], [2895, hy - 50, C.yellow]].forEach(([bx, by, bc], i) => {
-      dab(BG_F, bx, by, 14, { col: bc, p: 0.9, seed: 120 + i, boil: 0 });
+      bgDab(bx, by, 14, { col: bc, p: 0.9, seed: 120 + i, boil: 0 });
     });
   }
 }
@@ -423,26 +560,26 @@ function drawSubtitlesBar(K_L, T_L, C, project, t, onFridge = false) {
   const rev = clamp((t - active.t0) / 0.36);
 
   let szEn = vertical ? 44 : 50;
-  let szVi = vertical ? 28 : 30;
-  const cyEn = vertical ? H - 210 : H - 92;
-  const cyVi = vertical ? H - 160 : H - 46;
+  let szVi = project.meta?.subViSize ?? (vertical ? 35 : 38);
+  const cyEn = active.vi ? (vertical ? H - 222 : H - 104) : (vertical ? H - 190 : H - 72);
+  const cyVi = vertical ? H - 164 : H - 50;
 
   const g = T_L.g;
-  const maxW = W * 0.84;
+  const maxW = W * 0.88;
   g.save();
   g.font = `400 ${szEn}px "Patrick Hand"`;
   let wEn = g.measureText((active.en || '').normalize('NFC')).width;
   if (wEn > maxW) { szEn = Math.max(30, Math.floor(szEn * (maxW / wEn))); g.font = `400 ${szEn}px "Patrick Hand"`; wEn = g.measureText((active.en || '').normalize('NFC')).width; }
   g.font = `400 ${szVi}px "Patrick Hand"`;
   let wVi = g.measureText((active.vi || '').normalize('NFC')).width;
-  if (wVi > maxW) { szVi = Math.max(22, Math.floor(szVi * (maxW / wVi))); g.font = `400 ${szVi}px "Patrick Hand"`; wVi = g.measureText((active.vi || '').normalize('NFC')).width; }
+  if (wVi > maxW) { szVi = Math.max(26, Math.floor(szVi * (maxW / wVi))); g.font = `400 ${szVi}px "Patrick Hand"`; wVi = g.measureText((active.vi || '').normalize('NFC')).width; }
   g.restore();
-  const hw = Math.min(W * 0.47, Math.max(wEn, wVi) * 0.5 + 46);
+  const hw = Math.min(W * 0.48, Math.max(wEn, wVi) * 0.5 + 48);
 
   const kg = K_L.g;
   kg.save();
   kg.fillStyle = onFridge ? (project.palette?.paper || '#f4efe3') : '#000';
-  const x0 = W / 2 - hw, x1 = W / 2 + hw, y0 = cyEn - szEn * 1.05, y1 = (active.vi ? cyVi : cyEn) + 22;
+  const x0 = W / 2 - hw, x1 = W / 2 + hw, y0 = cyEn - szEn * 1.05, y1 = (active.vi ? cyVi + 26 : cyEn + 22);
   const st = BOIL.step;
   kg.beginPath(); kg.moveTo(x0, y0);
   for (let i = 1; i <= 18; i++) kg.lineTo(lerp(x0, x1, i / 18), y0 + (hash(i * 4.1 + st * 0.2) - 0.5) * 9);
@@ -462,7 +599,7 @@ function drawSubtitlesBar(K_L, T_L, C, project, t, onFridge = false) {
       : clamp((rev - 0.12) / 0.88);
     if (revVi > 0) {
       text(T_L, active.vi, W / 2, cyVi, {
-        font: 'Patrick Hand', size: szVi, col: '#6d4c35',
+        font: 'Patrick Hand', size: szVi, col: '#5a3d29',
         reveal: revVi, seed: 975
       });
     }
@@ -479,19 +616,70 @@ export function renderProject(comp, glCanvas, project, t, opts = {}) {
   WMUL.k = 1;
 
   BOIL.step = Math.floor(t * 12);
+  const t12 = BOIL.step / 12;
   const inSilence = (project.silences || []).some(s => t >= s.t0 && t <= s.t1);
   const endCfg = project.ending || { type: 'none' };
   const fridgeP = endCfg.type === 'fridge' ? eio(seg(t, endCfg.tStart ?? 50.8, endCfg.tEnd ?? 54.4)) : 0;
   BOIL.amp = inSilence ? 0.45 : (fridgeP > 0 ? 0.55 : 1.0);
 
+  const ents = project.entities || [];
+  const entStates = ents.map(ent => resolveEntityState(ent, t));
+
+  // Exact duplicate-frame skip when allowSkip=true (headless video.mjs render):
+  // Any 24fps change (camera, wash sweep, fridge, walk moveDur, stroke draw/fill, title/tag/subtitle reveal) changes frameKey!
+  // On held dialogue beats where only 12fps boil/acting occurs, odd frames match even frames bit-for-bit -> skip redraw & screenshot!
+  if (opts.allowSkip) {
+    const washEn = Boolean(project.palette?.washEnabled);
+    const ws = project.palette?.washStart ?? 30.0;
+    const washKey = !washEn ? 'W0' : (t < ws ? 'W0' : (t <= ws + 6.9 ? `WS:${t.toFixed(4)}` : 'W1'));
+    const gardenBurrow = (project.world?.preset === 'garden-cross-section' && t < 1.25) ? `GB:${t.toFixed(4)}` : '';
+    const tp = project.meta?.titlePos || { x: 2715, y: 825, t: 1.8 };
+    const pT = clamp(seg(t, tp.t ?? 1.8, (tp.t ?? 1.8) + 0.75));
+    const pTVi = clamp(seg(t, (tp.t ?? 1.8) + 0.45, (tp.t ?? 1.8) + 1.15));
+    const tagK = (project.tags || []).map(tg => clamp(seg(t, tg.t, tg.t + 0.45)).toFixed(3)).join(',');
+    const subA = (project.subtitles || []).find(s => t >= s.t0 && t <= s.t1);
+    let subK = '';
+    if (subA) {
+      const rE = clamp((t - subA.t0) / 0.36);
+      const rV = subA.vi ? (subA.enDur > 0 ? (t < subA.t0 + subA.enDur + 0.12 ? 0 : clamp((t - (subA.t0 + subA.enDur + 0.12)) / 0.36)) : clamp((rE - 0.12) / 0.88)) : 0;
+      subK = `${subA.id}:${rE.toFixed(3)}:${rV.toFixed(3)}`;
+    }
+    const entK = ents.map((ent, i) => {
+      const st = entStates[i];
+      if (st.draw <= 0) return '0';
+      return `${(st.x ?? ent.x).toFixed(2)},${(st.y ?? ent.y).toFixed(2)},${st.draw.toFixed(3)},${st.fillP.toFixed(3)},${st.mood || ''},${st.pose || ''},${st.expr || ''},${st.view || ''},${st.layer || ''},${st.hat ? 1 : 0}`;
+    }).join(';');
+    const fKey = `${VIEW.w}x${VIEW.h}|${CAM.x.toFixed(3)},${CAM.y.toFixed(3)},${CAM.s.toFixed(5)}|${BOIL.step}|${BOIL.amp.toFixed(2)}|${fridgeP.toFixed(4)}|${washKey}|${gardenBurrow}|${pT.toFixed(3)},${pTVi.toFixed(3)}|${tagK}|${subK}|${entK}`;
+    if (fKey === lastFrameKey) {
+      return { ...lastFrameResult, skipped: true };
+    }
+    lastFrameKey = fKey;
+  }
+
   comp.paperCam(CAM.x, CAM.y, CAM.s);
 
-  clear(BG_F); clear(BG_L); clear(WAX_L); clear(WASH_L);
+  // Static BG_F cache: skip expensive background crayon fills when camera & world palette haven't moved!
+  const preset = project.world?.preset || 'garden-cross-section';
+  const cw = project.customWorld;
+  const bgDynamicFill = (preset === 'garden-cross-section' && t < 1.25)
+    || Boolean(cw && Array.isArray(cw.shapes) && cw.shapes.some(s => s.wave && s.fill));
+  const bgFillKey = bgDynamicFill ? '' : [
+    preset, cw?.preset || '', cw?.shapes?.length || 0, project.world?.horizonY ?? 1090,
+    CAM.x.toFixed(2), CAM.y.toFixed(2), CAM.s.toFixed(4), VIEW.w, VIEW.h,
+    C.green, C.ochre, C.sky, C.yellow, C.peach, C.rain
+  ].join('|');
+  const skipBgFill = !bgDynamicFill && bgFillKey === lastBgFillKey && BG_F.c.width === VIEW.w && BG_F.c.height === VIEW.h;
+  if (!skipBgFill) {
+    clear(BG_F);
+    lastBgFillKey = bgFillKey;
+  }
+
+  clear(BG_L); clear(WAX_L); clear(WASH_L);
   clearGroup(SKY_G); clearGroup(BACK_G); clearGroup(FRONT_G);
   clear(FX_L); clear(TAG_K); clear(TAG_L); clear(SUB_K); clear(SUB_L);
 
   // 1. Background world + white-wax resist layer + watercolour wash
-  drawWorldPreset(BG_F, BG_L, C, project, t);
+  drawWorldPreset(BG_F, BG_L, C, project, t, skipBgFill);
   drawWhiteWaxLayer(WAX_L, project, t);
   drawWashBands(WASH_L, project, t);
 
@@ -499,22 +687,21 @@ export function renderProject(comp, glCanvas, project, t, opts = {}) {
   const visibleTexts = [];
 
   // 2. Render all placed entities in clean depth order (sky/back props → hero characters in front!)
-  const ents = project.entities || [];
   let hasBlazingSun = false;
   for (let i = 0; i < ents.length; i++) {
     const ent = ents[i];
-    const st = resolveEntityState(ent, t);
+    const st = entStates[i];
     if (st.draw <= 0) continue;
     const isSky = ent.type === 'sun' || ent.type === 'cloud' || ent.type === 'rainbow' || ent.type === 'star';
-    const isHero = ent.type === 'boy_leo' || ent.type === 'girl_maya' || ent.type === 'little_dog' || ent.type === 'tabby_cat' || ent.type === 'gray_wolf' || ent.type === 'apple_basket' || ent.type === 'birthday_cake' || ent.type === 'gift_box' || ent.type === 'toy_car';
+    const isHero = ent.type === 'boy_leo' || ent.type === 'girl_maya' || ent.type === 'little_dog' || ent.type === 'tabby_cat' || ent.type === 'gray_wolf' || ent.type === 'apple_basket' || ent.type === 'birthday_cake' || ent.type === 'gift_box' || ent.type === 'toy_car' || String(ent.type || '').startsWith('custom_');
     const targetG = isSky ? SKY_G : (st.layer === 'back' ? BACK_G : (isHero || st.layer === 'front' ? FRONT_G : BACK_G));
 
-    // Subtle cloud drift if active + interpolated (st.x, st.y) position for walking/peeking characters!
+    // Subtle 12fps cloud drift + interpolated (st.x, st.y) position for walking/peeking characters!
     let ex = st.x ?? ent.x, ey = st.y ?? ent.y;
-    if (ent.type === 'cloud') ex += Math.sin(t * 1.1 + i) * 10;
+    if (ent.type === 'cloud') ex += Math.sin(t12 * 1.1 + i) * 10;
     const drawEnt = { ...ent, x: ex, y: ey, seed: 20 + i * 47 };
     if (ent.type === 'sun' && st.mood === 'blaze') hasBlazingSun = true;
-    drawEntity(targetG, C, drawEnt, st, t, project.customProps);
+    drawEntity(targetG, C, drawEnt, st, t12, project.customProps);
 
     // Compute screen hit-box for direct canvas drag-and-drop in Studio GUI
     const cSpec = ent.customSpec || (Array.isArray(project.customProps) ? project.customProps.find(p => p.type === ent.type) : project.customProps?.[ent.type]);
@@ -531,13 +718,14 @@ export function renderProject(comp, glCanvas, project, t, opts = {}) {
     }
   }
 
-  // 3. Automatic playful expressive FX (heat waves, zzz, rustle puffs, scared shock, hungry tummy rumble, joyful sparkles!)
-  for (const ent of ents) {
-    const st = resolveEntityState(ent, t);
+  // 3. Automatic playful expressive FX (12fps hand-drawn on twos: heat waves, zzz, rustle puffs, scared shock, tummy rumble, sparkles!)
+  for (let i = 0; i < ents.length; i++) {
+    const ent = ents[i];
+    const st = entStates[i];
     if (st.draw <= 0) continue;
     const ex = st.x ?? ent.x, ey = st.y ?? ent.y, sc = ent.scale ?? 1;
     if (ent.type === 'seed' && st.mood === 'sleep' && t >= (ent.tStart ?? 0) + 1.0) {
-      const cyc = (t * 0.55) % 1;
+      const cyc = (t12 * 0.55) % 1;
       for (let k = 0; k < 2; k++) {
         const f = (cyc + k * 0.5) % 1;
         text(FX_L, 'z', sx(ex + 46 + f * 34 + k * 14), sy(ey - 54 - f * 62), {
@@ -555,7 +743,7 @@ export function renderProject(comp, glCanvas, project, t, opts = {}) {
       }
     }
     if ((ent.type === 'big_tree' || ent.type === 'bush') && st.mood === 'rustle') {
-      const ph = Math.floor(t * 12);
+      const ph = BOIL.step;
       const cyR = ent.type === 'big_tree' ? ey - 440 * sc : ey - 85 * sc;
       const rxR = ent.type === 'big_tree' ? 265 * sc : 170 * sc;
       [-1, 1].forEach((dir, di) => {
@@ -563,9 +751,8 @@ export function renderProject(comp, glCanvas, project, t, opts = {}) {
         line(FX_L, curve([[ax, cyR - 55 * sc], [ax + dir * 24 * sc, cyR], [ax, cyR + 55 * sc]], 5), { col: C.ink, w: 5.5, p: 0.85, seed: 860 + di });
         line(FX_L, curve([[ax + dir * 28 * sc, cyR - 36 * sc], [ax + dir * 48 * sc, cyR], [ax + dir * 28 * sc, cyR + 36 * sc]], 5), { col: C.ochre, w: 4.5, p: 0.78, seed: 862 + di });
       });
-      // Fluttering leaves popping out!
       for (let k = 0; k < 4; k++) {
-        const f = ((t * 0.9 + k * 0.27) % 1);
+        const f = ((t12 * 0.9 + k * 0.27) % 1);
         const lx = ex + (k % 2 ? 1 : -1) * (120 + f * 150) * sc;
         const ly = cyR - 40 * sc + Math.sin(f * Math.PI * 2 + k) * 45 * sc + f * 120 * sc;
         dab(FX_L, lx, ly, 12 * sc, { col: C.green, p: 0.88 * Math.sin(f * Math.PI), sq: 0.6, seed: 866 + k });
@@ -578,14 +765,13 @@ export function renderProject(comp, glCanvas, project, t, opts = {}) {
       dab(FX_L, ex + 64 * sc, ey - 235 * sc, 9 * sc, { col: C.sky, p: 0.88, sq: 1.4, seed: 872 });
     }
     if (ent.type === 'gray_wolf' && st.pose === 'sad_hungry') {
-      // Cute hand-drawn tummy-rumble spirals near Wolf's belly!
-      const ph = Math.floor(t * 12);
+      const ph = BOIL.step;
       const bx = ex - 88 * sc, by = ey - 118 * sc + (ph % 2) * 4 * sc;
       line(FX_L, curve([[bx, by - 22 * sc], [bx - 22 * sc, by - 8 * sc], [bx - 6 * sc, by + 6 * sc], [bx - 24 * sc, by + 22 * sc]], 6), { col: C.ochre, w: 5, p: 0.85, seed: 876 });
       line(FX_L, curve([[bx - 24 * sc, by - 14 * sc], [bx - 42 * sc, by], [bx - 26 * sc, by + 14 * sc]], 5), { col: C.ink, w: 4, p: 0.72, seed: 877 });
     }
     if (ent.type === 'door' && st.mood === 'knock') {
-      const ph = Math.floor(t * 12);
+      const ph = BOIL.step;
       const kx = ex + 125 * sc, ky = ey - 220 * sc;
       line(FX_L, curve([[kx, ky - 40 * sc], [kx + 24 * sc + (ph % 2) * 8 * sc, ky], [kx, ky + 40 * sc]], 4), { col: C.red, w: 6, p: 0.9, seed: 890 });
       line(FX_L, curve([[kx + 26 * sc, ky - 26 * sc], [kx + 46 * sc + (ph % 2) * 8 * sc, ky], [kx + 26 * sc, ky + 26 * sc]], 4), { col: C.ochre, w: 5, p: 0.82, seed: 891 });
@@ -598,23 +784,32 @@ export function renderProject(comp, glCanvas, project, t, opts = {}) {
     }
     if ((ent.type === 'little_dog' || ent.type === 'tabby_cat' || ent.type === 'gray_wolf') && st.pose === 'sing') {
       const topY = ey - (ent.type === 'gray_wolf' ? 375 : 275) * sc;
-      const bob = Math.sin(t * 4.5) * 14 * sc;
+      const bob = Math.sin(t12 * 4.5) * 14 * sc;
       text(FX_L, '♪', sx(ex - 58 * sc), sy(topY - 12 * sc + bob), { font: 'Mali', weight: 700, size: 48 * CAM.s, col: C.red, p: 0.92, seed: 894 });
       text(FX_L, '♫', sx(ex + 66 * sc), sy(topY - 32 * sc - bob), { font: 'Mali', weight: 700, size: 44 * CAM.s, col: C.sky, p: 0.92, seed: 895 });
     }
-    if ((ent.type === 'little_dog' || ent.type === 'tabby_cat' || ent.type === 'gray_wolf') && (st.pose === 'cheer' || st.expr === 'yummy')) {
-      const topY = ey - (ent.type === 'gray_wolf' ? 375 : 275) * sc;
+    if ((ent.type === 'little_dog' || ent.type === 'tabby_cat' || ent.type === 'gray_wolf' || String(ent.type || '').startsWith('custom_')) && (st.pose === 'cheer' || st.expr === 'yummy')) {
+      const topY = ey - (ent.type === 'gray_wolf' ? 375 : (String(ent.type).startsWith('custom_') ? 185 : 275)) * sc;
       [[-78, -20, C.yellow], [84, -30, C.pink], [0, -68, C.red]].forEach(([dx, dy, col], k) => {
-        const r = (11 + Math.sin(t * 5.2 + k * 2.1) * 3.5) * sc;
+        const r = (11 + Math.sin(t12 * 5.2 + k * 2.1) * 3.5) * sc;
         const px = ex + dx * sc, py = topY + dy * sc;
         line(FX_L, [[px - r, py], [px + r, py]], { col, w: 4.8, p: 0.88, seed: 880 + k * 2 });
         line(FX_L, [[px, py - r], [px, py + r]], { col, w: 4.8, p: 0.88, seed: 881 + k * 2 });
       });
     }
+    if (String(ent.type || '').startsWith('custom_') && (st.expr === 'sad' || st.expr === 'cry')) {
+      const cyc = (t12 * 1.4) % 1;
+      for (let k = 0; k < 2; k++) {
+        const f = (cyc + k * 0.5) % 1;
+        const tx = ex + (k ? 28 : -30) * sc + (k ? 1 : -1) * f * 18 * sc;
+        const ty = ey - 102 * sc + f * 48 * sc;
+        dab(FX_L, tx, ty, 7.5 * sc, { col: C.sky, p: 0.92 * Math.sin(f * Math.PI), sq: 1.4, seed: 896 + k });
+      }
+    }
     if (ent.type === 'flower' && st.petalP > 0.35) {
       const topY = ey - 435 * sc;
       [[-160, -70, C.yellow], [185, -95, C.yellow], [-115, 130, C.pink], [175, 115, C.yellow]].forEach(([dx, dy, col], k) => {
-        const r = (15 + Math.sin(t * 5 + k * 1.9) * 4.5) * st.petalP;
+        const r = (15 + Math.sin(t12 * 5 + k * 1.9) * 4.5) * st.petalP;
         const px = ex + dx, py = topY + dy;
         line(FX_L, [[px - r, py], [px + r, py]], { col, w: 5, p: 0.85, seed: 840 + k * 2 });
         line(FX_L, [[px, py - r], [px, py + r]], { col, w: 5, p: 0.85, seed: 841 + k * 2 });
@@ -725,7 +920,79 @@ export function renderProject(comp, glCanvas, project, t, opts = {}) {
     comp.finish({ vig: 0.18 * fridgeP, emb: 0.08 * fridgeP, lamp: [0.22, 0.2, 0.95, 0.45 * fridgeP] });
   }
 
-  return { hitTargets, visibleTexts };
+  lastFrameResult = { hitTargets, visibleTexts };
+  return { hitTargets, visibleTexts, skipped: false };
+}
+
+// Pure layout inspection for automated QA (detects text/character head overlaps, text-on-text collisions & edge clipping!)
+export function getFrameLayout(project, t) {
+  const cam = evalCamera(project, t);
+  CAM.x = cam.x; CAM.y = cam.y; CAM.s = cam.s;
+  const endCfg = project.ending || { type: 'none' };
+  const fridgeP = endCfg.type === 'fridge' ? eio(seg(t, endCfg.tStart ?? 50.8, endCfg.tEnd ?? 54.4)) : 0;
+  const scF = lerp(1, VIEW.h > VIEW.w ? 0.76 : 0.715, fridgeP);
+  const mapX = px => VIEW.w * lerp(0.5, 0.475, fridgeP) + (px - VIEW.w / 2) * scF;
+  const mapY = py => VIEW.h * lerp(0.5, 0.465, fridgeP) + (py - VIEW.h / 2) * scF;
+
+  const g = TAG_L.g;
+  const measure = (str, font, weight, size) => {
+    g.font = `${weight} ${size}px "${font}"`;
+    return g.measureText(String(str || '').normalize('NFC')).width;
+  };
+
+  const texts = [];
+  const tp = project.meta?.titlePos || { x: 2715, y: 825, t: 1.8 };
+  const pTitle = clamp(seg(t, tp.t ?? 1.8, (tp.t ?? 1.8) + 0.75));
+  if (pTitle > 0 && project.meta?.title) {
+    const tx = sx(tp.x), ty = sy(tp.y), s1 = 74 * CAM.s, s2 = 41 * CAM.s;
+    const w1 = measure(project.meta.title, 'Mali', 700, s1);
+    const w2 = project.meta.titleVi ? measure(project.meta.titleVi, 'Mali', 600, s2) : 0;
+    const hw = Math.max(w1, w2) * 0.5;
+    texts.push({
+      id: 'title', kind: 'title', text: project.meta.title,
+      x0: mapX(tx - hw), y0: mapY(ty - s1 * 0.9),
+      x1: mapX(tx + hw), y1: mapY(ty + (w2 ? 62 * CAM.s + s2 * 0.25 : s1 * 0.25)),
+    });
+  }
+  (project.tags || []).forEach(tg => {
+    const p = clamp(seg(t, tg.t, tg.t + 0.45));
+    if (p <= 0) return;
+    const cx = sx(tg.x), cy = sy(tg.y), szEn = 46 * CAM.s, szVi = 28 * CAM.s;
+    const wEn = measure(tg.en, 'Mali', 700, szEn);
+    const wVi = tg.vi ? measure(tg.vi, 'Patrick Hand', 400, szVi) : 0;
+    const bw = Math.max(112 * CAM.s, Math.max(wEn, wVi) * 0.5 + 14 * CAM.s);
+    const bh = 52 * CAM.s;
+    texts.push({
+      id: tg.id, kind: 'tag', text: tg.en,
+      x0: mapX(cx - bw), y0: mapY(cy - bh),
+      x1: mapX(cx + bw), y1: mapY(cy + bh + 6 * CAM.s),
+    });
+  });
+
+  const CHAR_TYPES = new Set(['boy_leo', 'girl_maya', 'little_dog', 'tabby_cat', 'gray_wolf', 'bird']);
+  const actors = [];
+  for (const ent of project.entities || []) {
+    const st = resolveEntityState(ent, t);
+    if (st.draw <= 0) continue;
+    const isChar = CHAR_TYPES.has(ent.type) || String(ent.type || '').startsWith('custom_');
+    if (!isChar) continue;
+    const cSpec = ent.customSpec || (Array.isArray(project.customProps) ? project.customProps.find(p => p.type === ent.type) : project.customProps?.[ent.type]);
+    const cat = ENTITY_CATALOG.find(c => c.type === ent.type) || (cSpec ? { label: cSpec.label || ent.type, hit: cSpec.hit || { rx: 90, ry: 90, oy: -85 } } : null);
+    if (!cat) continue;
+    const sc = ent.scale ?? 1;
+    const ex = st.x ?? ent.x, ey = st.y ?? ent.y;
+    const cx = sx(ex), cy = sy(ey + cat.hit.oy * sc);
+    // Include extra headroom for tall wolf/cat ears and party hats!
+    const topBoost = (ent.type === 'gray_wolf' ? 56 : (st.hat ? 48 : 20)) * sc * CAM.s;
+    actors.push({
+      id: ent.id, type: ent.type, label: cat.label,
+      x0: mapX(cx - cat.hit.rx * sc * CAM.s),
+      y0: mapY(cy - cat.hit.ry * sc * CAM.s - topBoost),
+      x1: mapX(cx + cat.hit.rx * sc * CAM.s),
+      y1: mapY(cy + cat.hit.ry * sc * CAM.s),
+    });
+  }
+  return { w: VIEW.w, h: VIEW.h, fridgeP, texts, actors };
 }
 
 // Fast pure bounding-box computation for readcheck.mjs (4000+ samples in <1s without running WebGL2 shaders!)

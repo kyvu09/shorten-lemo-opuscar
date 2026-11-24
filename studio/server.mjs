@@ -8,13 +8,14 @@ import { fileURLToPath } from 'url';
 import { spawn } from 'child_process';
 import { VOICE_CATALOG, aspectDimensions, createBlankProject, projectToLines, projectToSrt } from '../engine/schema.js';
 import { ENTITY_CATALOG } from '../engine/library.js';
-import { buildAutoDirectedProject } from '../engine/autodirector.js';
+import { buildAutoDirectedProject, parseStoryScript } from '../engine/autodirector.js';
 import { testGeminiConnection, generateCustomPropWithGemini, directScriptWithGemini } from '../engine/gemini_director.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const FILMS_DIR = path.join(ROOT, 'films');
 const CONFIG_PATH = path.join(ROOT, '.studio-config.json');
 const CUSTOM_PROPS_PATH = path.join(ROOT, 'engine', 'custom_props.json');
+const CUSTOM_WORLDS_PATH = path.join(ROOT, 'engine', 'custom_worlds.json');
 const PORT = Number(process.env.PORT || 4173);
 
 function loadConfig() {
@@ -167,8 +168,11 @@ function ensureProjectFonts(projDir) {
   fs.mkdirSync(dstFonts, { recursive: true });
   const cssPath = path.join(dstFonts, 'fonts.css');
   if (!fs.existsSync(cssPath)) fs.writeFileSync(cssPath, defaultFontsCss(), 'utf-8');
-  const srcFonts = path.join(FILMS_DIR, 'one-little-seed', 'fonts');
-  if (fs.existsSync(srcFonts)) {
+  const srcFonts = [
+    path.join(ROOT, 'core', 'fonts'),
+    path.join(FILMS_DIR, 'one-little-seed', 'fonts'),
+  ].find(d => fs.existsSync(path.join(d, 'PatrickHand-Regular.ttf')));
+  if (srcFonts) {
     for (const f of ['PatrickHand-Regular.ttf', 'Mali-SemiBold.ttf', 'Mali-Bold.ttf']) {
       const sp = path.join(srcFonts, f), dp = path.join(dstFonts, f);
       if (fs.existsSync(sp) && !fs.existsSync(dp)) fs.copyFileSync(sp, dp);
@@ -209,9 +213,7 @@ node core/render/events.mjs "$HERE" --size ${w}x${h}
 "$LIB/.venv/bin/python" engine/score_gen.py "$HERE"
 "$LIB/.venv/bin/python" engine/mix_gen.py "$HERE"
 node core/render/video.mjs "$HERE" --fps 24 --workers 4 --size ${w}x${h} --out "$HERE/out/video.mp4"
-sh core/render/mux.sh "$HERE/out/video.mp4" "$HERE/out/mix.wav" "$HERE/out/master_crf19.mp4" 24 0
-ffmpeg -y -loglevel error -i "$HERE/out/master_crf19.mp4" -c:v libx264 -preset slow -crf 25 -c:a copy -movflags +faststart "$HERE/${slug}.mp4"
-rm -f "$HERE/out/master_crf19.mp4"
+sh core/render/mux.sh "$HERE/out/video.mp4" "$HERE/out/mix.wav" "$HERE/${slug}.mp4" 24 0 25
 `, 'utf-8');
   }
 }
@@ -465,28 +467,21 @@ async function handleExport(slug, res) {
       }
     });
 
-    // 3. Mux two-pass -14 LUFS + CRF 25 optimize
-    send({ type: 'progress', pct: 76, label: '3/5 · Ghép âm thanh chuẩn −14 LUFS (two-pass loudnorm)...' });
+    // 3. Mux two-pass -14 LUFS directly at CRF 25 (single encode pass!)
+    send({ type: 'progress', pct: 78, label: '3/4 · Ghép âm thanh chuẩn −14 LUFS & nén tối ưu MP4 (CRF 25)...' });
     const mixWav = path.join(dir, 'out', 'mix.wav');
-    const crf19 = path.join(dir, 'out', 'master_crf19.mp4');
     const finalMp4 = path.join(dir, `${slug}.mp4`);
     const toPosix = p => p.replace(/\\/g, '/');
     let loudness = '';
-    await runStep(SH, ['core/render/mux.sh', toPosix(rawVid), toPosix(mixWav), toPosix(crf19), String(fps), '0'], {
+    await runStep(SH, ['core/render/mux.sh', toPosix(rawVid), toPosix(mixWav), toPosix(finalMp4), String(fps), '0', '25'], {
       onLine: l => {
         send({ type: 'log', text: l });
         if (/^\s*(I|LRA|Peak):/.test(l)) loudness += l.trim() + '  ';
       }
     });
 
-    send({ type: 'progress', pct: 88, label: '4/5 · Tối ưu dung lượng H.264 (CRF 25 + faststart)...' });
-    await runStep('ffmpeg', ['-y', '-loglevel', 'error', '-i', crf19, '-c:v', 'libx264', '-preset', 'slow', '-crf', '25', '-c:a', 'copy', '-movflags', '+faststart', finalMp4], {
-      onLine: l => send({ type: 'log', text: l })
-    });
-    fs.rmSync(crf19, { force: true });
-
     // 4. Poster still
-    send({ type: 'progress', pct: 95, label: '5/5 · Xuất poster.jpg...' });
+    send({ type: 'progress', pct: 95, label: '4/4 · Xuất poster.jpg...' });
     const posterT = Math.max(0.5, Math.min(dur - 1.0, (project.ending?.tStart ?? (dur * 0.78)) - 0.5)).toFixed(2);
     await runStep('node', ['core/render/still.mjs', dir, posterT, '--size', `${w}x${h}`, '--prefix', 'poster_', '--out', path.join(dir, 'out')], {
       onLine: l => send({ type: 'log', text: l })
@@ -539,11 +534,13 @@ async function handleAutoDirectProduce(body, res) {
     let geminiPlan = null;
 
     if (useGemini) {
-      send({ type: 'progress', pct: 4, label: '1/5 · Gemini AI đang phân tích kịch bản & tự vẽ đạo cụ còn thiếu...' });
+      send({ type: 'progress', pct: 4, label: '1/5 · Gemini AI đang đạo diễn góc máy riêng & tự vẽ đạo cụ còn thiếu...' });
+      const preParsed = parseStoryScript(opts.scriptText, customProps);
       const existingTypes = [...ENTITY_CATALOG.map(c => c.type), ...customProps.map(c => c.type), ...customProps.map(c => c.id)];
       try {
         geminiPlan = await directScriptWithGemini(apiKey, {
           scriptText: opts.scriptText,
+          beats: preParsed.beats,
           existingTypes,
           model: cfg.geminiModel || 'gemini-2.5-flash',
           onLog: txt => send({ type: 'log', text: txt }),
@@ -619,22 +616,17 @@ async function handleAutoDirectProduce(body, res) {
       }
     });
 
-    send({ type: 'progress', pct: 88, label: 'Đang ghép âm thanh chuẩn −14 LUFS & tối ưu MP4...' });
+    send({ type: 'progress', pct: 88, label: 'Đang ghép âm thanh chuẩn −14 LUFS & nén tối ưu MP4 (CRF 25)...' });
     const mixWav = path.join(dir, 'out', 'mix.wav');
-    const crf19 = path.join(dir, 'out', 'master_crf19.mp4');
     const finalMp4 = path.join(dir, `${slug}.mp4`);
     const toPosix = s => s.replace(/\\/g, '/');
     let loudness = '';
-    await runStep(SH, ['core/render/mux.sh', toPosix(rawVid), toPosix(mixWav), toPosix(crf19), String(fps), '0'], {
+    await runStep(SH, ['core/render/mux.sh', toPosix(rawVid), toPosix(mixWav), toPosix(finalMp4), String(fps), '0', '25'], {
       onLine: l => {
         send({ type: 'log', text: l });
         if (/^\s*(I|LRA|Peak):/.test(l)) loudness += l.trim() + '  ';
       }
     });
-    await runStep('ffmpeg', ['-y', '-loglevel', 'error', '-i', crf19, '-c:v', 'libx264', '-preset', 'slow', '-crf', '25', '-c:a', 'copy', '-movflags', '+faststart', finalMp4], {
-      onLine: l => send({ type: 'log', text: l })
-    });
-    fs.rmSync(crf19, { force: true });
     fs.rmSync(rawVid, { force: true });
 
     const posterT = Math.max(0.5, Math.min(dur - 1.0, (project.ending?.tStart ?? (dur * 0.78)) - 0.5)).toFixed(2);
@@ -702,6 +694,11 @@ const server = http.createServer(async (req, res) => {
     }
     if (p === '/api/custom-props' && req.method === 'GET') {
       return sendJson(res, 200, { customProps: loadCustomProps() });
+    }
+    if (p === '/api/custom-worlds' && req.method === 'GET') {
+      let worlds = [];
+      try { if (fs.existsSync(CUSTOM_WORLDS_PATH)) worlds = JSON.parse(fs.readFileSync(CUSTOM_WORLDS_PATH, 'utf-8')); } catch {}
+      return sendJson(res, 200, { customWorlds: Array.isArray(worlds) ? worlds : [] });
     }
     if (p === '/api/custom-props/generate' && req.method === 'POST') {
       const body = await readJsonBody(req);
