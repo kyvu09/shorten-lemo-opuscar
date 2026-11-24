@@ -124,6 +124,26 @@ def apple_crunch(v=1.0):
     x = (bp(n, 1600, 6800, 2) * 0.30 + bp(cr, 2400, 8200, 2) * 0.28) * (b1 + b2)
     return fade(x * v, .005, .04)
 
+def door_knock(v=1.0):
+    d = 0.78; out = np.zeros(int(d * SR))
+    for k, off in enumerate([0.04, 0.26, 0.48]):
+        tk = T(0.14)
+        wood = (np.sin(2 * np.pi * (240 * np.exp(-tk * 12)) * tk) * np.exp(-tk / 0.022) * 0.65
+                + bp(nz(0.14), 420, 1450, 2) * np.exp(-tk / 0.015) * 0.32)
+        i = int(off * SR); out[i:i + len(wood)] += wood[:len(out) - i] * (0.95 - k * 0.08)
+    return fade(out * 0.75 * v, .002, .03)
+
+def candle_blow(d=0.65, v=1.0):
+    n = nz(d)
+    return fade(lp(bp(n, 280, 2100, 2), 1800) * envelope(d, [(0, 0), (.18, 1), (.65, .7), (1, 0)]) * 0.34 * v, .02, .08)
+
+def gift_unwrap(v=1.0):
+    d = 0.55; n = nz(d)
+    cr = (rng.random(len(n)) < 0.015) * rng.standard_normal(len(n)) * 2.0
+    t = T(d)
+    pop = np.sin(2 * np.pi * (520 + 780 * (1 - np.exp(-t / 0.03))) * t) * np.exp(-t / 0.05) * 0.24
+    return fade((bp(n, 1500, 6200, 2) * 0.18 + bp(cr, 2200, 7800, 2) * 0.22 + pop) * envelope(d, [(0, 0), (.15, 1), (1, 0)]) * v, .005, .06)
+
 buf = np.zeros((N, 2)); amb = np.zeros((N, 2))
 def put(x, at, g=1.0, pan=0.0, b=None): add(buf if b is None else b, x.astype(np.float64), at, g, pan)
 
@@ -144,6 +164,9 @@ for e in EV:
     elif ty == 'rustle':   put(bush_rustle(e.get('dur', 1.35), 1.0), t, 1.0, pan)
     elif ty == 'rumble':   put(tummy_rumble(e.get('dur', 0.9), 1.0), t, 0.95, pan)
     elif ty == 'crunch':   put(apple_crunch(1.0), t, 1.0, pan)
+    elif ty == 'knock':    put(door_knock(1.0), t, 1.0, pan)
+    elif ty == 'blow':     put(candle_blow(e.get('dur', 0.65), 1.0), t, 1.0, pan)
+    elif ty == 'gift_open':put(gift_unwrap(1.0), t, 1.0, pan)
     elif ty == 'brush':
         d = float(e.get('dur', 2.2)) + 0.22; x = wet_brush(d, 1.05)
         p0, p1 = (-0.80, 0.80) if e.get('dir', 1) > 0 else (0.80, -0.80)

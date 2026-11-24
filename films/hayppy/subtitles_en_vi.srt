@@ -1,0 +1,203 @@
+1
+00:00:01,810 --> 00:00:09,830
+Today is Little Dog's birthday. He is very happy.
+Hôm nay là sinh nhật của chú chó nhỏ. Chú rất vui.
+
+2
+00:00:09,970 --> 00:00:14,200
+Today is my birthday!
+Hôm nay là sinh nhật của tớ!
+
+3
+00:00:14,340 --> 00:00:17,180
+I am so happy!
+Tớ vui quá!
+
+4
+00:00:17,320 --> 00:00:21,260
+Happy birthday, Doggy!
+Chúc mừng sinh nhật Doggy!
+
+5
+00:00:21,400 --> 00:00:25,300
+How old are you today?
+Hôm nay bạn bao nhiêu tuổi?
+
+6
+00:00:25,440 --> 00:00:28,890
+I am five years old!
+Tớ năm tuổi!
+
+7
+00:00:29,030 --> 00:00:33,290
+Let's have a party!
+Chúng ta hãy tổ chức một bữa tiệc nhé!
+
+8
+00:00:33,430 --> 00:00:39,710
+Little Dog and Tabby Cat prepare for the party.
+Chú chó nhỏ và mèo mướp chuẩn bị cho bữa tiệc.
+
+9
+00:00:39,850 --> 00:00:43,700
+I have some balloons.
+Tớ có một ít bóng bay.
+
+10
+00:00:43,840 --> 00:00:50,850
+Look! They are red, blue, and yellow!
+Nhìn này! Chúng có màu đỏ, xanh dương và vàng!
+
+11
+00:00:50,990 --> 00:00:55,400
+Wow! They are beautiful!
+Wow! Chúng đẹp quá!
+
+12
+00:00:55,540 --> 00:00:59,840
+I will make a big cake!
+Tớ sẽ làm một chiếc bánh thật lớn!
+
+13
+00:00:59,980 --> 00:01:04,720
+Great! I love cake!
+Tuyệt quá! Tớ thích bánh ngọt!
+
+14
+00:01:06,710 --> 00:01:11,900
+Suddenly, someone knocks on the door.
+Đột nhiên, có ai đó gõ cửa.
+
+15
+00:01:12,040 --> 00:01:17,370
+Knock, knock! Who is there?
+Cốc, cốc! Ai ở ngoài đó vậy?
+
+16
+00:01:17,510 --> 00:01:23,250
+It is me! Mr. Gray Wolf!
+Là bác đây! Bác sói xám đây!
+
+17
+00:01:23,390 --> 00:01:26,600
+Can I come in?
+Bác có thể vào không?
+
+18
+00:01:27,640 --> 00:01:32,970
+Of course! Come in, Mr. Wolf!
+Tất nhiên rồi! Mời bác vào!
+
+19
+00:01:33,110 --> 00:01:37,460
+Happy birthday, Little Dog!
+Chúc mừng sinh nhật chó nhỏ!
+
+20
+00:01:37,600 --> 00:01:41,890
+I have a present for you!
+Bác có một món quà dành cho cháu!
+
+21
+00:01:42,030 --> 00:01:46,690
+Really? Thank you!
+Thật sao? Cháu cảm ơn bác!
+
+22
+00:01:46,830 --> 00:01:50,440
+What is inside?
+Bên trong có gì vậy ạ?
+
+23
+00:01:50,580 --> 00:01:54,080
+Open it and see!
+Hãy mở ra và xem nhé!
+
+24
+00:01:54,220 --> 00:02:04,760
+Little Dog opens the present. It is a beautiful red toy car.
+Chú chó nhỏ mở món quà. Đó là một chiếc ô tô đồ chơi màu đỏ rất đẹp.
+
+25
+00:02:04,900 --> 00:02:09,900
+Wow! A red car!
+Wow! Một chiếc ô tô màu đỏ!
+
+26
+00:02:10,040 --> 00:02:12,770
+I love it!
+Cháu thích nó lắm!
+
+27
+00:02:12,910 --> 00:02:16,410
+Let's play together!
+Chúng ta cùng chơi nhé!
+
+28
+00:02:16,550 --> 00:02:22,800
+Yes! But first, let's eat!
+Đúng vậy! Nhưng trước tiên, chúng ta hãy ăn nào!
+
+29
+00:02:22,940 --> 00:02:32,220
+The three friends sit around the table. There is a big birthday cake.
+Ba người bạn ngồi quanh bàn. Có một chiếc bánh sinh nhật thật lớn.
+
+30
+00:02:32,360 --> 00:02:36,620
+Look at my big cake!
+Nhìn chiếc bánh lớn của tớ này!
+
+31
+00:02:36,940 --> 00:02:40,000
+It looks so yummy!
+Trông ngon quá!
+
+32
+00:02:40,140 --> 00:02:44,750
+Let's sing a birthday song!
+Chúng ta hãy hát bài hát sinh nhật nào!
+
+33
+00:02:44,890 --> 00:02:48,960
+Thank you, my friends!
+Cảm ơn những người bạn của tớ!
+
+34
+00:02:49,100 --> 00:02:52,500
+Make a wish!
+Hãy ước một điều ước nào!
+
+35
+00:02:52,640 --> 00:02:59,560
+Little Dog closes his eyes and blows out the candles.
+Chú chó nhỏ nhắm mắt và thổi tắt những ngọn nến.
+
+36
+00:02:59,700 --> 00:03:07,250
+My wish is to have many happy days with my friends!
+Điều ước của tớ là có thật nhiều ngày vui vẻ bên những người bạn!
+
+37
+00:03:07,390 --> 00:03:11,620
+That is a lovely wish!
+Đó là một điều ước thật tuyệt!
+
+38
+00:03:11,760 --> 00:03:16,670
+Happy birthday, little friend!
+Chúc mừng sinh nhật, người bạn nhỏ!
+
+39
+00:03:16,810 --> 00:03:18,080
+ALL:
+
+40
+00:03:18,220 --> 00:03:22,950
+Yay! Let's eat cake!
+Hoan hô! Cùng ăn bánh nào!
+
+41
+00:03:23,690 --> 00:03:26,170
+THE END! ❤️
+Hết chuyện rồi!

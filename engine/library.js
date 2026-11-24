@@ -1,7 +1,7 @@
 // Reusable Crayon Picture Book Cast & Prop Library (15 original hand-drawn crayon entities).
 // Every entity respects STYLE.md: cocoa outlines (never black), child-logic proportions, knock-out backing,
 // white-wax eye catchlights, hair outlined on outer edge only, dynamic palette C passed from project.json.
-import { clamp, hash } from '/core/lib.js';
+import { clamp, hash } from '../core/lib.js';
 import { line, fill, dab, ellipse, handCircle, smooth } from './crayon.js';
 import { part, tube, curve, erase, knock } from './rig.js';
 
@@ -12,32 +12,38 @@ export const HUMAN_POSES = [
 export const HUMAN_EXPRS = ['happy', 'curious', 'idea', 'hot', 'uhoh', 'amazed', 'excited'];
 export const HUMAN_VIEWS = ['r34', 'front', 'l34'];
 
-export const DOG_CAT_POSES = ['stand', 'walk', 'wave', 'scared', 'offer_apple', 'sit_eat', 'cheer'];
-export const DOG_CAT_EXPRS = ['happy', 'curious', 'scared', 'kind', 'yummy', 'excited'];
-export const WOLF_POSES    = ['peek', 'stand', 'walk', 'wave', 'laugh', 'sad_hungry', 'eat_apple', 'sit_eat', 'cheer'];
+export const DOG_CAT_POSES = ['stand', 'walk', 'wave', 'scared', 'offer_apple', 'sit_eat', 'cheer', 'blow', 'sing', 'gift'];
+export const DOG_CAT_EXPRS = ['happy', 'curious', 'scared', 'kind', 'yummy', 'excited', 'wish'];
+export const WOLF_POSES    = ['peek', 'stand', 'walk', 'wave', 'laugh', 'sad_hungry', 'eat_apple', 'sit_eat', 'cheer', 'sing', 'gift'];
 export const WOLF_EXPRS    = ['mysterious', 'friendly', 'laugh', 'sad', 'surprised', 'yummy', 'happy'];
 
 export const ENTITY_CATALOG = [
-  { type: 'boy_leo',      icon: '👦', label: 'Bé Leo (Áo đỏ)',       kind: 'human',  poses: HUMAN_POSES,   exprs: HUMAN_EXPRS,   defaultScale: 1.02, hit: { rx: 90,  ry: 185, oy: -175 } },
-  { type: 'girl_maya',    icon: '👧', label: 'Bé Maya (Váy vàng)',    kind: 'human',  poses: HUMAN_POSES,   exprs: HUMAN_EXPRS,   defaultScale: 1.00, hit: { rx: 90,  ry: 185, oy: -175 } },
-  { type: 'little_dog',   icon: '🐶', label: 'Chó nhỏ (Little Dog)',  kind: 'animal', poses: DOG_CAT_POSES, exprs: DOG_CAT_EXPRS, defaultScale: 1.00, hit: { rx: 92,  ry: 145, oy: -140 } },
-  { type: 'tabby_cat',    icon: '🐱', label: 'Mèo mướp (Tabby Cat)',  kind: 'animal', poses: DOG_CAT_POSES, exprs: DOG_CAT_EXPRS, defaultScale: 1.00, hit: { rx: 88,  ry: 145, oy: -138 } },
-  { type: 'gray_wolf',    icon: '🐺', label: 'Bác Sói (Gray Wolf)',   kind: 'animal', poses: WOLF_POSES,    exprs: WOLF_EXPRS,    defaultScale: 1.00, hit: { rx: 122, ry: 205, oy: -195 } },
-  { type: 'big_tree',     icon: '🌲', label: 'Cây cổ thụ lớn',        kind: 'mood',   moods: ['apples', 'plain', 'rustle'],      defaultScale: 1.00, hit: { rx: 225, ry: 310, oy: -310 } },
-  { type: 'apple_basket', icon: '🧺', label: 'Giỏ táo đỏ',            kind: 'mood',   moods: ['full', 'half'],                   defaultScale: 1.00, hit: { rx: 78,  ry: 58,  oy: -42 } },
-  { type: 'seed',         icon: '🌰', label: 'Hạt giống (Seed)',      kind: 'mood',   moods: ['sleep', 'hot', 'wake', 'sprout'], defaultScale: 1.08, hit: { rx: 60,  ry: 65,  oy: 0 } },
-  { type: 'sun',          icon: '☀️', label: 'Mặt trời (Sun)',        kind: 'mood',   moods: ['warm', 'blaze'],                  defaultScale: 1.0,  hit: { rx: 145, ry: 145, oy: 0 } },
-  { type: 'cloud',        icon: '☁️', label: 'Đám mây (Cloud)',       kind: 'mood',   moods: ['happy', 'wink', 'puff'],          defaultScale: 1.06, hit: { rx: 185, ry: 95,  oy: -20 } },
-  { type: 'flower',       icon: '🌺', label: 'Bông hoa đỏ (Flower)',  kind: 'mood',   moods: ['bloom', 'full'],                  defaultScale: 1.08, hit: { rx: 130, ry: 240, oy: -250 } },
-  { type: 'tree',         icon: '🌳', label: 'Cây xanh (Tree)',       kind: 'mood',   moods: ['apples', 'blossom', 'plain'],     defaultScale: 1.0,  hit: { rx: 155, ry: 210, oy: -200 } },
-  { type: 'bird',         icon: '🐦', label: 'Chim nhỏ (Bird)',       kind: 'mood',   moods: ['perch', 'fly', 'sing'],           defaultScale: 1.0,  hit: { rx: 85,  ry: 65,  oy: -25 } },
-  { type: 'apple',        icon: '🍎', label: 'Quả táo (Apple)',       kind: 'mood',   moods: ['happy', 'wink'],                  defaultScale: 1.0,  hit: { rx: 75,  ry: 78,  oy: -20 } },
-  { type: 'house',        icon: '🏠', label: 'Ngôi nhà (House)',      kind: 'mood',   moods: ['day', 'lit'],                     defaultScale: 1.0,  hit: { rx: 190, ry: 170, oy: -165 } },
-  { type: 'rainbow',      icon: '🌈', label: 'Cầu vồng (Rainbow)',    kind: 'mood',   moods: ['full'],                           defaultScale: 1.0,  hit: { rx: 280, ry: 140, oy: -80 } },
-  { type: 'star',         icon: '⭐', label: 'Ngôi sao (Star)',       kind: 'mood',   moods: ['happy', 'wink'],                  defaultScale: 1.0,  hit: { rx: 85,  ry: 85,  oy: 0 } },
-  { type: 'watering_can', icon: '🚿', label: 'Bình tưới cây',         kind: 'mood',   moods: ['idle'],                           defaultScale: 1.0,  hit: { rx: 90,  ry: 60,  oy: -42 } },
-  { type: 'fence',        icon: '🪵', label: 'Hàng rào gỗ',           kind: 'mood',   moods: ['idle'],                           defaultScale: 1.0,  hit: { rx: 250, ry: 85,  oy: -80 } },
-  { type: 'bush',         icon: '🌿', label: 'Bụi cây có hoa',        kind: 'mood',   moods: ['idle', 'rustle'],                 defaultScale: 1.0,  hit: { rx: 155, ry: 60,  oy: -52 } },
+  { type: 'boy_leo',       icon: '👦', label: 'Bé Leo (Áo đỏ)',       kind: 'human',  poses: HUMAN_POSES,   exprs: HUMAN_EXPRS,   defaultScale: 1.02, hit: { rx: 90,  ry: 185, oy: -175 } },
+  { type: 'girl_maya',     icon: '👧', label: 'Bé Maya (Váy vàng)',    kind: 'human',  poses: HUMAN_POSES,   exprs: HUMAN_EXPRS,   defaultScale: 1.00, hit: { rx: 90,  ry: 185, oy: -175 } },
+  { type: 'little_dog',    icon: '🐶', label: 'Chó nhỏ (Little Dog)',  kind: 'animal', poses: DOG_CAT_POSES, exprs: DOG_CAT_EXPRS, defaultScale: 1.00, hit: { rx: 92,  ry: 145, oy: -140 } },
+  { type: 'tabby_cat',     icon: '🐱', label: 'Mèo mướp (Tabby Cat)',  kind: 'animal', poses: DOG_CAT_POSES, exprs: DOG_CAT_EXPRS, defaultScale: 1.00, hit: { rx: 88,  ry: 145, oy: -138 } },
+  { type: 'gray_wolf',     icon: '🐺', label: 'Bác Sói (Gray Wolf)',   kind: 'animal', poses: WOLF_POSES,    exprs: WOLF_EXPRS,    defaultScale: 1.00, hit: { rx: 122, ry: 205, oy: -195 } },
+  { type: 'door',          icon: '🚪', label: 'Cửa gỗ (Door)',         kind: 'mood',   moods: ['closed', 'knock', 'open'],        defaultScale: 1.00, hit: { rx: 120, ry: 195, oy: -195 } },
+  { type: 'balloons',      icon: '🎈', label: 'Chùm bóng bay',         kind: 'mood',   moods: ['float'],                          defaultScale: 1.00, hit: { rx: 120, ry: 165, oy: -200 } },
+  { type: 'birthday_cake', icon: '🎂', label: 'Bánh sinh nhật',        kind: 'mood',   moods: ['lit', 'blown'],                   defaultScale: 1.00, hit: { rx: 105, ry: 95,  oy: -95 } },
+  { type: 'gift_box',      icon: '🎁', label: 'Hộp quà sinh nhật',     kind: 'mood',   moods: ['closed', 'open'],                 defaultScale: 1.00, hit: { rx: 72,  ry: 70,  oy: -62 } },
+  { type: 'toy_car',       icon: '🚗', label: 'Ô tô đồ chơi đỏ',       kind: 'mood',   moods: ['idle', 'zoom'],                   defaultScale: 1.00, hit: { rx: 95,  ry: 58,  oy: -52 } },
+  { type: 'party_table',   icon: '🪑', label: 'Bàn tiệc sinh nhật',    kind: 'mood',   moods: ['idle'],                           defaultScale: 1.00, hit: { rx: 220, ry: 92,  oy: -88 } },
+  { type: 'big_tree',      icon: '🌲', label: 'Cây cổ thụ lớn',        kind: 'mood',   moods: ['apples', 'plain', 'rustle'],      defaultScale: 1.00, hit: { rx: 225, ry: 310, oy: -310 } },
+  { type: 'apple_basket',  icon: '🧺', label: 'Giỏ táo đỏ',            kind: 'mood',   moods: ['full', 'half'],                   defaultScale: 1.00, hit: { rx: 78,  ry: 58,  oy: -42 } },
+  { type: 'seed',          icon: '🌰', label: 'Hạt giống (Seed)',      kind: 'mood',   moods: ['sleep', 'hot', 'wake', 'sprout'], defaultScale: 1.08, hit: { rx: 60,  ry: 65,  oy: 0 } },
+  { type: 'sun',           icon: '☀️', label: 'Mặt trời (Sun)',        kind: 'mood',   moods: ['warm', 'blaze'],                  defaultScale: 1.0,  hit: { rx: 145, ry: 145, oy: 0 } },
+  { type: 'cloud',         icon: '☁️', label: 'Đám mây (Cloud)',       kind: 'mood',   moods: ['happy', 'wink', 'puff'],          defaultScale: 1.06, hit: { rx: 185, ry: 95,  oy: -20 } },
+  { type: 'flower',        icon: '🌺', label: 'Bông hoa đỏ (Flower)',  kind: 'mood',   moods: ['bloom', 'full'],                  defaultScale: 1.08, hit: { rx: 130, ry: 240, oy: -250 } },
+  { type: 'tree',          icon: '🌳', label: 'Cây xanh (Tree)',       kind: 'mood',   moods: ['apples', 'blossom', 'plain'],     defaultScale: 1.0,  hit: { rx: 155, ry: 210, oy: -200 } },
+  { type: 'bird',          icon: '🐦', label: 'Chim nhỏ (Bird)',       kind: 'mood',   moods: ['perch', 'fly', 'sing'],           defaultScale: 1.0,  hit: { rx: 85,  ry: 65,  oy: -25 } },
+  { type: 'apple',         icon: '🍎', label: 'Quả táo (Apple)',       kind: 'mood',   moods: ['happy', 'wink'],                  defaultScale: 1.0,  hit: { rx: 75,  ry: 78,  oy: -20 } },
+  { type: 'house',         icon: '🏠', label: 'Ngôi nhà (House)',      kind: 'mood',   moods: ['day', 'lit'],                     defaultScale: 1.0,  hit: { rx: 190, ry: 170, oy: -165 } },
+  { type: 'rainbow',       icon: '🌈', label: 'Cầu vồng (Rainbow)',    kind: 'mood',   moods: ['full'],                           defaultScale: 1.0,  hit: { rx: 280, ry: 140, oy: -80 } },
+  { type: 'star',          icon: '⭐', label: 'Ngôi sao (Star)',       kind: 'mood',   moods: ['happy', 'wink'],                  defaultScale: 1.0,  hit: { rx: 85,  ry: 85,  oy: 0 } },
+  { type: 'watering_can',  icon: '🚿', label: 'Bình tưới cây',         kind: 'mood',   moods: ['idle'],                           defaultScale: 1.0,  hit: { rx: 90,  ry: 60,  oy: -42 } },
+  { type: 'fence',         icon: '🪵', label: 'Hàng rào gỗ',           kind: 'mood',   moods: ['idle'],                           defaultScale: 1.0,  hit: { rx: 250, ry: 85,  oy: -80 } },
+  { type: 'bush',          icon: '🌿', label: 'Bụi cây có hoa',        kind: 'mood',   moods: ['idle', 'rustle'],                 defaultScale: 1.0,  hit: { rx: 155, ry: 60,  oy: -52 } },
 ];
 
 const OL = (C, w = 7, seed = 1, extra = {}) => ({ col: C.ink, w, p: 0.9, seed, wob: 1.0, ...extra });
@@ -753,7 +759,11 @@ function drawLittleDog(G, C, x, y, o = {}) {
 
   // Eyes + Eyebrows
   const exL = hx + fsh - 20 * sc, exR = hx + fsh + 20 * sc, ey = hy - 10 * sc;
-  if (expr === 'yummy' || expr === 'excited') {
+  if (expr === 'wish' || pose === 'blow') {
+    // Tightly closed eyes making a birthday wish!
+    line(G.l, curve([[exL - 10 * sc, ey - 2 * sc], [exL, ey + 6 * sc], [exL + 10 * sc, ey - 2 * sc]], 4), OL(C, 5.2, seed + 29));
+    line(G.l, curve([[exR - 10 * sc, ey - 2 * sc], [exR, ey + 6 * sc], [exR + 10 * sc, ey - 2 * sc]], 4), OL(C, 5.2, seed + 30));
+  } else if (expr === 'yummy' || expr === 'excited') {
     line(G.l, curve([[exL - 10 * sc, ey + 2 * sc], [exL, ey - 8 * sc], [exL + 10 * sc, ey + 2 * sc]], 4), OL(C, 5.2, seed + 29));
     line(G.l, curve([[exR - 10 * sc, ey + 2 * sc], [exR, ey - 8 * sc], [exR + 10 * sc, ey + 2 * sc]], 4), OL(C, 5.2, seed + 30));
   } else {
@@ -776,15 +786,20 @@ function drawLittleDog(G, C, x, y, o = {}) {
   dab(G.l, mx - 3 * sc, my - 12 * sc, 2.5 * sc, { col: C.white, p: 0.98, gap: 1.5, w: 2.5, over: 0, seed: seed + 37 });
 
   // Puppy mouth
-  if (expr === 'scared') {
+  if (pose === 'blow') {
+    part(G, ellipse(mx + flip * 4 * sc, my + 10 * sc, 7 * sc, 7 * sc, 14), { col: C.pink, p: 0.85, gap: 3, w: 4, over: 0, seed: seed + 38 }, OL(C, 4.5, seed + 39));
+  } else if (expr === 'scared') {
     part(G, ellipse(mx, my + 12 * sc, 8 * sc, 10 * sc, 14), { col: C.red, p: 0.78, gap: 3, w: 4, over: 0, seed: seed + 38 }, OL(C, 4.5, seed + 39));
-  } else if (expr === 'excited' || pose === 'cheer') {
+  } else if (expr === 'excited' || pose === 'cheer' || pose === 'sing') {
     const mo = smooth([[mx - 15 * sc, my + 2 * sc], [mx + 15 * sc, my + 2 * sc], [mx + 11 * sc, my + 20 * sc], [mx, my + 24 * sc], [mx - 11 * sc, my + 20 * sc]], 4, true);
     part(G, mo, { col: C.pink, p: 0.88, gap: 4, w: 5, over: 0, seed: seed + 38 }, OL(C, 4.5, seed + 39));
   } else {
     line(G.l, [[mx, my - 2 * sc], [mx, my + 6 * sc]], OL(C, 4, seed + 38));
     line(G.l, curve([[mx - 15 * sc, my + 6 * sc], [mx - 7 * sc, my + 14 * sc], [mx, my + 6 * sc], [mx + 7 * sc, my + 14 * sc], [mx + 15 * sc, my + 6 * sc]], 4), OL(C, 4.5, seed + 39));
   }
+
+  // Optional festive party hat on top of Little Dog's head!
+  if (o.hat) drawPartyHat(G, C, hx, hy - 50 * sc, sc, C.red, seed + 88);
 
   // Front Floppy Ear (warm dark-ochre framing side of face)
   const fEarX = hx - flip * 46 * sc;
@@ -989,17 +1004,21 @@ function drawTabbyCat(G, C, x, y, o = {}) {
   } else if (pose === 'sit_eat') {
     fPaw = [cx + flip * 42 * sc, cy - 118 * sc];
     holdApple = true; biteApple = true;
-  } else if (pose === 'cheer') {
+  } else if (pose === 'cheer' || pose === 'sing') {
     fPaw = [cx - flip * 82 * sc, cy - 204 * sc];
+  } else if (pose === 'gift') {
+    fPaw = [cx + flip * 62 * sc, cy - 118 * sc];
   }
   const fElb = [
-    pose === 'offer_apple' ? cx + flip * 18 * sc : (shFront[0] + fPaw[0]) * 0.5 - flip * 14 * sc,
+    (pose === 'offer_apple' || pose === 'gift') ? cx + flip * 18 * sc : (shFront[0] + fPaw[0]) * 0.5 - flip * 14 * sc,
     (shFront[1] + fPaw[1]) * 0.5 + 16 * sc
   ];
   const fa = curve([shFront, fElb, fPaw], 4);
   part(G, tube(fa, 18 * sc, 14 * sc), { col: C.yellow, p: 0.9, gap: 6, w: 8, over: 2, seed: seed + 62 }, OL(C, 5.5, seed + 63));
 
   if (holdApple) drawMiniApple(G, C, fPaw[0] + flip * 14 * sc, fPaw[1] - 10 * sc, sc * 0.92, seed + 70, biteApple);
+  if (pose === 'gift') drawGiftBox(G, C, fPaw[0] + flip * 16 * sc, fPaw[1] + 20 * sc, { sc: sc * 0.55, mood: 'closed', seed: seed + 76 });
+  if (o.hat) drawPartyHat(G, C, hx, hy - 50 * sc, sc * 0.95, C.pink, seed + 88);
 }
 
 // ——— 🐺 GRAY WOLF (Bác sói xám to lớn nhưng có trái tim tốt bụng) ———
@@ -1188,7 +1207,9 @@ function drawGrayWolf(G, C, x, y, o = {}) {
   } else if (pose === 'sit_eat') {
     fPaw = [cx + flip * 48 * sc, cy - 198 * sc];
     holdApple = true;
-  } else if (pose === 'cheer') {
+  } else if (pose === 'gift') {
+    fPaw = [cx + flip * 66 * sc, cy - 160 * sc];
+  } else if (pose === 'cheer' || pose === 'sing') {
     fPaw = [cx - flip * 104 * sc, cy - 278 * sc];
   }
   const fElb = [
@@ -1199,31 +1220,269 @@ function drawGrayWolf(G, C, x, y, o = {}) {
   part(G, tube(fa, 26 * sc, 20 * sc), { col: C.rain, p: 0.9, gap: 7, w: 9, over: 2.5, seed: seed + 44 }, OL(C, 6.2, seed + 45));
 
   if (holdApple) drawMiniApple(G, C, fPaw[0] + flip * 14 * sc, fPaw[1] - 12 * sc, sc * 1.08, seed + 55, true);
+  if (pose === 'gift') drawGiftBox(G, C, fPaw[0] + flip * 24 * sc, fPaw[1] + 24 * sc, { sc: sc * 0.64, mood: 'closed', seed: seed + 62 });
+  if (o.hat) drawPartyHat(G, C, hx, hy - 64 * sc, sc * 1.05, C.sky, seed + 88);
+}
+
+// ——— FESTIVE BIRTHDAY & INDOOR PROPS ———
+function drawPartyHat(G, C, hx, hy, sc, col, seed) {
+  const cone = [[hx - 34 * sc, hy + 6 * sc], [hx, hy - 74 * sc], [hx + 34 * sc, hy + 6 * sc]];
+  part(G, cone, { col, p: 0.92, gap: 5, w: 7, over: 2, seed: seed + 1 }, OL(C, 4.8, seed + 2));
+  line(G.f, [[hx - 20 * sc, hy - 18 * sc], [hx + 20 * sc, hy - 18 * sc]], { col: C.yellow, w: 7 * sc, p: 0.92, seed: seed + 3 });
+  line(G.f, [[hx - 12 * sc, hy - 40 * sc], [hx + 12 * sc, hy - 40 * sc]], { col: C.white, w: 6 * sc, p: 0.95, seed: seed + 4 });
+  part(G, handCircle(hx, hy - 78 * sc, 13 * sc, seed + 5, 0.1, 14), { col: C.yellow, p: 0.95, gap: 4, w: 6, over: 1, seed: seed + 6 }, OL(C, 4, seed + 7));
+}
+
+function drawDoor(G, C, x, y, o = {}) {
+  const sc = o.sc ?? 1, mood = o.mood || 'closed', t = o.t ?? 0, seed = o.seed ?? 1100;
+  const shake = mood === 'knock' ? Math.sin(Math.floor(t * 12) * 2.7) * 6 * sc : 0;
+  const dw = 196 * sc, dh = 370 * sc;
+  // Outer wooden door frame
+  const frame = [[x - dw * 0.58, y], [x - dw * 0.58, y - dh - 18 * sc], [x + dw * 0.58, y - dh - 18 * sc], [x + dw * 0.58, y]];
+  part(G, frame, { col: C.ochre, p: 0.72, gap: 10, w: 11, over: 3, seed: seed + 1 }, OL(C, 7, seed + 2));
+
+  if (mood === 'open') {
+    // Open sunlit sky doorway + wood door swung open to the left
+    const opening = [[x - dw * 0.48, y], [x - dw * 0.48, y - dh], [x + dw * 0.48, y - dh], [x + dw * 0.48, y]];
+    part(G, opening, { col: C.sky, p: 0.52, gap: 11, w: 12, over: 3, seed: seed + 3 }, OL(C, 5.5, seed + 4));
+    const leaf = [[x - dw * 0.48, y], [x - dw * 0.48, y - dh], [x - dw * 1.05, y - dh - 26 * sc], [x - dw * 1.05, y + 20 * sc]];
+    part(G, leaf, { col: C.ochre, p: 0.90, gap: 9, w: 11, over: 4, seed: seed + 5, cross: true, crossP: 0.35 }, OL(C, 6.5, seed + 6));
+    part(G, handCircle(x - dw * 0.92, y - dh * 0.48, 10 * sc, seed + 7, 0.08, 12), { col: C.yellow, p: 0.95, gap: 3, w: 5, over: 0, seed: seed + 8 }, OL(C, 3.8, seed + 9));
+  } else {
+    const dx = x + shake;
+    const panel = [[dx - dw * 0.48, y], [dx - dw * 0.48, y - dh], [dx + dw * 0.48, y - dh], [dx + dw * 0.48, y]];
+    part(G, panel, { col: C.ochre, p: 0.88, gap: 9, w: 11, over: 4, seed: seed + 10, ang: 1.5, cross: true, crossP: 0.35 }, OL(C, 6.5, seed + 11));
+    // Two decorative inset rectangles + round brass doorknob
+    const topP = [[dx - dw * 0.32, y - dh * 0.88], [dx + dw * 0.32, y - dh * 0.88], [dx + dw * 0.32, y - dh * 0.54], [dx - dw * 0.32, y - dh * 0.54]];
+    const botP = [[dx - dw * 0.32, y - dh * 0.42], [dx + dw * 0.32, y - dh * 0.42], [dx + dw * 0.32, y - dh * 0.10], [dx - dw * 0.32, y - dh * 0.10]];
+    line(G.l, [...topP, topP[0]], OL(C, 4.5, seed + 12, { p: 0.72 }));
+    line(G.l, [...botP, botP[0]], OL(C, 4.5, seed + 13, { p: 0.72 }));
+    part(G, handCircle(dx + dw * 0.32, y - dh * 0.46, 12 * sc, seed + 14, 0.06, 14), { col: C.yellow, p: 0.95, gap: 3, w: 5, over: 0, seed: seed + 15 }, OL(C, 4.2, seed + 16));
+  }
+}
+
+function drawBalloons(G, C, x, y, o = {}) {
+  const sc = o.sc ?? 1, t = o.t ?? 0, seed = o.seed ?? 1140;
+  const step = Math.floor(t * 12);
+  const items = [
+    { dx: -68, dy: -235, col: C.red,    ph: 0.0 },
+    { dx:   2, dy: -292, col: C.sky,    ph: 1.7 },
+    { dx:  72, dy: -228, col: C.yellow, ph: 3.1 },
+  ];
+  items.forEach((b, i) => {
+    const bob = Math.sin(step * 0.35 + b.ph) * 10 * sc;
+    const bx = x + b.dx * sc, by = y + b.dy * sc + bob;
+    // Wavy balloon string down to knot anchor
+    line(G.l, curve([[bx, by + 54 * sc], [bx - b.dx * 0.25 * sc, (by + y) * 0.5], [x, y]], 6), OL(C, 3.8, seed + i * 7, { p: 0.75 }));
+    // Plump teardrop balloon
+    const poly = smooth([
+      [bx, by - 56 * sc], [bx + 42 * sc, by - 36 * sc], [bx + 46 * sc, by + 8 * sc],
+      [bx + 18 * sc, by + 48 * sc], [bx, by + 56 * sc], [bx - 18 * sc, by + 48 * sc],
+      [bx - 46 * sc, by + 8 * sc], [bx - 42 * sc, by - 36 * sc]
+    ], 5, true);
+    part(G, poly, { col: b.col, p: 0.90, gap: 8, w: 10, over: 4.5, seed: seed + i * 7 + 1, cross: true, crossP: 0.4 }, OL(C, 5.8, seed + i * 7 + 2));
+    // White-wax glossy crescent highlight
+    line(G.l, curve([[bx - 24 * sc, by - 26 * sc], [bx - 28 * sc, by - 6 * sc], [bx - 20 * sc, by + 12 * sc]], 4), { col: C.white, w: 6.5 * sc, p: 0.95, seed: seed + i * 7 + 3 });
+    // Little balloon knot
+    part(G, [[bx - 7 * sc, by + 55 * sc], [bx + 7 * sc, by + 55 * sc], [bx, by + 64 * sc]], { col: b.col, p: 0.92, gap: 3, w: 4, over: 0, seed: seed + i * 7 + 4 }, OL(C, 3.5, seed + i * 7 + 5));
+  });
+}
+
+function drawBirthdayCake(G, C, x, y, o = {}) {
+  const sc = o.sc ?? 1, mood = o.mood || 'lit', t = o.t ?? 0, seed = o.seed ?? 1180;
+  const step = Math.floor(t * 12);
+  // Cake plate
+  part(G, ellipse(x, y - 4 * sc, 118 * sc, 18 * sc, 24), { col: C.white, p: 0.94, gap: 6, w: 8, over: 2, seed: seed + 1 }, OL(C, 5.2, seed + 2));
+  // Bottom tier (warm vanilla sponge + pink icing drip)
+  const bot = smooth([[x - 94 * sc, y - 8 * sc], [x - 92 * sc, y - 78 * sc], [x + 92 * sc, y - 78 * sc], [x + 94 * sc, y - 8 * sc]], 4, true);
+  part(G, bot, { col: C.peach, p: 0.92, gap: 8, w: 10, over: 4, seed: seed + 3, cross: true, crossP: 0.35 }, OL(C, 6, seed + 4));
+  const drip1 = smooth([
+    [x - 94 * sc, y - 78 * sc], [x + 94 * sc, y - 78 * sc], [x + 92 * sc, y - 54 * sc],
+    [x + 62 * sc, y - 44 * sc], [x + 32 * sc, y - 58 * sc], [x, y - 42 * sc],
+    [x - 32 * sc, y - 58 * sc], [x - 62 * sc, y - 44 * sc], [x - 92 * sc, y - 54 * sc]
+  ], 4, true);
+  part(G, drip1, { col: C.pink, p: 0.92, gap: 6, w: 8, over: 2.5, seed: seed + 5 }, OL(C, 4.5, seed + 6));
+  // Top tier (strawberry pink + white icing)
+  const top = smooth([[x - 66 * sc, y - 76 * sc], [x - 64 * sc, y - 134 * sc], [x + 64 * sc, y - 134 * sc], [x + 66 * sc, y - 76 * sc]], 4, true);
+  part(G, top, { col: C.pink, p: 0.90, gap: 7, w: 9, over: 3.5, seed: seed + 7 }, OL(C, 5.8, seed + 8));
+  const drip2 = smooth([
+    [x - 66 * sc, y - 134 * sc], [x + 66 * sc, y - 134 * sc], [x + 64 * sc, y - 114 * sc],
+    [x + 34 * sc, y - 104 * sc], [x, y - 116 * sc], [x - 34 * sc, y - 104 * sc], [x - 64 * sc, y - 114 * sc]
+  ], 4, true);
+  part(G, drip2, { col: C.white, p: 0.96, gap: 5, w: 7, over: 2, seed: seed + 9 }, OL(C, 4.2, seed + 10));
+  // Red strawberry dots around tier
+  [-48, -16, 16, 48].forEach((dx, i) => dab(G.f, x + dx * sc, y - 24 * sc, 9 * sc, { col: C.red, p: 0.92, seed: seed + 12 + i }));
+
+  // 5 Birthday Candles!
+  const candleCols = [C.sky, C.yellow, C.red, C.green, C.sky];
+  [-44, -22, 0, 22, 44].forEach((dx, i) => {
+    const cx = x + dx * sc, cy0 = y - 134 * sc, cy1 = cy0 - 38 * sc;
+    part(G, [[cx - 5.5 * sc, cy0], [cx - 5 * sc, cy1], [cx + 5 * sc, cy1], [cx + 5.5 * sc, cy0]], { col: candleCols[i], p: 0.94, gap: 3, w: 5, over: 1, seed: seed + 20 + i * 5 }, OL(C, 3.6, seed + 21 + i * 5));
+    if (mood === 'lit') {
+      const flick = Math.sin(step * 1.4 + i * 1.8) * 3.5 * sc;
+      const fl = smooth([[cx, cy1 - 24 * sc], [cx + 9 * sc + flick, cy1 - 10 * sc], [cx, cy1 - 2 * sc], [cx - 9 * sc + flick, cy1 - 10 * sc]], 3, true);
+      part(G, fl, { col: C.yellow, p: 0.96, gap: 3, w: 5, over: 1, seed: seed + 22 + i * 5 }, OL(C, 3, seed + 23 + i * 5, { col: C.red }));
+    } else {
+      // Gentle curling smoke wisps after Little Dog blows out the candles!
+      const sw = Math.sin(step * 0.4 + i) * 8 * sc;
+      line(G.l, curve([[cx, cy1 - 4 * sc], [cx + sw, cy1 - 22 * sc], [cx - sw * 0.7, cy1 - 44 * sc]], 5), { col: C.rain, w: 4 * sc, p: 0.58, seed: seed + 24 + i * 5 });
+    }
+  });
+}
+
+function drawGiftBox(G, C, x, y, o = {}) {
+  const sc = o.sc ?? 1, mood = o.mood || 'closed', seed = o.seed ?? 1240;
+  const bw = 114 * sc, bh = 96 * sc;
+  const box = [[x - bw * 0.5, y], [x - bw * 0.5, y - bh], [x + bw * 0.5, y - bh], [x + bw * 0.5, y]];
+  part(G, box, { col: C.red, p: 0.90, gap: 8, w: 10, over: 4, seed: seed + 1, cross: true, crossP: 0.4 }, OL(C, 6, seed + 2));
+  // Yellow ribbon stripe
+  part(G, [[x - 14 * sc, y], [x - 14 * sc, y - bh], [x + 14 * sc, y - bh], [x + 14 * sc, y]], { col: C.yellow, p: 0.94, gap: 5, w: 7, over: 1.5, seed: seed + 3 }, OL(C, 4, seed + 4));
+  // Lid (closed on top OR popped open tilted to the left!)
+  if (mood === 'open') {
+    const lid = [[x - bw * 0.95, y - bh - 34 * sc], [x - bw * 0.1, y - bh - 76 * sc], [x + bw * 0.02, y - bh - 52 * sc], [x - bw * 0.84, y - bh - 10 * sc]];
+    part(G, lid, { col: C.red, p: 0.92, gap: 6, w: 8, over: 2.5, seed: seed + 5 }, OL(C, 5.5, seed + 6));
+  } else {
+    const lid = [[x - bw * 0.56, y - bh + 8 * sc], [x - bw * 0.56, y - bh - 24 * sc], [x + bw * 0.56, y - bh - 24 * sc], [x + bw * 0.56, y - bh + 8 * sc]];
+    part(G, lid, { col: C.red, p: 0.92, gap: 6, w: 8, over: 3, seed: seed + 5 }, OL(C, 5.8, seed + 6));
+    // Big joyful yellow bow loops on top
+    const bL = smooth([[x, y - bh - 24 * sc], [x - 36 * sc, y - bh - 56 * sc], [x - 42 * sc, y - bh - 22 * sc]], 4, true);
+    const bR = smooth([[x, y - bh - 24 * sc], [x + 36 * sc, y - bh - 56 * sc], [x + 42 * sc, y - bh - 22 * sc]], 4, true);
+    part(G, bL, { col: C.yellow, p: 0.94, gap: 5, w: 7, over: 1.5, seed: seed + 7 }, OL(C, 4.8, seed + 8));
+    part(G, bR, { col: C.yellow, p: 0.94, gap: 5, w: 7, over: 1.5, seed: seed + 9 }, OL(C, 4.8, seed + 10));
+  }
+}
+
+function drawToyCar(G, C, x, y, o = {}) {
+  const sc = o.sc ?? 1, mood = o.mood || 'idle', t = o.t ?? 0, seed = o.seed ?? 1280;
+  const bob = mood === 'zoom' ? Math.sin(Math.floor(t * 12) * 1.8) * 3.5 * sc : 0;
+  const cy = y + bob;
+  // Rounded red toy car body
+  const body = smooth([
+    [x - 84 * sc, cy - 22 * sc], [x - 80 * sc, cy - 58 * sc], [x - 42 * sc, cy - 62 * sc],
+    [x - 24 * sc, cy - 98 * sc], [x + 28 * sc, cy - 98 * sc], [x + 48 * sc, cy - 60 * sc],
+    [x + 86 * sc, cy - 52 * sc], [x + 88 * sc, cy - 22 * sc]
+  ], 4, true);
+  part(G, body, { col: C.red, p: 0.92, gap: 8, w: 10, over: 4.5, seed: seed + 1, cross: true, crossP: 0.4 }, OL(C, 6, seed + 2));
+  // Sky-blue cabin window
+  const win = smooth([[x - 28 * sc, cy - 62 * sc], [x - 16 * sc, cy - 88 * sc], [x + 24 * sc, cy - 88 * sc], [x + 36 * sc, cy - 62 * sc]], 3, true);
+  part(G, win, { col: C.sky, p: 0.88, gap: 5, w: 7, over: 1.5, seed: seed + 3 }, OL(C, 4.5, seed + 4));
+  // Bright yellow headlight
+  part(G, ellipse(x + 82 * sc, cy - 42 * sc, 9 * sc, 12 * sc, 14), { col: C.yellow, p: 0.96, gap: 3, w: 5, over: 0, seed: seed + 5 }, OL(C, 3.8, seed + 6));
+  // Two round cocoa wheels + cream hubcaps
+  [-46, 46].forEach((dx, i) => {
+    part(G, handCircle(x + dx * sc, cy - 20 * sc, 22 * sc, seed + 10 + i, 0.06, 18), { col: C.ink, p: 0.94, gap: 5, w: 7, over: 1, seed: seed + 12 + i }, OL(C, 4.5, seed + 14 + i));
+    part(G, handCircle(x + dx * sc, cy - 20 * sc, 9 * sc, seed + 16 + i, 0.06, 12), { col: C.peach, p: 0.94, gap: 3, w: 4, over: 0, seed: seed + 18 + i }, OL(C, 3, seed + 20 + i));
+  });
+  if (mood === 'zoom') {
+    line(G.l, [[x - 102 * sc, cy - 48 * sc], [x - 142 * sc, cy - 48 * sc]], { col: C.yellow, w: 5.5 * sc, p: 0.88, seed: seed + 25 });
+    line(G.l, [[x - 98 * sc, cy - 30 * sc], [x - 130 * sc, cy - 30 * sc]], { col: C.ochre, w: 4.5 * sc, p: 0.80, seed: seed + 26 });
+  }
+}
+
+function drawPartyTable(G, C, x, y, o = {}) {
+  const sc = o.sc ?? 1, seed = o.seed ?? 1320;
+  const tw = 400 * sc, th = 148 * sc;
+  // Two sturdy wooden legs
+  part(G, [[x - tw * 0.40, y], [x - tw * 0.38, y - th + 12 * sc], [x - tw * 0.30, y - th + 12 * sc], [x - tw * 0.32, y]], { col: C.ochre, p: 0.86, gap: 6, w: 8, over: 2, seed: seed + 1 }, OL(C, 5.5, seed + 2));
+  part(G, [[x + tw * 0.32, y], [x + tw * 0.30, y - th + 12 * sc], [x + tw * 0.38, y - th + 12 * sc], [x + tw * 0.40, y]], { col: C.ochre, p: 0.86, gap: 6, w: 8, over: 2, seed: seed + 3 }, OL(C, 5.5, seed + 4));
+  // Tabletop + festive scalloped pink/white tablecloth
+  const cloth = smooth([
+    [x - tw * 0.50, y - th], [x + tw * 0.50, y - th], [x + tw * 0.50, y - th + 48 * sc],
+    [x + tw * 0.33, y - th + 62 * sc], [x + tw * 0.16, y - th + 44 * sc], [x, y - th + 62 * sc],
+    [x - tw * 0.16, y - th + 44 * sc], [x - tw * 0.33, y - th + 62 * sc], [x - tw * 0.50, y - th + 48 * sc]
+  ], 4, true);
+  part(G, cloth, { col: C.peach, p: 0.90, gap: 9, w: 11, over: 4, seed: seed + 5, cross: true, crossP: 0.32 }, OL(C, 6, seed + 6));
+  const topEdge = [[x - tw * 0.51, y - th - 10 * sc], [x + tw * 0.51, y - th - 10 * sc], [x + tw * 0.51, y - th + 12 * sc], [x - tw * 0.51, y - th + 12 * sc]];
+  part(G, topEdge, { col: C.sky, p: 0.84, gap: 7, w: 9, over: 2.5, seed: seed + 7 }, OL(C, 5.5, seed + 8));
+}
+
+// ——— SAFE DECLARATIVE CUSTOM PROP RENDERER (for Gemini-generated Crayon Prop JSON recipes!) ———
+function resolveCrayonColor(C, name) {
+  if (!name) return C.ochre;
+  const k = String(name).trim().toLowerCase();
+  if (C[k]) return C[k];
+  // Enforce STYLE.md invariant: never pure black!
+  if (/^#?(000|000000|111|111111|222|222222)$/.test(k)) return C.ink;
+  if (/^#[0-9a-f]{6}$/i.test(k)) return k;
+  return C.ochre;
+}
+
+export function drawCustomProp(G, C, x, y, o = {}, spec = null) {
+  if (!spec || !Array.isArray(spec.shapes)) return;
+  const sc = o.sc ?? 1, seed = o.seed ?? 1400;
+  const mapPt = ([px, py]) => [x + Number(px || 0) * sc, y + Number(py || 0) * sc];
+  spec.shapes.forEach((sh, i) => {
+    const sd = seed + i * 7;
+    const fillCol = sh.fill ? resolveCrayonColor(C, sh.fill) : null;
+    const strokeCol = resolveCrayonColor(C, sh.col || 'ink');
+    const w = Math.max(2, Math.min(18, Number(sh.w || 6))) * sc;
+    const p = clamp(Number(sh.p ?? 0.88), 0.25, 0.98);
+    if (sh.kind === 'poly' && Array.isArray(sh.pts) && sh.pts.length >= 3) {
+      const raw = sh.pts.map(mapPt);
+      const pts = sh.smooth ? smooth(raw, 4, true) : raw;
+      if (fillCol && !sh.noOutline) part(G, pts, { col: fillCol, p, gap: 8, w: 10, over: 4, seed: sd, cross: true, crossP: 0.35 }, OL(C, w / sc, sd + 1, { col: strokeCol }));
+      else if (fillCol) fill(G.f, pts, { col: fillCol, p, gap: 8, w: 10, over: 3, seed: sd });
+      else line(G.l, [...pts, pts[0]], OL(C, w / sc, sd + 1, { col: strokeCol }));
+    } else if (sh.kind === 'circle') {
+      const [cx, cy] = mapPt([sh.x, sh.y]), r = Math.max(3, Number(sh.r || 20)) * sc;
+      const pts = handCircle(cx, cy, r, sd, 0.08, 22);
+      if (fillCol && !sh.noOutline) part(G, pts, { col: fillCol, p, gap: 7, w: 9, over: 3, seed: sd + 1 }, OL(C, w / sc, sd + 2, { col: strokeCol }));
+      else if (fillCol) fill(G.f, pts, { col: fillCol, p, gap: 7, w: 9, over: 2, seed: sd + 1 });
+      else line(G.l, pts, OL(C, w / sc, sd + 2, { col: strokeCol }));
+    } else if (sh.kind === 'ellipse') {
+      const [cx, cy] = mapPt([sh.x, sh.y]);
+      const pts = ellipse(cx, cy, Math.max(3, Number(sh.rx || 24)) * sc, Math.max(3, Number(sh.ry || 16)) * sc, 20, 0, Math.PI * 2, Number(sh.rot || 0));
+      if (fillCol && !sh.noOutline) part(G, pts, { col: fillCol, p, gap: 7, w: 9, over: 3, seed: sd + 1 }, OL(C, w / sc, sd + 2, { col: strokeCol }));
+      else if (fillCol) fill(G.f, pts, { col: fillCol, p, gap: 7, w: 9, over: 2, seed: sd + 1 });
+      else line(G.l, pts, OL(C, w / sc, sd + 2, { col: strokeCol }));
+    } else if (sh.kind === 'line' && Array.isArray(sh.pts) && sh.pts.length >= 2) {
+      const raw = sh.pts.map(mapPt);
+      const pts = sh.curve && raw.length >= 3 ? curve(raw, 5) : raw;
+      line(G.l, pts, OL(C, w / sc, sd + 1, { col: strokeCol, p }));
+    } else if (sh.kind === 'dab') {
+      const [cx, cy] = mapPt([sh.x, sh.y]), r = Math.max(2, Number(sh.r || 8)) * sc;
+      dab(sh.layer === 'fill' ? G.f : G.l, cx, cy, r, { col: resolveCrayonColor(C, sh.col || sh.fill || 'ink'), p, gap: 3, w: 4.5, over: 0, seed: sd + 1 });
+    } else if (sh.kind === 'tube' && Array.isArray(sh.pts) && sh.pts.length >= 2) {
+      const pts = curve(sh.pts.map(mapPt), 5);
+      const r0 = Math.max(4, Number(sh.r0 || 14)) * sc, r1 = Math.max(4, Number(sh.r1 || sh.r0 || 12)) * sc;
+      part(G, tube(pts, r0, r1), { col: fillCol || C.ochre, p, gap: 6, w: 8, over: 2, seed: sd + 1 }, OL(C, w / sc, sd + 2, { col: strokeCol }));
+    }
+  });
 }
 
 // Unified dispatcher used by engine/scene.js & engine/sheet.js
-export function drawEntity(G, C, ent, state, t) {
+export function drawEntity(G, C, ent, state, t, customProps = null) {
   const o = { ...state, sc: ent.scale ?? 1, t, seed: ent.seed ?? 10, rootY: ent.rootY };
   switch (ent.type) {
-    case 'boy_leo':      return drawChild(G, C, ent.x, ent.y, o, 'boy');
-    case 'girl_maya':    return drawChild(G, C, ent.x, ent.y, o, 'girl');
-    case 'little_dog':   return drawLittleDog(G, C, ent.x, ent.y, o);
-    case 'tabby_cat':    return drawTabbyCat(G, C, ent.x, ent.y, o);
-    case 'gray_wolf':    return drawGrayWolf(G, C, ent.x, ent.y, o);
-    case 'big_tree':     return drawBigTree(G, C, ent.x, ent.y, o);
-    case 'apple_basket': return drawAppleBasket(G, C, ent.x, ent.y, o);
-    case 'seed':         return drawSeed(G, C, ent.x, ent.y, o);
-    case 'sun':          return drawSun(G, C, ent.x, ent.y, o);
-    case 'cloud':        return drawCloud(G, C, ent.x, ent.y, o);
-    case 'flower':       return drawFlower(G, C, ent.x, ent.y, o);
-    case 'tree':         return drawTree(G, C, ent.x, ent.y, o);
-    case 'bird':         return drawBird(G, C, ent.x, ent.y, o);
-    case 'apple':        return drawApple(G, C, ent.x, ent.y, o);
-    case 'house':        return drawHouse(G, C, ent.x, ent.y, o);
-    case 'rainbow':      return drawRainbow(G, C, ent.x, ent.y, o);
-    case 'star':         return drawStar(G, C, ent.x, ent.y, o);
-    case 'watering_can': return drawWateringCan(G, C, ent.x, ent.y, o);
-    case 'fence':        return drawFence(G, C, ent.x, ent.y, o);
-    case 'bush':         return drawBush(G, C, ent.x, ent.y, o);
+    case 'boy_leo':       return drawChild(G, C, ent.x, ent.y, o, 'boy');
+    case 'girl_maya':     return drawChild(G, C, ent.x, ent.y, o, 'girl');
+    case 'little_dog':    return drawLittleDog(G, C, ent.x, ent.y, o);
+    case 'tabby_cat':     return drawTabbyCat(G, C, ent.x, ent.y, o);
+    case 'gray_wolf':     return drawGrayWolf(G, C, ent.x, ent.y, o);
+    case 'door':          return drawDoor(G, C, ent.x, ent.y, o);
+    case 'balloons':      return drawBalloons(G, C, ent.x, ent.y, o);
+    case 'birthday_cake': return drawBirthdayCake(G, C, ent.x, ent.y, o);
+    case 'gift_box':      return drawGiftBox(G, C, ent.x, ent.y, o);
+    case 'toy_car':       return drawToyCar(G, C, ent.x, ent.y, o);
+    case 'party_table':   return drawPartyTable(G, C, ent.x, ent.y, o);
+    case 'big_tree':      return drawBigTree(G, C, ent.x, ent.y, o);
+    case 'apple_basket':  return drawAppleBasket(G, C, ent.x, ent.y, o);
+    case 'seed':          return drawSeed(G, C, ent.x, ent.y, o);
+    case 'sun':           return drawSun(G, C, ent.x, ent.y, o);
+    case 'cloud':         return drawCloud(G, C, ent.x, ent.y, o);
+    case 'flower':        return drawFlower(G, C, ent.x, ent.y, o);
+    case 'tree':          return drawTree(G, C, ent.x, ent.y, o);
+    case 'bird':          return drawBird(G, C, ent.x, ent.y, o);
+    case 'apple':         return drawApple(G, C, ent.x, ent.y, o);
+    case 'house':         return drawHouse(G, C, ent.x, ent.y, o);
+    case 'rainbow':       return drawRainbow(G, C, ent.x, ent.y, o);
+    case 'star':          return drawStar(G, C, ent.x, ent.y, o);
+    case 'watering_can':  return drawWateringCan(G, C, ent.x, ent.y, o);
+    case 'fence':         return drawFence(G, C, ent.x, ent.y, o);
+    case 'bush':          return drawBush(G, C, ent.x, ent.y, o);
+    default: {
+      const spec = ent.customSpec || (Array.isArray(customProps) ? customProps.find(p => p.type === ent.type) : customProps?.[ent.type]);
+      if (spec) return drawCustomProp(G, C, ent.x, ent.y, o, spec);
+    }
   }
 }

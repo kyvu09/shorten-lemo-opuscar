@@ -4,6 +4,7 @@ import { VIEW, setView, wx, wy, CAM } from '/engine/crayon.js';
 import { ENTITY_CATALOG, HUMAN_POSES, HUMAN_EXPRS, HUMAN_VIEWS } from '/engine/library.js';
 import { renderProject, evalCamera } from '/engine/scene.js';
 import { DEFAULT_CRAYONS, VOICE_CATALOG, WASH_PRESETS, aspectDimensions } from '/engine/schema.js';
+import { buildAutoDirectedProject } from '/engine/autodirector.js';
 
 const $ = id => document.getElementById(id);
 
@@ -33,6 +34,8 @@ const STATE = {
   tlZoom: 1,
   newMode: 'blank',      // 'blank' | 'duplicate'
   lineAudio: null,
+  settings: { hasGeminiKey: false, geminiKeyMasked: '', geminiModel: 'gemini-2.5-flash' },
+  customProps: [],
 };
 
 // ——— Utilities ———
@@ -655,15 +658,30 @@ function renderInspector() {
   }
 
   else if (STATE.tab === 'cast') {
+    const customList = STATE.customProps || [];
     body.innerHTML = `
-      <div class="sec-head"><span>Thêm từ kho Sáp Màu (15 mẫu)</span></div>
+      <div class="sec-head"><span>Thêm từ kho Sáp Màu (${ENTITY_CATALOG.length} mẫu có sẵn)</span></div>
       <div class="lib-grid">
         ${ENTITY_CATALOG.map(c => `<button type="button" class="lib-btn" data-add-ent="${c.type}"><span class="ico">${c.icon}</span><span>${esc(c.label.split(' ')[0] + ' ' + (c.label.split(' ')[1] || ''))}</span></button>`).join('')}
       </div>
 
+      <div class="sec-head"><span>✨ Đạo cụ AI đã tạo (${customList.length})</span></div>
+      <div class="card">
+        <div class="field-row" style="align-items:center">
+          <input id="inpAiProp" type="text" style="flex:1;background:#141312;color:var(--text);border:1px solid var(--border);border-radius:5px;padding:5px 8px;font-size:12px" placeholder="Mô tả vật cần AI vẽ (vd: khủng long, xe đạp đỏ...)">
+          <button id="btnGenAiProp" type="button" class="btn-mini">✨ AI Vẽ</button>
+        </div>
+        <div id="aiPropStatus" class="hidden" style="font-size:11.5px;color:#8af0b9"></div>
+        ${customList.length ? `
+          <div class="lib-grid" style="margin-top:4px">
+            ${customList.map(cp => `<button type="button" class="lib-btn" data-add-custom="${esc(cp.type)}" title="${esc(cp.label)}"><span class="ico">${esc(cp.icon || '🎨')}</span><span>${esc(cp.label.slice(0, 14))}</span></button>`).join('')}
+          </div>` : `<div style="font-size:11.5px;color:var(--muted)">Chưa có đạo cụ AI nào. Nhập Gemini API Key trong nút ✨ Từ kịch bản để tự vẽ vật mới!</div>`}
+      </div>
+
       <div class="sec-head"><span>Đang có trên trang (${(P.entities || []).length})</span></div>
       ${(P.entities || []).map((ent, idx) => {
-        const cat = ENTITY_CATALOG.find(c => c.type === ent.type) || { icon: '🎨', label: ent.type, kind: 'mood', moods: ['idle'] };
+        const cSpec = (P.customProps || []).find(p => p.type === ent.type) || customList.find(p => p.type === ent.type);
+        const cat = ENTITY_CATALOG.find(c => c.type === ent.type) || (cSpec ? { icon: cSpec.icon || '🎨', label: cSpec.label || ent.type, kind: 'mood', moods: ['idle'] } : { icon: '🎨', label: ent.type, kind: 'mood', moods: ['idle'] });
         const isSel = STATE.selected?.kind === 'entity' && STATE.selected.id === ent.id;
         return `
         <div class="card ${isSel ? 'selected' : ''}">
@@ -721,6 +739,41 @@ function renderInspector() {
       STATE.selected = { kind: 'entity', id };
       markDirty(true); renderInspector(); drawFrame();
     });
+    body.querySelectorAll('[data-add-custom]').forEach(btn => btn.onclick = () => {
+      const cp = (STATE.customProps || []).find(c => c.type === btn.dataset.addCustom);
+      if (!cp) return;
+      const cam = STATE.camOverride || evalCamera(P, STATE.t);
+      if (!Array.isArray(P.customProps)) P.customProps = [];
+      if (!P.customProps.some(x => x.type === cp.type)) P.customProps.push(cp);
+      const id = `${cp.type}_${Date.now().toString(36)}`;
+      P.entities.push({ id, type: cp.type, x: Math.round(cam.x), y: Math.round(cam.y + 90), scale: cp.defaultScale || 1.0, tStart: Number(STATE.t.toFixed(1)), drawDur: 0.8, states: [{ t: 0, mood: 'idle' }] });
+      STATE.selected = { kind: 'entity', id };
+      markDirty(true); renderInspector(); drawFrame();
+    });
+    const btnGen = $('btnGenAiProp');
+    if (btnGen) btnGen.onclick = async () => {
+      const q = $('inpAiProp').value.trim();
+      const st = $('aiPropStatus');
+      if (!q) return;
+      btnGen.disabled = true; st.classList.remove('hidden'); st.style.color = '#ffd088'; st.textContent = `✨ Gemini đang vẽ "${q}"...`;
+      try {
+        const res = await fetch('/api/custom-props/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: q }) });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Lỗi tạo đạo cụ AI');
+        STATE.customProps = data.customProps || STATE.customProps;
+        if (!Array.isArray(P.customProps)) P.customProps = [];
+        if (!P.customProps.some(x => x.type === data.prop.type)) P.customProps.push(data.prop);
+        const cam = STATE.camOverride || evalCamera(P, STATE.t);
+        const id = `${data.prop.type}_${Date.now().toString(36)}`;
+        P.entities.push({ id, type: data.prop.type, x: Math.round(cam.x), y: Math.round(cam.y + 90), scale: 1.0, tStart: Number(STATE.t.toFixed(1)), drawDur: 0.8, states: [{ t: 0, mood: 'idle' }] });
+        STATE.selected = { kind: 'entity', id };
+        markDirty(true); renderInspector(); drawFrame();
+      } catch (e) {
+        st.style.color = '#ff9c98'; st.textContent = `❌ ${e.message}`;
+      } finally {
+        btnGen.disabled = false;
+      }
+    };
     body.querySelectorAll('[data-ent]').forEach(inp => inp.addEventListener('input', () => {
       P.entities[Number(inp.dataset.ent)][inp.dataset.k] = Number(inp.value);
       markDirty(true); drawFrame();
@@ -759,6 +812,7 @@ function renderInspector() {
           <select id="selWorld">
             <option value="garden-cross-section" ${P.world?.preset === 'garden-cross-section' ? 'selected' : ''}>Mặt cắt khu vườn &amp; lòng đất</option>
             <option value="forest-clearing" ${P.world?.preset === 'forest-clearing' ? 'selected' : ''}>Khu rừng nắng &amp; Dòng sông xanh</option>
+            <option value="cozy-room" ${P.world?.preset === 'cozy-room' ? 'selected' : ''}>Phòng tiệc ấm cúng (Sinh nhật / Trong nhà)</option>
             <option value="sunny-meadow" ${P.world?.preset === 'sunny-meadow' ? 'selected' : ''}>Đồng cỏ nắng rộng</option>
             <option value="blank-page" ${P.world?.preset === 'blank-page' ? 'selected' : ''}>Trang giấy trắng tối giản</option>
           </select>
@@ -785,6 +839,7 @@ function renderInspector() {
           <select id="selWax">
             <option value="rain-and-roots" ${pal.waxPreset === 'rain-and-roots' ? 'selected' : ''}>Giọt mưa &amp; Rễ cây ẩn dưới đất</option>
             <option value="friendship-hearts" ${pal.waxPreset === 'friendship-hearts' ? 'selected' : ''}>Trái tim ❤️ &amp; Tia sáng tình bạn (Wax Hearts)</option>
+            <option value="birthday-confetti" ${pal.waxPreset === 'birthday-confetti' ? 'selected' : ''}>Pháo giấy &amp; Trái tim sinh nhật (Wax Confetti)</option>
             <option value="rain-and-stars" ${pal.waxPreset === 'rain-and-stars' ? 'selected' : ''}>Giọt mưa &amp; Tia sáng lấp lánh</option>
             <option value="starry-night" ${pal.waxPreset === 'starry-night' ? 'selected' : ''}>Bầu trời sao ẩn (Wax Stars)</option>
             <option value="none" ${pal.waxPreset === 'none' ? 'selected' : ''}>Không dùng sáp ẩn</option>
@@ -1174,6 +1229,303 @@ $('btnNew').onclick = () => openNewModal('blank');
 $('btnDup').onclick = () => openNewModal('duplicate');
 $('newTitle').oninput = e => { $('newSlug').value = slugify(e.target.value); };
 
+// ——— AUTO-DIRECTOR (Paste Script → Auto Video!) ———
+const SAMPLE_AUTO_SCRIPT = `Nhân vật:
+- 🐶 Little Dog: Chú chó nhỏ, vui vẻ và tốt bụng.
+- 🐱 Tabby Cat: Chú mèo mướp, thông minh và đáng yêu.
+- 🐺 Gray Wolf: Bác sói xám, trông đáng sợ nhưng có trái tim tốt bụng.
+Câu chuyện:
+
+One sunny morning, Little Dog is walking in the forest. He sees his friend, Tabby Cat.
+(Một buổi sáng đầy nắng, chú chó nhỏ đang đi dạo trong rừng. Chú nhìn thấy người bạn của mình, mèo mướp.)
+
+🐶 Little Dog:
+"Hello, Kitty! Good morning!"
+(Xin chào Kitty! Chào buổi sáng!)
+
+🐱 Tabby Cat:
+"Good morning, Doggy! Where are you going?"
+(Chào buổi sáng Doggy! Bạn đang đi đâu vậy?)
+
+🐶 Little Dog:
+"I am going to the river. Do you want to come with me?"
+(Tớ đang đi đến bờ sông. Bạn có muốn đi cùng tớ không?)
+
+🐱 Tabby Cat:
+"Yes! Let's go together!"
+(Có chứ! Chúng ta cùng đi nào!)
+
+Suddenly, they hear a loud sound.
+(Đột nhiên, họ nghe thấy một tiếng động lớn.)
+
+🐺 Gray Wolf:
+"Hello, little friends! I am hungry."
+(Xin chào, những người bạn nhỏ! Bác đang đói.)
+
+🐱 Tabby Cat:
+"Oh! We have some apples. Would you like one?"
+(Ồ! Chúng cháu có vài quả táo. Bác có muốn ăn một quả không?)
+
+🐺 Gray Wolf:
+"Yummy! This apple is delicious! Thank you so much!"
+(Ngon quá! Quả táo này thật ngon! Cảm ơn các cháu rất nhiều!)
+
+The three friends sit under a big tree and eat apples together.
+(Ba người bạn ngồi dưới một cái cây lớn và cùng nhau ăn táo.)
+
+🐱 Tabby Cat:
+"Friends help each other!"
+(Bạn bè luôn giúp đỡ lẫn nhau!)
+
+THE END! ❤️`;
+
+const SAMPLE_BIRTHDAY_SCRIPT = `Today is Little Dog's birthday. He is very happy.
+(Hôm nay là sinh nhật của chú chó nhỏ. Chú rất vui.)
+
+🐶 Little Dog:
+"Today is my birthday!"
+(Hôm nay là sinh nhật của tớ!)
+"I am so happy!"
+(Tớ vui quá!)
+
+🐱 Tabby Cat:
+"Happy birthday, Doggy!"
+(Chúc mừng sinh nhật Doggy!)
+"I have some balloons. Look! They are red, blue, and yellow!"
+(Tớ có một ít bóng bay. Nhìn này! Chúng có màu đỏ, xanh dương và vàng!)
+
+🐶 Little Dog:
+"Wow! I will make a big cake!"
+(Wow! Tớ sẽ làm một chiếc bánh thật lớn!)
+
+Suddenly, someone knocks on the door.
+(Đột nhiên, có ai đó gõ cửa.)
+
+🐺 Gray Wolf:
+"It is me! Mr. Gray Wolf! Happy birthday, Little Dog! I have a present for you!"
+(Là bác đây! Bác sói xám đây! Chúc mừng sinh nhật chó nhỏ! Bác có một món quà dành cho cháu!)
+
+Little Dog opens the present. It is a beautiful red toy car.
+(Chú chó nhỏ mở món quà. Đó là một chiếc ô tô đồ chơi màu đỏ rất đẹp.)
+
+The three friends sit around the table. There is a big birthday cake.
+(Ba người bạn ngồi quanh bàn. Có một chiếc bánh sinh nhật thật lớn.)
+
+🐺 Gray Wolf:
+"Let's sing a birthday song!"
+(Chúng ta hãy hát bài hát sinh nhật nào!)
+
+Little Dog closes his eyes and blows out the candles.
+(Chú chó nhỏ nhắm mắt và thổi tắt những ngọn nến.)
+
+ALL:
+"Yay! Let's eat cake!"
+(Hoan hô! Cùng ăn bánh nào!)
+
+THE END! ❤️`;
+
+function syncGeminiBadge() {
+  const b = $('adGeminiBadge');
+  if (!b) return;
+  if (STATE.settings.hasGeminiKey) {
+    b.textContent = `🟢 Đã lưu Key (${STATE.settings.geminiKeyMasked})`;
+    b.classList.add('ok');
+    $('adUseGemini').checked = true;
+  } else {
+    b.textContent = '⚪ Chưa nhập Key (chạy Offline)';
+    b.classList.remove('ok');
+  }
+  if ($('adGeminiModel')) $('adGeminiModel').value = STATE.settings.geminiModel || 'gemini-2.5-flash';
+}
+
+async function loadStudioMeta() {
+  try {
+    const [sRes, pRes] = await Promise.all([fetch('/api/settings'), fetch('/api/custom-props')]);
+    if (sRes.ok) STATE.settings = await sRes.json();
+    if (pRes.ok) STATE.customProps = (await pRes.json()).customProps || [];
+    syncGeminiBadge();
+  } catch {}
+}
+
+function updateAutoDirectPreview() {
+  const txt = $('adScript').value.trim();
+  const box = $('adPreviewBox');
+  if (!txt) {
+    box.innerHTML = 'Dán kịch bản vào ô trên để xem trước nhân vật, đạo cụ &amp; từ vựng được nhận diện tự động...';
+    return;
+  }
+  const { summary } = buildAutoDirectedProject({
+    title: $('adTitle').value.trim() || 'My Story',
+    titleVi: $('adTitleVi').value.trim(),
+    narrationMode: $('adNarration').value,
+    worldPreset: $('adWorld').value,
+    scriptText: txt,
+    customProps: STATE.customProps,
+  });
+  const worldIcon = summary.world === 'cozy-room' ? '🏠' : (summary.world === 'forest-clearing' ? '🌲' : '🌻');
+  const castHtml = summary.cast.map(c => `<span class="ad-pill">${esc(c.icon)} ${esc(c.name)} (${esc(c.enVoice)})</span>`).join('');
+  const tagHtml = summary.tags.map(t => `<span class="ad-pill tag">🏷️ ${esc(t)}</span>`).join('');
+  const missHtml = (summary.missingProps || []).length
+    ? `<span class="ad-pill warn" title="Bật Gemini AI để tự động vẽ mẫu sáp màu cho các vật này!">⚠ Chưa có mẫu vẽ: ${esc(summary.missingProps.map(m => m.label).join(', '))}</span>`
+    : `<span class="ad-pill tag">✓ Đủ 100% mẫu đạo cụ</span>`;
+  box.innerHTML = `
+    <span class="ad-pill">📖 ${summary.lineCount} câu</span>
+    <span class="ad-pill">⏱ ~${summary.estimatedDuration}s</span>
+    <span class="ad-pill">${worldIcon} ${esc(summary.world)}</span>
+    ${castHtml}
+    ${tagHtml}
+    ${missHtml}
+  `;
+}
+
+$('btnAutoScript').onclick = () => {
+  $('adErr').classList.add('hidden');
+  $('adGeminiMsg').classList.add('hidden');
+  $('adAspect').value = STATE.project?.meta?.aspect || '16:9';
+  syncGeminiBadge();
+  updateAutoDirectPreview();
+  $('modalScript').classList.remove('hidden');
+};
+$('adTitle').oninput = e => { $('adSlug').value = slugify(e.target.value); };
+$('adScript').oninput = updateAutoDirectPreview;
+$('adNarration').onchange = updateAutoDirectPreview;
+$('adWorld').onchange = updateAutoDirectPreview;
+$('btnFillSampleScript').onclick = () => {
+  $('adTitle').value = 'The Kind Wolf Picnic';
+  $('adTitleVi').value = 'Bác Sói Tốt Bụng';
+  $('adSlug').value = 'the-kind-wolf-picnic';
+  $('adScript').value = SAMPLE_AUTO_SCRIPT;
+  updateAutoDirectPreview();
+};
+$('btnFillSampleBirthday').onclick = () => {
+  $('adTitle').value = "Little Dog's Birthday";
+  $('adTitleVi').value = 'Sinh Nhật Chú Chó Nhỏ';
+  $('adSlug').value = 'little-dogs-birthday';
+  $('adScript').value = SAMPLE_BIRTHDAY_SCRIPT;
+  updateAutoDirectPreview();
+};
+$('btnSaveGemini').onclick = async () => {
+  const msg = $('adGeminiMsg');
+  const key = $('adGeminiKey').value.trim();
+  const model = $('adGeminiModel').value;
+  const res = await fetch('/api/settings', {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...(key ? { geminiApiKey: key } : {}), geminiModel: model })
+  });
+  const data = await res.json();
+  STATE.settings = data;
+  $('adGeminiKey').value = '';
+  syncGeminiBadge();
+  msg.classList.remove('hidden', 'err');
+  msg.textContent = data.hasGeminiKey ? `✓ Đã lưu Gemini API Key cục bộ (.studio-config.json) · Model: ${data.geminiModel}` : 'Đã lưu cấu hình (chưa có Key).';
+};
+$('btnTestGemini').onclick = async () => {
+  const msg = $('adGeminiMsg');
+  const key = $('adGeminiKey').value.trim();
+  const model = $('adGeminiModel').value;
+  msg.classList.remove('hidden', 'err');
+  msg.textContent = '🔍 Đang kiểm tra kết nối Gemini API...';
+  try {
+    const res = await fetch('/api/settings/test-gemini', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ geminiApiKey: key, geminiModel: model })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Kết nối thất bại');
+    msg.textContent = `✓ Kết nối Gemini thành công (${data.model})!`;
+  } catch (e) {
+    msg.classList.add('err');
+    msg.textContent = `❌ ${e.message}`;
+  }
+};
+
+$('btnRunAutoDirect').onclick = async () => {
+  const scriptText = $('adScript').value.trim();
+  if (!scriptText) {
+    $('adErr').textContent = 'Hãy dán kịch bản câu chuyện trước khi bấm tạo video!';
+    $('adErr').classList.remove('hidden');
+    return;
+  }
+  const payload = {
+    slug: $('adSlug').value.trim() || slugify($('adTitle').value),
+    title: $('adTitle').value.trim() || 'My Crayon Story',
+    titleVi: $('adTitleVi').value.trim() || 'Câu Chuyện Sáp Màu',
+    aspect: $('adAspect').value,
+    narrationMode: $('adNarration').value,
+    worldPreset: $('adWorld').value,
+    scriptText,
+    useGemini: $('adUseGemini').checked,
+    renderMp4: $('adRenderMp4').checked,
+  };
+
+  $('modalScript').classList.add('hidden');
+  $('jobTitle').textContent = `✨ Tự động dựng Video — ${payload.title}`;
+  $('jobBar').style.width = '4%';
+  $('jobBar').style.background = '';
+  $('jobLabel').textContent = 'Đang khởi chạy Auto-Director...';
+  $('jobLog').textContent = '';
+  $('jobLog').classList.remove('hidden');
+  $('jobResult').classList.add('hidden');
+  $('jobResult').innerHTML = '';
+  $('btnCloseJob').disabled = true;
+  $('btnDoneJob').disabled = true;
+  $('modalJob').classList.remove('hidden');
+
+  try {
+    const res = await fetch('/api/autodirect/produce', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+    });
+    const reader = res.body.getReader();
+    const dec = new TextDecoder();
+    let buf = '';
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      const parts = buf.split('\n\n');
+      buf = parts.pop();
+      for (const chunk of parts) {
+        const line = chunk.split('\n').find(l => l.startsWith('data: '));
+        if (!line) continue;
+        const msg = JSON.parse(line.slice(6));
+        if (msg.type === 'log') {
+          $('jobLog').textContent += msg.text + '\n';
+          $('jobLog').scrollTop = $('jobLog').scrollHeight;
+        } else if (msg.type === 'progress') {
+          $('jobBar').style.width = `${msg.pct}%`;
+          $('jobLabel').textContent = msg.label;
+        } else if (msg.type === 'error') {
+          $('jobLabel').textContent = `❌ Lỗi: ${msg.message}`;
+          $('jobBar').style.background = '#d9534f';
+        } else if (msg.type === 'done') {
+          await loadStudioMeta();
+          await refreshProjects(msg.slug);
+          if (msg.media?.mp4Url) {
+            const box = $('jobResult');
+            box.innerHTML = `
+              <div style="margin-bottom:8px;color:#8af0b9;font-weight:600">✓ Tự động tạo video hoàn tất: ${esc(msg.slug)}.mp4 (${esc(msg.sizeMb)} MB) · ${esc(msg.loudness || '-14 LUFS')}</div>
+              <video controls autoplay src="${esc(msg.media.mp4Url)}?cb=${Date.now()}"></video>
+              <div style="margin-top:8px;display:flex;gap:8px">
+                <a class="btn btn-primary" href="${esc(msg.media.mp4Url)}" download="${esc(msg.slug)}.mp4">⬇ Tải xuống MP4</a>
+                <a class="btn btn-secondary" href="/films/${esc(msg.slug)}/subtitles_en_vi.srt" download>📄 Tải phụ đề .SRT</a>
+              </div>`;
+            box.classList.remove('hidden');
+          } else {
+            const box = $('jobResult');
+            box.innerHTML = `<div style="color:#8af0b9;font-weight:600">✓ Đã dựng xong dự án "${esc(msg.slug)}" kèm giọng đọc &amp; nhạc CC0! Đóng cửa sổ này để xem trước, chỉnh nhẹ nếu thích rồi bấm 🎬 Xuất MP4.</div>`;
+            box.classList.remove('hidden');
+          }
+        }
+      }
+    }
+  } catch (e) {
+    $('jobLabel').textContent = `❌ Lỗi kết nối: ${e.message}`;
+  } finally {
+    $('btnCloseJob').disabled = false;
+    $('btnDoneJob').disabled = false;
+  }
+};
+
 $('btnConfirmNew').onclick = async () => {
   const payload = {
     slug: $('newSlug').value.trim(),
@@ -1214,10 +1566,11 @@ window.addEventListener('keydown', ev => {
   else if (ev.key === 'Home') { setPlaying(false); seekTo(0); }
 });
 
-// Boot Studio after loading fonts!
+// Boot Studio after loading fonts & settings!
 Promise.all([
   document.fonts.load('400 50px "Patrick Hand"'),
   document.fonts.load('600 42px "Mali"'),
   document.fonts.load('700 74px "Mali"'),
   document.fonts.ready,
+  loadStudioMeta(),
 ]).then(() => refreshProjects());

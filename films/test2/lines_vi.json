@@ -1,0 +1,58 @@
+[
+  {
+    "id": "l01",
+    "text": "Woof! Hello, Tabby Cat! Look at my big red ball! (Gâu! Xin chào, Mèo Mướp! Nhìn quả bóng đỏ to của tớ này!)",
+    "say": "Woof! Hello, Tabby Cat! Look at my big red ball! (Gâu! Xin chào, Mèo Mướp! Nhìn quả bóng đỏ to của tớ này!)",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "+3%",
+    "pitch": "+3Hz"
+  },
+  {
+    "id": "l02",
+    "text": "Meow! It is so big! Let’s play! (Meo! Nó to quá! Cùng chơi nào!)",
+    "say": "Meow! It is so big! Let’s play! (Meo! Nó to quá! Cùng chơi nào!)",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "+2%",
+    "pitch": "+4Hz"
+  },
+  {
+    "id": "l03",
+    "text": "Oh no! The ball is rolling to the trees! (Ôi không! Quả bóng đang lăn về phía hàng cây kìa!)",
+    "say": "Oh no! The ball is rolling to the trees! (Ôi không! Quả bóng đang lăn về phía hàng cây kìa!)",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "+3%",
+    "pitch": "+3Hz"
+  },
+  {
+    "id": "l04",
+    "text": "Awooo! Stop right there! Is this your ball? (Gào ú! Đứng lại đó! Đây có phải bóng của các cháu không?)",
+    "say": "Awooo! Stop right there! Is this your ball? (Gào ú! Đứng lại đó! Đây có phải bóng của các cháu không?)",
+    "voice": "vi-VN-NamMinhNeural",
+    "rate": "-5%",
+    "pitch": "-3Hz"
+  },
+  {
+    "id": "l05",
+    "text": "Yikes! Run away, Little Dog! It’s the Big Gray Wolf! (Á! Chạy đi, Chó Nhỏ! Là Bác Sói Xám kìa!)",
+    "say": "Yikes! Run away, Little Dog! It’s the Big Gray Wolf! (Á! Chạy đi, Chó Nhỏ! Là Bác Sói Xám kìa!)",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "+2%",
+    "pitch": "+4Hz"
+  },
+  {
+    "id": "l06",
+    "text": "Haha, don't be scared! Here you go. Have fun, little friends! (Haha, đừng sợ! Của các cháu đây. Chơi vui nhé, các bạn nhỏ!)",
+    "say": "Haha, don't be scared! Here you go. Have fun, little friends! (Haha, đừng sợ! Của các cháu đây. Chơi vui nhé, các bạn nhỏ!)",
+    "voice": "vi-VN-NamMinhNeural",
+    "rate": "-5%",
+    "pitch": "-3Hz"
+  },
+  {
+    "id": "l07",
+    "text": "Chú chó nhỏ & Chú mèo mướp (Little Dog & Tabby Cat): Thank you, Uncle Wolf! You are so nice! (Cảm ơn Bác Sói! Bác thật tốt bụng!)",
+    "say": "Chú chó nhỏ & Chú mèo mướp (Little Dog & Tabby Cat): Thank you, Uncle Wolf! You are so nice! (Cảm ơn Bác Sói! Bác thật tốt bụng!)",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "-4%",
+    "pitch": "+0Hz"
+  }
+]

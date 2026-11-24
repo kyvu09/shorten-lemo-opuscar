@@ -37,6 +37,9 @@ styles/*/demo/fonts/*.ttf
 styles/*/demo/fonts/*.otf
 styles/*/*.mp4
 
+# Local Studio secrets (user API keys — never commit!)
+.studio-config.json
+
 # Temp & backup files
 *.bak
 *.orig

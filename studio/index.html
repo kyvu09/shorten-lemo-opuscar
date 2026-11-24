@@ -18,8 +18,9 @@
 
       <div class="toolbar-group">
         <select id="projSelect" class="select-proj" title="Chọn dự án phim"></select>
-        <button id="btnNew" class="btn btn-ghost" title="Tạo tập phim mới">+ Tập mới</button>
-        <button id="btnDup" class="btn btn-ghost" title="Nhân bản tập hiện tại">📋 Nhân bản</button>
+        <button id="btnAutoScript" class="btn btn-magic" title="Dán kịch bản hội thoại để tự động dựng video từ A–Z">✨ Từ kịch bản</button>
+        <button id="btnNew" class="btn btn-ghost" title="Tạo tập phim trống mới">+ Mới</button>
+        <button id="btnDup" class="btn btn-ghost" title="Nhân bản tập hiện tại">📋</button>
       </div>
 
       <div class="toolbar-group">
@@ -124,6 +125,96 @@
         </div>
       </div>
     </footer>
+  </div>
+
+  <!-- MODAL: AUTO-DIRECTOR FROM SCRIPT -->
+  <div id="modalScript" class="modal hidden">
+    <div class="modal-card modal-script">
+      <div class="modal-head">
+        <h3>✨ Tự động tạo Video từ Kịch bản (Auto-Director)</h3>
+        <button class="modal-close" data-close="modalScript">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="field-row">
+          <label class="field">Tiêu đề tiếng Anh
+            <input id="adTitle" type="text" placeholder="Ví dụ: The Kind Wolf" value="Forest Picnic Friends">
+          </label>
+          <label class="field">Tiêu đề tiếng Việt
+            <input id="adTitleVi" type="text" placeholder="Ví dụ: Bác Sói Tốt Bụng" value="Những Người Bạn Trong Rừng">
+          </label>
+          <label class="field" style="flex:0 0 185px">Thư mục (slug)
+            <input id="adSlug" type="text" placeholder="forest-picnic-friends" value="forest-picnic-friends">
+          </label>
+        </div>
+
+        <div class="field-row">
+          <label class="field">Khung hình
+            <select id="adAspect">
+              <option value="16:9">16:9 Ngang (1920×1080 · YouTube)</option>
+              <option value="9:16">9:16 Dọc (1080×1920 · Shorts/TikTok)</option>
+            </select>
+          </label>
+          <label class="field">Giọng lồng tiếng phân vai
+            <select id="adNarration">
+              <option value="bilingual">Song ngữ từng câu (EN → VI phân vai)</option>
+              <option value="en">Chỉ Tiếng Anh (Kokoro offline phân vai)</option>
+              <option value="vi">Chỉ Tiếng Việt (Edge-TTS online phân vai)</option>
+            </select>
+          </label>
+          <label class="field">Bối cảnh &amp; Màu nước
+            <select id="adWorld">
+              <option value="auto">Tự động chọn theo nội dung truyện</option>
+              <option value="cozy-room">Phòng tiệc ấm cúng (Sinh nhật / Trong nhà)</option>
+              <option value="forest-clearing">Khu rừng nắng &amp; Dòng sông xanh</option>
+              <option value="sunny-meadow">Đồng cỏ nắng rộng</option>
+              <option value="garden-cross-section">Mặt cắt khu vườn &amp; lòng đất</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="ad-script-head">
+          <span class="ad-script-lbl">Dán kịch bản hội thoại (hỗ trợ nhiều dòng/nhân vật, <code>ALL:</code>, 🐶🐱🐺👦👧...)</span>
+          <div style="display:flex;gap:5px">
+            <button id="btnFillSampleBirthday" type="button" class="btn-mini">🎂 Mẫu Sinh nhật</button>
+            <button id="btnFillSampleScript" type="button" class="btn-mini">🌲 Mẫu Bác Sói</button>
+          </div>
+        </div>
+        <textarea id="adScript" class="ad-textarea" rows="10" placeholder="Dán kịch bản EN/VI của bạn vào đây..."></textarea>
+
+        <div id="adPreviewBox" class="ad-preview">Dán kịch bản vào ô trên để xem trước nhân vật, đạo cụ &amp; từ vựng được nhận diện tự động...</div>
+
+        <!-- Gemini AI Integration Box (optional, user's own API key saved locally in .studio-config.json) -->
+        <div class="ad-ai-box">
+          <div class="ad-ai-top">
+            <label class="ad-ai-toggle">
+              <input id="adUseGemini" type="checkbox">
+              <span><strong>🤖 Dùng Gemini AI</strong> để phân tích kịch bản bất kỳ &amp; tự vẽ đạo cụ sáp màu còn thiếu</span>
+            </label>
+            <span id="adGeminiBadge" class="ad-ai-badge">⚪ Chưa nhập Key</span>
+          </div>
+          <div class="ad-ai-row">
+            <input id="adGeminiKey" type="password" placeholder="Dán Gemini API Key cá nhân (lưu cục bộ trên máy bạn, không push Git)...">
+            <select id="adGeminiModel" style="width:155px">
+              <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+              <option value="gemini-2.5-pro">gemini-2.5-pro</option>
+            </select>
+            <button id="btnSaveGemini" type="button" class="btn-mini">💾 Lưu Key</button>
+            <button id="btnTestGemini" type="button" class="btn-mini">🔍 Kiểm tra</button>
+          </div>
+          <div id="adGeminiMsg" class="ad-ai-msg hidden"></div>
+        </div>
+
+        <label class="ad-check">
+          <input id="adRenderMp4" type="checkbox" checked>
+          <span><strong>Tự động xuất luôn file MP4 hoàn chỉnh</strong> (24fps, chuẩn −14 LUFS). Bỏ tích nếu bạn muốn dựng xong dự án + giọng + nhạc để chỉnh thêm bằng chuột trước khi xuất.</span>
+        </label>
+        <div id="adErr" class="err-box hidden"></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" data-close="modalScript">Hủy</button>
+        <button id="btnRunAutoDirect" class="btn btn-magic">✨ Tự động dựng Video</button>
+      </div>
+    </div>
   </div>
 
   <!-- MODAL: NEW / DUPLICATE PROJECT -->

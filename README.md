@@ -11,6 +11,7 @@ npm run studio
 ```
 
 Sau đó mở trình duyệt tại **http://127.0.0.1:4173/studio/** để:
+- **✨ Tự động dựng video từ Kịch bản (`✨ Từ kịch bản`)**: Dán trực tiếp kịch bản hội thoại EN/VI (có 🐶 Little Dog, 🐱 Tabby Cat, 🐺 Gray Wolf, 👦 Leo, 👧 Maya...) → hệ thống tự phân vai giọng đọc (Song ngữ EN → VI, Chỉ EN offline hoặc Chỉ VI), tự đạo diễn dáng/biểu cảm/camera/thẻ từ vựng/nhạc CC0/foley và xuất thẳng ra file MP4 chuẩn `−14 LUFS` chỉ với 1 nút bấm.
 - Chọn hoặc tạo mới/nhân bản dự án video trong `films/<ten-phim>/`.
 - Sửa kịch bản lời thoại song ngữ EN–VI, thẻ từ vựng, chọn giọng đọc (Kokoro EN offline hoặc Edge-TTS VI/EN online).
 - Kéo thả trực tiếp nhân vật, đạo cụ, tiêu đề và nhãn từ vựng trên khung hình WebGL2 sáp màu thật; xoay góc nhìn & bắt keyframe camera; đổi nhanh khung hình `16:9 Ngang` (1920×1080) ↔ `9:16 Dọc` (1080×1920).

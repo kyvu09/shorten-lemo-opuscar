@@ -19,10 +19,16 @@ export function knock(C, poly) {
 }
 
 export function part(C, poly, fo, lo, { occ = true, kn = true } = {}) {
+  if (!poly || poly.length < 2) return;
   if (occ) { erase(C.l, poly); if (fo) erase(C.f, poly); }
   if (kn) knock(C, poly);
   if (fo) fill(C.f, poly, fo);
-  if (lo) line(C.l, [...poly, poly[1] || poly[0]], lo);
+  if (lo) {
+    const first = poly[0], last = poly[poly.length - 1];
+    const alreadyClosed = Math.hypot(last[0] - first[0], last[1] - first[1]) < 1e-3;
+    if (alreadyClosed) line(C.l, [...poly, poly[1] || poly[0]], lo);
+    else line(C.l, poly, { closed: true, ...lo });
+  }
 }
 
 export function tube(pts, w0, w1 = w0) {

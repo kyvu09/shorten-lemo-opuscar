@@ -1,5 +1,5 @@
 // Shared Crayon stroke engine with dynamic viewport (16:9 / 9:16), NFC Vietnamese text, and world<->screen math.
-import { clamp, lerp, hash, vnoise } from '/core/lib.js';
+import { clamp, lerp, hash, vnoise } from '../core/lib.js';
 
 export const VIEW = { w: 1920, h: 1080 };
 export const CAM = { x: 960, y: 540, s: 1 };

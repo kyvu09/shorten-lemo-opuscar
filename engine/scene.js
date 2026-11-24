@@ -1,6 +1,6 @@
 // Data-driven Crayon Picture Book scene renderer:
 // Takes ANY project.json + time t -> draws WebGL2 picture + returns hitTargets (for Studio drag-and-drop) & visibleTexts (for readcheck.mjs).
-import { clamp, lerp, hash, seg, eo, eio } from '/core/lib.js';
+import { clamp, lerp, hash, seg, eo, eio } from '../core/lib.js';
 import { hexToRgb01 } from './gl.js';
 import { VIEW, CAM, BOIL, WMUL, layer, clear, line, fill, dab, ellipse, smooth, text, sx, sy } from './crayon.js';
 import { group, clearGroup, curve } from './rig.js';
@@ -133,9 +133,45 @@ function drawWorldPreset(BG_F, BG_L, C, project, t) {
   const gY = x => hy + Math.sin(x / 380) * 14 - Math.exp(-(((x - seedX) / 210) ** 2)) * 16;
 
   const horizonPts = [];
-  const xMin = preset === 'forest-clearing' ? -420 : -40;
-  const xMax = preset === 'forest-clearing' ? PW + 560 : PW + 40;
+  const xMin = (preset === 'forest-clearing' || preset === 'cozy-room') ? -420 : -40;
+  const xMax = (preset === 'forest-clearing' || preset === 'cozy-room') ? PW + 560 : PW + 40;
   for (let x = xMin; x <= xMax; x += 48) horizonPts.push([x, gY(x)]);
+
+  if (preset === 'cozy-room') {
+    // Cozy birthday / indoor storybook room: warm wall + sunlit window + wooden floorboards + festive bunting!
+    const fy = hy + 28;
+    const floorPoly = [[xMin, fy], [xMax, fy], [xMax, 1940], [xMin, 1940]];
+    fill(BG_F, floorPoly, { col: C.ochre, p: 0.52, gap: 16, w: 14, over: 6, seed: 12, ang: 0.02, boil: 0 });
+    line(BG_L, [[xMin, fy], [xMax, fy]], { col: C.ink, w: 7, p: 0.85, seed: 15, boil: 0.45 });
+    // Subtle wood floor plank lines
+    for (let k = 1; k <= 5; k++) {
+      const py = fy + k * 115;
+      line(BG_L, [[xMin, py], [xMax, py]], { col: C.ink, w: 3.5, p: 0.32, seed: 15 + k, boil: 0.25 });
+    }
+    // Cozy sunlit arched/square window looking out at sky & sunshine!
+    const wx = 1860, wy = 710, ww = 250, wh = 220;
+    const winP = [[wx - ww * 0.5, wy - wh * 0.5], [wx + ww * 0.5, wy - wh * 0.5], [wx + ww * 0.5, wy + wh * 0.5], [wx - ww * 0.5, wy + wh * 0.5]];
+    fill(BG_F, winP, { col: C.sky, p: 0.54, gap: 11, w: 12, over: 3, seed: 24, boil: 0 });
+    line(BG_L, [...winP, winP[0]], { col: C.ink, w: 7, p: 0.85, seed: 25, boil: 0.45 });
+    line(BG_L, [[wx, wy - wh * 0.5], [wx, wy + wh * 0.5]], { col: C.ink, w: 5.5, p: 0.82, seed: 26, boil: 0.4 });
+    line(BG_L, [[wx - ww * 0.5, wy], [wx + ww * 0.5, wy]], { col: C.ink, w: 5.5, p: 0.82, seed: 27, boil: 0.4 });
+    // Festive party bunting flags draped along top wall (clear above title!)
+    const flagCols = [C.red, C.yellow, C.sky, C.pink, C.green];
+    const stringPts = [];
+    for (let x = -220; x <= 3460; x += 80) {
+      const sag = Math.abs(Math.sin(x / 320)) * 42;
+      stringPts.push([x, 334 + sag]);
+    }
+    line(BG_L, stringPts, { col: C.ink, w: 4.5, p: 0.72, seed: 30, boil: 0.4 });
+    for (let i = 0; i < stringPts.length - 1; i++) {
+      const a = stringPts[i], b = stringPts[i + 1];
+      const mx = (a[0] + b[0]) * 0.5, my = (a[1] + b[1]) * 0.5 + 46;
+      const tri = [a, b, [mx, my]];
+      fill(BG_F, tri, { col: flagCols[i % flagCols.length], p: 0.82, gap: 6, w: 7, over: 2, seed: 40 + i, boil: 0 });
+      line(BG_L, [a, [mx, my], b], { col: C.ink, w: 3.8, p: 0.72, seed: 100 + i, boil: 0.35 });
+    }
+    return;
+  }
 
   if (preset === 'garden-cross-section') {
     const crust = [...horizonPts, [PW + 40, hy + 125], [2600, hy + 130], [1980, hy + 122], [1680, hy + 135], [1250, hy + 120], [600, hy + 128], [-40, hy + 125]];
@@ -266,8 +302,8 @@ function drawWhiteWaxLayer(WL, project, t) {
       line(WL, [[s.x, s.y - sp], [s.x, s.y + sp]], { col: waxCol, w: 4.5, p: 0.98, seed: s.seed + 1, boil: 0.35 });
     }
   }
-  if (preset === 'friendship-hearts') {
-    // Invisible white-wax hearts & friendship sparkles revealed when the warm rose wash sweeps across!
+  if (preset === 'friendship-hearts' || preset === 'birthday-confetti') {
+    // Invisible white-wax hearts & celebration sparkles revealed when the wash sweeps across!
     const hearts = [
       [340, 420, 34], [580, 290, 28], [860, 460, 38], [1140, 310, 30], [1420, 430, 36],
       [1690, 280, 42], [1940, 440, 34], [2140, 310, 44], [2380, 260, 48], [2620, 350, 40],
@@ -470,7 +506,7 @@ export function renderProject(comp, glCanvas, project, t, opts = {}) {
     const st = resolveEntityState(ent, t);
     if (st.draw <= 0) continue;
     const isSky = ent.type === 'sun' || ent.type === 'cloud' || ent.type === 'rainbow' || ent.type === 'star';
-    const isHero = ent.type === 'boy_leo' || ent.type === 'girl_maya' || ent.type === 'little_dog' || ent.type === 'tabby_cat' || ent.type === 'gray_wolf' || ent.type === 'apple_basket';
+    const isHero = ent.type === 'boy_leo' || ent.type === 'girl_maya' || ent.type === 'little_dog' || ent.type === 'tabby_cat' || ent.type === 'gray_wolf' || ent.type === 'apple_basket' || ent.type === 'birthday_cake' || ent.type === 'gift_box' || ent.type === 'toy_car';
     const targetG = isSky ? SKY_G : (st.layer === 'back' ? BACK_G : (isHero || st.layer === 'front' ? FRONT_G : BACK_G));
 
     // Subtle cloud drift if active + interpolated (st.x, st.y) position for walking/peeking characters!
@@ -478,10 +514,11 @@ export function renderProject(comp, glCanvas, project, t, opts = {}) {
     if (ent.type === 'cloud') ex += Math.sin(t * 1.1 + i) * 10;
     const drawEnt = { ...ent, x: ex, y: ey, seed: 20 + i * 47 };
     if (ent.type === 'sun' && st.mood === 'blaze') hasBlazingSun = true;
-    drawEntity(targetG, C, drawEnt, st, t);
+    drawEntity(targetG, C, drawEnt, st, t, project.customProps);
 
     // Compute screen hit-box for direct canvas drag-and-drop in Studio GUI
-    const cat = ENTITY_CATALOG.find(c => c.type === ent.type);
+    const cSpec = ent.customSpec || (Array.isArray(project.customProps) ? project.customProps.find(p => p.type === ent.type) : project.customProps?.[ent.type]);
+    const cat = ENTITY_CATALOG.find(c => c.type === ent.type) || (cSpec ? { label: cSpec.label || ent.type, hit: cSpec.hit || { rx: 100, ry: 100, oy: -90 } } : null);
     if (cat) {
       const sc = ent.scale ?? 1;
       const cx = sx(ex), cy = sy(ey + cat.hit.oy * sc);
@@ -546,6 +583,24 @@ export function renderProject(comp, glCanvas, project, t, opts = {}) {
       const bx = ex - 88 * sc, by = ey - 118 * sc + (ph % 2) * 4 * sc;
       line(FX_L, curve([[bx, by - 22 * sc], [bx - 22 * sc, by - 8 * sc], [bx - 6 * sc, by + 6 * sc], [bx - 24 * sc, by + 22 * sc]], 6), { col: C.ochre, w: 5, p: 0.85, seed: 876 });
       line(FX_L, curve([[bx - 24 * sc, by - 14 * sc], [bx - 42 * sc, by], [bx - 26 * sc, by + 14 * sc]], 5), { col: C.ink, w: 4, p: 0.72, seed: 877 });
+    }
+    if (ent.type === 'door' && st.mood === 'knock') {
+      const ph = Math.floor(t * 12);
+      const kx = ex + 125 * sc, ky = ey - 220 * sc;
+      line(FX_L, curve([[kx, ky - 40 * sc], [kx + 24 * sc + (ph % 2) * 8 * sc, ky], [kx, ky + 40 * sc]], 4), { col: C.red, w: 6, p: 0.9, seed: 890 });
+      line(FX_L, curve([[kx + 26 * sc, ky - 26 * sc], [kx + 46 * sc + (ph % 2) * 8 * sc, ky], [kx + 26 * sc, ky + 26 * sc]], 4), { col: C.ochre, w: 5, p: 0.82, seed: 891 });
+    }
+    if ((ent.type === 'little_dog' || ent.type === 'tabby_cat') && st.pose === 'blow') {
+      const dir = st.view === 'l34' ? -1 : 1;
+      const bx = ex + dir * 56 * sc, by = ey - 184 * sc;
+      line(FX_L, curve([[bx, by], [bx + dir * 48 * sc, by - 14 * sc], [bx + dir * 92 * sc, by - 4 * sc]], 5), { col: C.sky, w: 5.5, p: 0.85, seed: 892 });
+      line(FX_L, curve([[bx, by + 12 * sc], [bx + dir * 52 * sc, by + 18 * sc], [bx + dir * 96 * sc, by + 8 * sc]], 5), { col: C.sky, w: 4.5, p: 0.78, seed: 893 });
+    }
+    if ((ent.type === 'little_dog' || ent.type === 'tabby_cat' || ent.type === 'gray_wolf') && st.pose === 'sing') {
+      const topY = ey - (ent.type === 'gray_wolf' ? 375 : 275) * sc;
+      const bob = Math.sin(t * 4.5) * 14 * sc;
+      text(FX_L, '♪', sx(ex - 58 * sc), sy(topY - 12 * sc + bob), { font: 'Mali', weight: 700, size: 48 * CAM.s, col: C.red, p: 0.92, seed: 894 });
+      text(FX_L, '♫', sx(ex + 66 * sc), sy(topY - 32 * sc - bob), { font: 'Mali', weight: 700, size: 44 * CAM.s, col: C.sky, p: 0.92, seed: 895 });
     }
     if ((ent.type === 'little_dog' || ent.type === 'tabby_cat' || ent.type === 'gray_wolf') && (st.pose === 'cheer' || st.expr === 'yummy')) {
       const topY = ey - (ent.type === 'gray_wolf' ? 375 : 275) * sc;
@@ -742,8 +797,11 @@ export function buildEventsFromProject(project) {
       if (st.pose === 'jumpA') ev.push({ t: st.t + 0.1, type: 'hop', pan });
       if (st.pose === 'sad_hungry') ev.push({ t: st.t + 0.35, type: 'rumble', dur: 0.9, pan });
       if (st.pose === 'eat_apple') ev.push({ t: st.t + 0.25, type: 'crunch', pan });
+      if (st.pose === 'blow') ev.push({ t: st.t + 0.20, type: 'blow', dur: 0.65, pan });
       if (st.pose === 'cheer') ev.push({ t: st.t + 0.12, type: 'hop', pan });
       if (st.mood === 'rustle') ev.push({ t: st.t, type: 'rustle', dur: 1.35, pan });
+      if (st.mood === 'knock') ev.push({ t: st.t + 0.1, type: 'knock', pan });
+      if (st.mood === 'open' && ent.type === 'gift_box') ev.push({ t: st.t, type: 'gift_open', pan });
       if (st.mood === 'puff') ev.push({ t: st.t + 0.1, type: 'puff', pan });
       if (st.mood === 'sprout') ev.push({ t: st.t + 0.15, type: 'sprout', pan });
     }

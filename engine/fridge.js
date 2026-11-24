@@ -1,5 +1,5 @@
 // Shared Fridge Pull-Out Ending supporting dynamic 16:9 (1920x1080) & 9:16 (1080x1920) viewports and customizable fridge color!
-import { clamp, lerp, hash } from '/core/lib.js';
+import { clamp, lerp, hash } from '../core/lib.js';
 import { VIEW } from './crayon.js';
 
 let fridgeCanvas = null;

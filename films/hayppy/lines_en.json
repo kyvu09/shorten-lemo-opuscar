@@ -1,0 +1,289 @@
+[
+  {
+    "id": "l01",
+    "text": "Today is Little Dog's birthday. He is very happy.",
+    "voice": "af_heart",
+    "speed": 0.87,
+    "lang": "en-us"
+  },
+  {
+    "id": "l02",
+    "text": "Today is my birthday!",
+    "voice": "af_sky",
+    "speed": 0.9,
+    "lang": "en-us"
+  },
+  {
+    "id": "l03",
+    "text": "I am so happy!",
+    "voice": "af_heart",
+    "speed": 0.87,
+    "lang": "en-us"
+  },
+  {
+    "id": "l04",
+    "text": "Happy birthday, Doggy!",
+    "voice": "bf_emma",
+    "speed": 0.9,
+    "lang": "en-gb"
+  },
+  {
+    "id": "l05",
+    "text": "How old are you today?",
+    "voice": "af_heart",
+    "speed": 0.87,
+    "lang": "en-us"
+  },
+  {
+    "id": "l06",
+    "text": "I am five years old!",
+    "voice": "af_sky",
+    "speed": 0.9,
+    "lang": "en-us"
+  },
+  {
+    "id": "l07",
+    "text": "Let's have a party!",
+    "voice": "af_heart",
+    "speed": 0.87,
+    "lang": "en-us"
+  },
+  {
+    "id": "l08",
+    "text": "Little Dog and Tabby Cat prepare for the party.",
+    "voice": "af_heart",
+    "speed": 0.87,
+    "lang": "en-us"
+  },
+  {
+    "id": "l09",
+    "text": "I have some balloons.",
+    "voice": "bf_emma",
+    "speed": 0.9,
+    "lang": "en-gb"
+  },
+  {
+    "id": "l10",
+    "text": "Look! They are red, blue, and yellow!",
+    "voice": "af_heart",
+    "speed": 0.87,
+    "lang": "en-us"
+  },
+  {
+    "id": "l11",
+    "text": "Wow! They are beautiful!",
+    "voice": "af_sky",
+    "speed": 0.9,
+    "lang": "en-us"
+  },
+  {
+    "id": "l12",
+    "text": "I will make a big cake!",
+    "voice": "af_heart",
+    "speed": 0.87,
+    "lang": "en-us"
+  },
+  {
+    "id": "l13",
+    "text": "Great! I love cake!",
+    "voice": "bf_emma",
+    "speed": 0.9,
+    "lang": "en-gb"
+  },
+  {
+    "id": "l14",
+    "text": "Suddenly, someone knocks on the door.",
+    "voice": "af_heart",
+    "speed": 0.87,
+    "lang": "en-us"
+  },
+  {
+    "id": "l15",
+    "text": "Knock, knock! Who is there?",
+    "voice": "af_sky",
+    "speed": 0.9,
+    "lang": "en-us"
+  },
+  {
+    "id": "l16",
+    "text": "It is me! Mr. Gray Wolf!",
+    "voice": "am_michael",
+    "speed": 0.85,
+    "lang": "en-us"
+  },
+  {
+    "id": "l17",
+    "text": "Can I come in?",
+    "voice": "af_heart",
+    "speed": 0.87,
+    "lang": "en-us"
+  },
+  {
+    "id": "l18",
+    "text": "Of course! Come in, Mr. Wolf!",
+    "voice": "af_sky",
+    "speed": 0.9,
+    "lang": "en-us"
+  },
+  {
+    "id": "l19",
+    "text": "Happy birthday, Little Dog!",
+    "voice": "am_michael",
+    "speed": 0.85,
+    "lang": "en-us"
+  },
+  {
+    "id": "l20",
+    "text": "I have a present for you!",
+    "voice": "af_heart",
+    "speed": 0.87,
+    "lang": "en-us"
+  },
+  {
+    "id": "l21",
+    "text": "Really? Thank you!",
+    "voice": "af_sky",
+    "speed": 0.9,
+    "lang": "en-us"
+  },
+  {
+    "id": "l22",
+    "text": "What is inside?",
+    "voice": "af_heart",
+    "speed": 0.87,
+    "lang": "en-us"
+  },
+  {
+    "id": "l23",
+    "text": "Open it and see!",
+    "voice": "am_michael",
+    "speed": 0.85,
+    "lang": "en-us"
+  },
+  {
+    "id": "l24",
+    "text": "Little Dog opens the present. It is a beautiful red toy car.",
+    "voice": "af_heart",
+    "speed": 0.87,
+    "lang": "en-us"
+  },
+  {
+    "id": "l25",
+    "text": "Wow! A red car!",
+    "voice": "af_sky",
+    "speed": 0.9,
+    "lang": "en-us"
+  },
+  {
+    "id": "l26",
+    "text": "I love it!",
+    "voice": "af_heart",
+    "speed": 0.87,
+    "lang": "en-us"
+  },
+  {
+    "id": "l27",
+    "text": "Let's play together!",
+    "voice": "bf_emma",
+    "speed": 0.9,
+    "lang": "en-gb"
+  },
+  {
+    "id": "l28",
+    "text": "Yes! But first, let's eat!",
+    "voice": "am_michael",
+    "speed": 0.85,
+    "lang": "en-us"
+  },
+  {
+    "id": "l29",
+    "text": "The three friends sit around the table. There is a big birthday cake.",
+    "voice": "af_heart",
+    "speed": 0.87,
+    "lang": "en-us"
+  },
+  {
+    "id": "l30",
+    "text": "Look at my big cake!",
+    "voice": "af_sky",
+    "speed": 0.9,
+    "lang": "en-us"
+  },
+  {
+    "id": "l31",
+    "text": "It looks so yummy!",
+    "voice": "bf_emma",
+    "speed": 0.9,
+    "lang": "en-gb"
+  },
+  {
+    "id": "l32",
+    "text": "Let's sing a birthday song!",
+    "voice": "am_michael",
+    "speed": 0.85,
+    "lang": "en-us"
+  },
+  {
+    "id": "l33",
+    "text": "Thank you, my friends!",
+    "voice": "af_sky",
+    "speed": 0.9,
+    "lang": "en-us"
+  },
+  {
+    "id": "l34",
+    "text": "Make a wish!",
+    "voice": "af_heart",
+    "speed": 0.87,
+    "lang": "en-us"
+  },
+  {
+    "id": "l35",
+    "text": "Little Dog closes his eyes and blows out the candles.",
+    "voice": "af_heart",
+    "speed": 0.87,
+    "lang": "en-us"
+  },
+  {
+    "id": "l36",
+    "text": "My wish is to have many happy days with my friends!",
+    "voice": "af_sky",
+    "speed": 0.9,
+    "lang": "en-us"
+  },
+  {
+    "id": "l37",
+    "text": "That is a lovely wish!",
+    "voice": "bf_emma",
+    "speed": 0.9,
+    "lang": "en-gb"
+  },
+  {
+    "id": "l38",
+    "text": "Happy birthday, little friend!",
+    "voice": "am_michael",
+    "speed": 0.85,
+    "lang": "en-us"
+  },
+  {
+    "id": "l39",
+    "text": "ALL:",
+    "voice": "af_heart",
+    "speed": 0.87,
+    "lang": "en-us"
+  },
+  {
+    "id": "l40",
+    "text": "Yay! Let's eat cake!",
+    "voice": "af_heart",
+    "speed": 0.87,
+    "lang": "en-us"
+  },
+  {
+    "id": "l41",
+    "text": "The end!",
+    "voice": "af_heart",
+    "speed": 0.87,
+    "lang": "en-us"
+  }
+]

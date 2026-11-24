@@ -1,0 +1,86 @@
+[
+  {
+    "id": "l01",
+    "text": "One sunny day, Little Dog and Kitty are playing in the forest.",
+    "voice": "af_heart",
+    "speed": 0.87,
+    "lang": "en-us"
+  },
+  {
+    "id": "l02",
+    "text": "Hey, Kitty! Look! A little duck!",
+    "voice": "af_sky",
+    "speed": 0.9,
+    "lang": "en-us"
+  },
+  {
+    "id": "l03",
+    "text": "Hello, little duck! Why are you crying?",
+    "voice": "bf_emma",
+    "speed": 0.9,
+    "lang": "en-gb"
+  },
+  {
+    "id": "l04",
+    "text": "Little Duck:",
+    "voice": "af_heart",
+    "speed": 0.87,
+    "lang": "en-us"
+  },
+  {
+    "id": "l05",
+    "text": "I can't find my mommy!",
+    "voice": "af_heart",
+    "speed": 0.87,
+    "lang": "en-us"
+  },
+  {
+    "id": "l06",
+    "text": "Don't worry! We can help you!",
+    "voice": "af_sky",
+    "speed": 0.9,
+    "lang": "en-us"
+  },
+  {
+    "id": "l07",
+    "text": "Look! Is that your mommy?",
+    "voice": "bf_emma",
+    "speed": 0.9,
+    "lang": "en-gb"
+  },
+  {
+    "id": "l08",
+    "text": "Little Duck:",
+    "voice": "af_heart",
+    "speed": 0.87,
+    "lang": "en-us"
+  },
+  {
+    "id": "l09",
+    "text": "Mommy! Mommy! I found you!",
+    "voice": "af_heart",
+    "speed": 0.87,
+    "lang": "en-us"
+  },
+  {
+    "id": "l10",
+    "text": "Hooray! Happy family!",
+    "voice": "af_sky",
+    "speed": 0.9,
+    "lang": "en-us"
+  },
+  {
+    "id": "l11",
+    "text": "Helping others makes us happy!",
+    "voice": "bf_emma",
+    "speed": 0.9,
+    "lang": "en-gb"
+  },
+  {
+    "id": "l12",
+    "text": "The end!",
+    "voice": "af_heart",
+    "speed": 0.87,
+    "lang": "en-us"
+  }
+]

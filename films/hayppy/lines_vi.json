@@ -1,0 +1,330 @@
+[
+  {
+    "id": "l01",
+    "text": "Hôm nay là sinh nhật của chú chó nhỏ. Chú rất vui.",
+    "say": "Hôm nay là sinh nhật của chú chó nhỏ. Chú rất vui.",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "-4%",
+    "pitch": "+0Hz"
+  },
+  {
+    "id": "l02",
+    "text": "Hôm nay là sinh nhật của tớ!",
+    "say": "Hôm nay là sinh nhật của tớ!",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "+3%",
+    "pitch": "+3Hz"
+  },
+  {
+    "id": "l03",
+    "text": "Tớ vui quá!",
+    "say": "Tớ vui quá!",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "-4%",
+    "pitch": "+0Hz"
+  },
+  {
+    "id": "l04",
+    "text": "Chúc mừng sinh nhật Doggy!",
+    "say": "Chúc mừng sinh nhật Đót ghi!",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "+2%",
+    "pitch": "+4Hz"
+  },
+  {
+    "id": "l05",
+    "text": "Hôm nay bạn bao nhiêu tuổi?",
+    "say": "Hôm nay bạn bao nhiêu tuổi?",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "-4%",
+    "pitch": "+0Hz"
+  },
+  {
+    "id": "l06",
+    "text": "Tớ năm tuổi!",
+    "say": "Tớ năm tuổi!",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "+3%",
+    "pitch": "+3Hz"
+  },
+  {
+    "id": "l07",
+    "text": "Chúng ta hãy tổ chức một bữa tiệc nhé!",
+    "say": "Chúng ta hãy tổ chức một bữa tiệc nhé!",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "-4%",
+    "pitch": "+0Hz"
+  },
+  {
+    "id": "l08",
+    "text": "Chú chó nhỏ và mèo mướp chuẩn bị cho bữa tiệc.",
+    "say": "Chú chó nhỏ và mèo mướp chuẩn bị cho bữa tiệc.",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "-4%",
+    "pitch": "+0Hz"
+  },
+  {
+    "id": "l09",
+    "text": "Tớ có một ít bóng bay.",
+    "say": "Tớ có một ít bóng bay.",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "+2%",
+    "pitch": "+4Hz"
+  },
+  {
+    "id": "l10",
+    "text": "Nhìn này! Chúng có màu đỏ, xanh dương và vàng!",
+    "say": "Nhìn này! Chúng có màu đỏ, xanh dương và vàng!",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "-4%",
+    "pitch": "+0Hz"
+  },
+  {
+    "id": "l11",
+    "text": "Wow! Chúng đẹp quá!",
+    "say": "Wow! Chúng đẹp quá!",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "+3%",
+    "pitch": "+3Hz"
+  },
+  {
+    "id": "l12",
+    "text": "Tớ sẽ làm một chiếc bánh thật lớn!",
+    "say": "Tớ sẽ làm một chiếc bánh thật lớn!",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "-4%",
+    "pitch": "+0Hz"
+  },
+  {
+    "id": "l13",
+    "text": "Tuyệt quá! Tớ thích bánh ngọt!",
+    "say": "Tuyệt quá! Tớ thích bánh ngọt!",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "+2%",
+    "pitch": "+4Hz"
+  },
+  {
+    "id": "l14",
+    "text": "Đột nhiên, có ai đó gõ cửa.",
+    "say": "Đột nhiên, có ai đó gõ cửa.",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "-4%",
+    "pitch": "+0Hz"
+  },
+  {
+    "id": "l15",
+    "text": "Cốc, cốc! Ai ở ngoài đó vậy?",
+    "say": "Cốc, cốc! Ai ở ngoài đó vậy?",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "+3%",
+    "pitch": "+3Hz"
+  },
+  {
+    "id": "l16",
+    "text": "Là bác đây! Bác sói xám đây!",
+    "say": "Là bác đây! Bác sói xám đây!",
+    "voice": "vi-VN-NamMinhNeural",
+    "rate": "-5%",
+    "pitch": "-3Hz"
+  },
+  {
+    "id": "l17",
+    "text": "Bác có thể vào không?",
+    "say": "Bác có thể vào không?",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "-4%",
+    "pitch": "+0Hz"
+  },
+  {
+    "id": "l18",
+    "text": "Tất nhiên rồi! Mời bác vào!",
+    "say": "Tất nhiên rồi! Mời bác vào!",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "+3%",
+    "pitch": "+3Hz"
+  },
+  {
+    "id": "l19",
+    "text": "Chúc mừng sinh nhật chó nhỏ!",
+    "say": "Chúc mừng sinh nhật chó nhỏ!",
+    "voice": "vi-VN-NamMinhNeural",
+    "rate": "-5%",
+    "pitch": "-3Hz"
+  },
+  {
+    "id": "l20",
+    "text": "Bác có một món quà dành cho cháu!",
+    "say": "Bác có một món quà dành cho cháu!",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "-4%",
+    "pitch": "+0Hz"
+  },
+  {
+    "id": "l21",
+    "text": "Thật sao? Cháu cảm ơn bác!",
+    "say": "Thật sao? Cháu cảm ơn bác!",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "+3%",
+    "pitch": "+3Hz"
+  },
+  {
+    "id": "l22",
+    "text": "Bên trong có gì vậy ạ?",
+    "say": "Bên trong có gì vậy ạ?",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "-4%",
+    "pitch": "+0Hz"
+  },
+  {
+    "id": "l23",
+    "text": "Hãy mở ra và xem nhé!",
+    "say": "Hãy mở ra và xem nhé!",
+    "voice": "vi-VN-NamMinhNeural",
+    "rate": "-5%",
+    "pitch": "-3Hz"
+  },
+  {
+    "id": "l24",
+    "text": "Chú chó nhỏ mở món quà. Đó là một chiếc ô tô đồ chơi màu đỏ rất đẹp.",
+    "say": "Chú chó nhỏ mở món quà. Đó là một chiếc ô tô đồ chơi màu đỏ rất đẹp.",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "-4%",
+    "pitch": "+0Hz"
+  },
+  {
+    "id": "l25",
+    "text": "Wow! Một chiếc ô tô màu đỏ!",
+    "say": "Wow! Một chiếc ô tô màu đỏ!",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "+3%",
+    "pitch": "+3Hz"
+  },
+  {
+    "id": "l26",
+    "text": "Cháu thích nó lắm!",
+    "say": "Cháu thích nó lắm!",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "-4%",
+    "pitch": "+0Hz"
+  },
+  {
+    "id": "l27",
+    "text": "Chúng ta cùng chơi nhé!",
+    "say": "Chúng ta cùng chơi nhé!",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "+2%",
+    "pitch": "+4Hz"
+  },
+  {
+    "id": "l28",
+    "text": "Đúng vậy! Nhưng trước tiên, chúng ta hãy ăn nào!",
+    "say": "Đúng vậy! Nhưng trước tiên, chúng ta hãy ăn nào!",
+    "voice": "vi-VN-NamMinhNeural",
+    "rate": "-5%",
+    "pitch": "-3Hz"
+  },
+  {
+    "id": "l29",
+    "text": "Ba người bạn ngồi quanh bàn. Có một chiếc bánh sinh nhật thật lớn.",
+    "say": "Ba người bạn ngồi quanh bàn. Có một chiếc bánh sinh nhật thật lớn.",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "-4%",
+    "pitch": "+0Hz"
+  },
+  {
+    "id": "l30",
+    "text": "Nhìn chiếc bánh lớn của tớ này!",
+    "say": "Nhìn chiếc bánh lớn của tớ này!",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "+3%",
+    "pitch": "+3Hz"
+  },
+  {
+    "id": "l31",
+    "text": "Trông ngon quá!",
+    "say": "Trông ngon quá!",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "+2%",
+    "pitch": "+4Hz"
+  },
+  {
+    "id": "l32",
+    "text": "Chúng ta hãy hát bài hát sinh nhật nào!",
+    "say": "Chúng ta hãy hát bài hát sinh nhật nào!",
+    "voice": "vi-VN-NamMinhNeural",
+    "rate": "-5%",
+    "pitch": "-3Hz"
+  },
+  {
+    "id": "l33",
+    "text": "Cảm ơn những người bạn của tớ!",
+    "say": "Cảm ơn những người bạn của tớ!",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "+3%",
+    "pitch": "+3Hz"
+  },
+  {
+    "id": "l34",
+    "text": "Hãy ước một điều ước nào!",
+    "say": "Hãy ước một điều ước nào!",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "-4%",
+    "pitch": "+0Hz"
+  },
+  {
+    "id": "l35",
+    "text": "Chú chó nhỏ nhắm mắt và thổi tắt những ngọn nến.",
+    "say": "Chú chó nhỏ nhắm mắt và thổi tắt những ngọn nến.",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "-4%",
+    "pitch": "+0Hz"
+  },
+  {
+    "id": "l36",
+    "text": "Điều ước của tớ là có thật nhiều ngày vui vẻ bên những người bạn!",
+    "say": "Điều ước của tớ là có thật nhiều ngày vui vẻ bên những người bạn!",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "+3%",
+    "pitch": "+3Hz"
+  },
+  {
+    "id": "l37",
+    "text": "Đó là một điều ước thật tuyệt!",
+    "say": "Đó là một điều ước thật tuyệt!",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "+2%",
+    "pitch": "+4Hz"
+  },
+  {
+    "id": "l38",
+    "text": "Chúc mừng sinh nhật, người bạn nhỏ!",
+    "say": "Chúc mừng sinh nhật, người bạn nhỏ!",
+    "voice": "vi-VN-NamMinhNeural",
+    "rate": "-5%",
+    "pitch": "-3Hz"
+  },
+  {
+    "id": "l39",
+    "text": "ALL:",
+    "say": "ALL:",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "-4%",
+    "pitch": "+0Hz"
+  },
+  {
+    "id": "l40",
+    "text": "Hoan hô! Cùng ăn bánh nào!",
+    "say": "Hoan hô! Cùng ăn bánh nào!",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "-4%",
+    "pitch": "+0Hz"
+  },
+  {
+    "id": "l41",
+    "text": "Hết chuyện rồi!",
+    "say": "Hết chuyện rồi!",
+    "voice": "vi-VN-HoaiMyNeural",
+    "rate": "-4%",
+    "pitch": "+0Hz"
+  }
+]

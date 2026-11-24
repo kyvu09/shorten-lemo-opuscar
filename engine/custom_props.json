@@ -1,0 +1,547 @@
+[
+  {
+    "type": "custom_big_red_ball",
+    "id": "big_red_ball",
+    "icon": "🔴",
+    "label": "Banh đỏ lớn (Big Red Ball)",
+    "keywords": [
+      "ball",
+      "red",
+      "bóng",
+      "đỏ",
+      "toy",
+      "chơi"
+    ],
+    "defaultScale": 1,
+    "hit": {
+      "rx": 77,
+      "ry": 85,
+      "oy": -62
+    },
+    "shapes": [
+      {
+        "kind": "ellipse",
+        "x": 0,
+        "y": 0,
+        "rx": 65,
+        "ry": 15,
+        "rot": 0,
+        "fill": "rain",
+        "col": "ink",
+        "w": 5,
+        "p": 0.88,
+        "noOutline": false
+      },
+      {
+        "kind": "circle",
+        "x": 0,
+        "y": -70,
+        "r": 70,
+        "fill": "red",
+        "col": "ink",
+        "w": 7,
+        "p": 0.9,
+        "noOutline": false
+      },
+      {
+        "kind": "line",
+        "pts": [
+          [
+            -45,
+            -30
+          ],
+          [
+            45,
+            -110
+          ]
+        ],
+        "col": "ink",
+        "w": 3,
+        "p": 0.88,
+        "curve": true
+      },
+      {
+        "kind": "line",
+        "pts": [
+          [
+            45,
+            -30
+          ],
+          [
+            -45,
+            -110
+          ]
+        ],
+        "col": "ink",
+        "w": 3,
+        "p": 0.88,
+        "curve": true
+      },
+      {
+        "kind": "line",
+        "pts": [
+          [
+            -60,
+            -70
+          ],
+          [
+            60,
+            -70
+          ]
+        ],
+        "col": "ink",
+        "w": 3,
+        "p": 0.88,
+        "curve": true
+      },
+      {
+        "kind": "line",
+        "pts": [
+          [
+            0,
+            -15
+          ],
+          [
+            0,
+            -125
+          ]
+        ],
+        "col": "ink",
+        "w": 3,
+        "p": 0.88,
+        "curve": true
+      },
+      {
+        "kind": "ellipse",
+        "x": -30,
+        "y": -115,
+        "rx": 25,
+        "ry": 15,
+        "rot": 0,
+        "fill": "white",
+        "col": "ink",
+        "w": 5.5,
+        "p": 0.88,
+        "noOutline": false
+      }
+    ]
+  },
+  {
+    "type": "custom_yellow_duckling",
+    "id": "yellow_duckling",
+    "icon": "🐥",
+    "label": "Vịt con vàng (Yellow Duckling)",
+    "keywords": [
+      "duckling",
+      "duck",
+      "vịt con",
+      "vịt",
+      "yellow"
+    ],
+    "defaultScale": 1,
+    "hit": {
+      "rx": 66,
+      "ry": 66,
+      "oy": -60
+    },
+    "shapes": [
+      {
+        "kind": "poly",
+        "pts": [
+          [
+            15,
+            0
+          ],
+          [
+            25,
+            -8
+          ],
+          [
+            15,
+            -12
+          ],
+          [
+            5,
+            -8
+          ]
+        ],
+        "fill": "ochre",
+        "col": "ink",
+        "w": 6,
+        "p": 0.88,
+        "smooth": true,
+        "noOutline": false
+      },
+      {
+        "kind": "poly",
+        "pts": [
+          [
+            -15,
+            0
+          ],
+          [
+            -25,
+            -8
+          ],
+          [
+            -15,
+            -12
+          ],
+          [
+            -5,
+            -8
+          ]
+        ],
+        "fill": "ochre",
+        "col": "ink",
+        "w": 6,
+        "p": 0.88,
+        "smooth": true,
+        "noOutline": false
+      },
+      {
+        "kind": "ellipse",
+        "x": 0,
+        "y": -40,
+        "rx": 55,
+        "ry": 40,
+        "rot": 3.15,
+        "fill": "yellow",
+        "col": "ink",
+        "w": 6,
+        "p": 0.88,
+        "noOutline": false
+      },
+      {
+        "kind": "poly",
+        "pts": [
+          [
+            40,
+            -50
+          ],
+          [
+            55,
+            -60
+          ],
+          [
+            40,
+            -70
+          ]
+        ],
+        "fill": "yellow",
+        "col": "ink",
+        "w": 6,
+        "p": 0.88,
+        "smooth": true,
+        "noOutline": false
+      },
+      {
+        "kind": "poly",
+        "pts": [
+          [
+            -40,
+            -40
+          ],
+          [
+            -55,
+            -55
+          ],
+          [
+            -40,
+            -70
+          ]
+        ],
+        "fill": "yellow",
+        "col": "ink",
+        "w": 6,
+        "p": 0.88,
+        "smooth": true,
+        "noOutline": false
+      },
+      {
+        "kind": "circle",
+        "x": -15,
+        "y": -90,
+        "r": 30,
+        "fill": "yellow",
+        "col": "ink",
+        "w": 6,
+        "p": 0.9,
+        "noOutline": false
+      },
+      {
+        "kind": "poly",
+        "pts": [
+          [
+            -30,
+            -95
+          ],
+          [
+            -10,
+            -110
+          ],
+          [
+            0,
+            -95
+          ],
+          [
+            -10,
+            -90
+          ]
+        ],
+        "fill": "yellow",
+        "col": "ink",
+        "w": 6,
+        "p": 0.88,
+        "smooth": true,
+        "noOutline": false
+      },
+      {
+        "kind": "dab",
+        "x": -25,
+        "y": -100,
+        "r": 6,
+        "col": "ink",
+        "layer": "line",
+        "p": 0.94
+      },
+      {
+        "kind": "dab",
+        "x": -27,
+        "y": -102,
+        "r": 2.5,
+        "col": "white",
+        "layer": "line",
+        "p": 0.94
+      }
+    ]
+  },
+  {
+    "type": "custom_mother_duck",
+    "id": "mother_duck",
+    "icon": "🦆",
+    "label": "Vịt mẹ (Mother Duck)",
+    "keywords": [
+      "duck",
+      "mother",
+      "vịt",
+      "mẹ"
+    ],
+    "defaultScale": 1,
+    "hit": {
+      "rx": 83,
+      "ry": 77,
+      "oy": -65
+    },
+    "shapes": [
+      {
+        "kind": "poly",
+        "pts": [
+          [
+            -35,
+            0
+          ],
+          [
+            -45,
+            -10
+          ],
+          [
+            -25,
+            -10
+          ],
+          [
+            -15,
+            0
+          ]
+        ],
+        "fill": "ochre",
+        "col": "ink",
+        "w": 6,
+        "p": 0.88,
+        "smooth": true,
+        "noOutline": false
+      },
+      {
+        "kind": "poly",
+        "pts": [
+          [
+            35,
+            0
+          ],
+          [
+            45,
+            -10
+          ],
+          [
+            25,
+            -10
+          ],
+          [
+            15,
+            0
+          ]
+        ],
+        "fill": "ochre",
+        "col": "ink",
+        "w": 6,
+        "p": 0.88,
+        "smooth": true,
+        "noOutline": false
+      },
+      {
+        "kind": "ellipse",
+        "x": 0,
+        "y": -40,
+        "rx": 70,
+        "ry": 45,
+        "rot": 0,
+        "fill": "yellow",
+        "col": "ink",
+        "w": 6.5,
+        "p": 0.88,
+        "noOutline": false
+      },
+      {
+        "kind": "poly",
+        "pts": [
+          [
+            -70,
+            -40
+          ],
+          [
+            -80,
+            -60
+          ],
+          [
+            -60,
+            -65
+          ],
+          [
+            -50,
+            -45
+          ]
+        ],
+        "fill": "yellow",
+        "col": "ink",
+        "w": 6,
+        "p": 0.88,
+        "smooth": true,
+        "noOutline": false
+      },
+      {
+        "kind": "poly",
+        "pts": [
+          [
+            -10,
+            -50
+          ],
+          [
+            -50,
+            -70
+          ],
+          [
+            -40,
+            -90
+          ],
+          [
+            0,
+            -80
+          ],
+          [
+            15,
+            -60
+          ]
+        ],
+        "fill": "yellow",
+        "col": "ink",
+        "w": 6,
+        "p": 0.88,
+        "smooth": true,
+        "noOutline": false
+      },
+      {
+        "kind": "poly",
+        "pts": [
+          [
+            20,
+            -60
+          ],
+          [
+            10,
+            -90
+          ],
+          [
+            25,
+            -100
+          ],
+          [
+            35,
+            -70
+          ]
+        ],
+        "fill": "yellow",
+        "col": "ink",
+        "w": 6,
+        "p": 0.88,
+        "smooth": true,
+        "noOutline": false
+      },
+      {
+        "kind": "circle",
+        "x": 25,
+        "y": -110,
+        "r": 25,
+        "fill": "yellow",
+        "col": "ink",
+        "w": 6,
+        "p": 0.9,
+        "noOutline": false
+      },
+      {
+        "kind": "poly",
+        "pts": [
+          [
+            40,
+            -110
+          ],
+          [
+            55,
+            -105
+          ],
+          [
+            50,
+            -120
+          ],
+          [
+            35,
+            -125
+          ]
+        ],
+        "fill": "ochre",
+        "col": "ink",
+        "w": 6,
+        "p": 0.88,
+        "smooth": true,
+        "noOutline": false
+      },
+      {
+        "kind": "dab",
+        "x": 30,
+        "y": -118,
+        "r": 4,
+        "col": "ink",
+        "layer": "line",
+        "p": 0.94
+      },
+      {
+        "kind": "dab",
+        "x": 28,
+        "y": -120,
+        "r": 2,
+        "col": "white",
+        "layer": "line",
+        "p": 0.94
+      }
+    ]
+  }
+]

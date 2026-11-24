@@ -1,0 +1,1122 @@
+{
+  "version": 1,
+  "meta": {
+    "slug": "test3-3",
+    "title": "test3",
+    "titleVi": "test3",
+    "titlePos": {
+      "x": 265,
+      "y": 500,
+      "t": 0.55
+    },
+    "duration": 65.7,
+    "fps": 24,
+    "aspect": "16:9",
+    "narrationMode": "bilingual"
+  },
+  "palette": {
+    "paper": "#f4efe3",
+    "crayons": {
+      "ink": "#472e1e",
+      "ochre": "#c88a3b",
+      "yellow": "#f2be2c",
+      "red": "#d94436",
+      "pink": "#e8877d",
+      "green": "#5a9c46",
+      "sky": "#5da7d6",
+      "rain": "#7a8799",
+      "peach": "#f5cca7",
+      "white": "#fbfaf4"
+    },
+    "washColor": "#d47c85",
+    "washEnabled": true,
+    "washStart": 43.86,
+    "waxPreset": "friendship-hearts"
+  },
+  "world": {
+    "preset": "forest-clearing",
+    "horizonY": 1090
+  },
+  "camera": [
+    {
+      "t": 0,
+      "x": 740,
+      "y": 950,
+      "s": 0.88
+    },
+    {
+      "t": 1.85,
+      "x": 760,
+      "y": 955,
+      "s": 0.88
+    },
+    {
+      "t": 7.2,
+      "x": 820,
+      "y": 1020,
+      "s": 1
+    },
+    {
+      "t": 18.88,
+      "x": 860,
+      "y": 1020,
+      "s": 1
+    },
+    {
+      "t": 19.68,
+      "x": 1520,
+      "y": 1000,
+      "s": 0.96
+    },
+    {
+      "t": 24.11,
+      "x": 1565,
+      "y": 1025,
+      "s": 1
+    },
+    {
+      "t": 42.01,
+      "x": 1550,
+      "y": 1005,
+      "s": 0.96
+    },
+    {
+      "t": 43.46,
+      "x": 2300,
+      "y": 965,
+      "s": 0.76
+    },
+    {
+      "t": 58,
+      "x": 2260,
+      "y": 970,
+      "s": 0.78
+    },
+    {
+      "t": 60,
+      "x": 1600,
+      "y": 900,
+      "s": 0.6
+    },
+    {
+      "t": 65.7,
+      "x": 1600,
+      "y": 900,
+      "s": 0.6
+    }
+  ],
+  "entities": [
+    {
+      "id": "sun",
+      "type": "sun",
+      "x": 2560,
+      "y": 295,
+      "scale": 0.94,
+      "tStart": 0,
+      "drawDur": 0,
+      "states": [
+        {
+          "t": 0,
+          "mood": "warm"
+        }
+      ]
+    },
+    {
+      "id": "bg_tree_l",
+      "type": "tree",
+      "x": 210,
+      "y": 1110,
+      "scale": 1.08,
+      "tStart": 0,
+      "drawDur": 0,
+      "states": [
+        {
+          "t": 0,
+          "mood": "plain"
+        }
+      ]
+    },
+    {
+      "id": "big_oak_mid",
+      "type": "big_tree",
+      "x": 1765,
+      "y": 1160,
+      "scale": 1.04,
+      "tStart": 0,
+      "drawDur": 0,
+      "states": [
+        {
+          "t": 0,
+          "mood": "plain"
+        }
+      ]
+    },
+    {
+      "id": "bush_mid",
+      "type": "bush",
+      "x": 1595,
+      "y": 1170,
+      "scale": 0.92,
+      "tStart": 0,
+      "drawDur": 0,
+      "states": [
+        {
+          "t": 0,
+          "mood": "idle"
+        }
+      ]
+    },
+    {
+      "id": "picnic_tree",
+      "type": "big_tree",
+      "x": 2390,
+      "y": 1168,
+      "scale": 1.16,
+      "tStart": 0,
+      "drawDur": 0,
+      "states": [
+        {
+          "t": 0,
+          "mood": "plain"
+        }
+      ]
+    },
+    {
+      "id": "bird",
+      "type": "bird",
+      "x": 2155,
+      "y": 730,
+      "scale": 0.9,
+      "tStart": 0,
+      "drawDur": 0,
+      "states": [
+        {
+          "t": 0,
+          "mood": "perch"
+        },
+        {
+          "t": 46.46,
+          "mood": "fly"
+        }
+      ]
+    },
+    {
+      "id": "little_dog",
+      "type": "little_dog",
+      "x": 450,
+      "y": 1260,
+      "scale": 1.02,
+      "tStart": 0,
+      "drawDur": 0,
+      "states": [
+        {
+          "t": 0,
+          "x": 450,
+          "y": 1260,
+          "view": "r34",
+          "expr": "happy",
+          "pose": "walk"
+        },
+        {
+          "t": 2.05,
+          "x": 710,
+          "y": 1260,
+          "moveDur": 2.1015,
+          "view": "r34",
+          "expr": "happy",
+          "pose": "walk"
+        },
+        {
+          "t": 4.19,
+          "view": "r34",
+          "expr": "happy",
+          "pose": "stand"
+        },
+        {
+          "t": 18.98,
+          "x": 1125,
+          "y": 1260,
+          "moveDur": 1.85,
+          "view": "r34",
+          "expr": "happy",
+          "pose": "walk"
+        },
+        {
+          "t": 24.11,
+          "view": "r34",
+          "expr": "kind",
+          "pose": "stand"
+        },
+        {
+          "t": 42.96,
+          "x": 2075,
+          "y": 1280,
+          "moveDur": 1.2,
+          "view": "r34",
+          "expr": "yummy",
+          "pose": "sit_eat"
+        },
+        {
+          "t": 49.37,
+          "x": 2075,
+          "y": 1265,
+          "view": "front",
+          "expr": "excited",
+          "pose": "cheer"
+        }
+      ]
+    },
+    {
+      "id": "tabby_cat",
+      "type": "tabby_cat",
+      "x": 985,
+      "y": 1260,
+      "scale": 1,
+      "tStart": 0,
+      "drawDur": 0,
+      "states": [
+        {
+          "t": 0,
+          "x": 985,
+          "y": 1260,
+          "view": "l34",
+          "expr": "happy",
+          "pose": "stand"
+        },
+        {
+          "t": 13.2,
+          "view": "l34",
+          "expr": "happy",
+          "pose": "wave"
+        },
+        {
+          "t": 18.98,
+          "x": 1360,
+          "y": 1260,
+          "moveDur": 1.85,
+          "view": "r34",
+          "expr": "happy",
+          "pose": "walk"
+        },
+        {
+          "t": 24.11,
+          "view": "r34",
+          "expr": "kind",
+          "pose": "stand"
+        },
+        {
+          "t": 42.96,
+          "x": 2410,
+          "y": 1280,
+          "moveDur": 1.2,
+          "view": "r34",
+          "expr": "happy",
+          "pose": "sit_eat"
+        },
+        {
+          "t": 49.37,
+          "x": 2410,
+          "y": 1265,
+          "view": "front",
+          "expr": "excited",
+          "pose": "cheer"
+        },
+        {
+          "t": 54.02,
+          "view": "r34",
+          "expr": "happy",
+          "pose": "wave"
+        }
+      ]
+    },
+    {
+      "id": "custom_yellow_duckling",
+      "type": "custom_yellow_duckling",
+      "x": 1260,
+      "y": 1265,
+      "scale": 1,
+      "tStart": 7.2,
+      "drawDur": 0.9,
+      "fillDur": 0.8,
+      "states": [
+        {
+          "t": 0,
+          "mood": "idle"
+        }
+      ]
+    },
+    {
+      "id": "custom_mother_duck",
+      "type": "custom_mother_duck",
+      "x": 1620,
+      "y": 1265,
+      "scale": 1,
+      "tStart": 7.2,
+      "drawDur": 0.9,
+      "fillDur": 0.8,
+      "states": [
+        {
+          "t": 0,
+          "mood": "idle"
+        }
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag_forest",
+      "t": 3.02,
+      "x": 240,
+      "y": 785,
+      "en": "FOREST",
+      "vi": "khu rừng",
+      "col": "#5a9c46"
+    },
+    {
+      "id": "tag_kind",
+      "t": 45.06,
+      "x": 2390,
+      "y": 755,
+      "en": "KIND",
+      "vi": "tốt bụng",
+      "col": "#5a9c46"
+    },
+    {
+      "id": "tag_sun",
+      "t": 45.46,
+      "x": 2560,
+      "y": 545,
+      "en": "SUN",
+      "vi": "mặt trời",
+      "col": "#d98a16"
+    },
+    {
+      "id": "tag_happy",
+      "t": 50.36,
+      "x": 840,
+      "y": 760,
+      "en": "HAPPY",
+      "vi": "vui vẻ",
+      "col": "#d98a16"
+    }
+  ],
+  "subtitles": [
+    {
+      "id": "l01",
+      "vt": 1.85,
+      "dur": 4.67,
+      "enDur": 4.67,
+      "t0": 1.71,
+      "t1": 6.94,
+      "en": "One sunny day, Little Dog and Kitty are playing in the forest.",
+      "vi": "",
+      "sayEn": "One sunny day, Little Dog and Kitty are playing in the forest.",
+      "sayVi": "",
+      "key": "forest",
+      "hiCol": "#5a9c46",
+      "speaker": "narrator",
+      "engine": "kokoro",
+      "voice": "af_heart",
+      "speed": 0.87,
+      "enLang": "en-us",
+      "viVoice": "vi-VN-HoaiMyNeural",
+      "viRate": "-4%",
+      "viPitch": "+0Hz"
+    },
+    {
+      "id": "l02",
+      "vt": 7.2,
+      "dur": 5.32,
+      "enDur": 2.51,
+      "t0": 7.06,
+      "t1": 12.94,
+      "en": "Hey, Kitty! Look! A little duck!",
+      "vi": "Này Kitty! Nhìn kìa! Một chú vịt nhỏ!",
+      "sayEn": "Hey, Kitty! Look! A little duck!",
+      "sayVi": "Này Kitty! Nhìn kìa! Một chú vịt nhỏ!",
+      "key": "Kitty",
+      "hiCol": "#c88a3b",
+      "speaker": "little_dog",
+      "engine": "kokoro",
+      "voice": "af_sky",
+      "speed": 0.9,
+      "enLang": "en-us",
+      "viVoice": "vi-VN-HoaiMyNeural",
+      "viRate": "+3%",
+      "viPitch": "+3Hz"
+    },
+    {
+      "id": "l03",
+      "vt": 13.2,
+      "dur": 5.68,
+      "enDur": 2.87,
+      "t0": 13.06,
+      "t1": 19.3,
+      "en": "Hello, little duck! Why are you crying?",
+      "vi": "Xin chào vịt con! Sao bạn lại khóc?",
+      "sayEn": "Hello, little duck! Why are you crying?",
+      "sayVi": "Xin chào vịt con! Sao bạn lại khóc?",
+      "key": "Hello",
+      "hiCol": "#c88a3b",
+      "speaker": "tabby_cat",
+      "engine": "kokoro",
+      "voice": "bf_emma",
+      "speed": 0.9,
+      "enLang": "en-gb",
+      "viVoice": "vi-VN-HoaiMyNeural",
+      "viRate": "+2%",
+      "viPitch": "+4Hz"
+    },
+    {
+      "id": "l04",
+      "vt": 21.03,
+      "dur": 1.43,
+      "enDur": 1.43,
+      "t0": 20.89,
+      "t1": 22.88,
+      "en": "🐥 Little Duck:",
+      "vi": "",
+      "sayEn": "Little Duck:",
+      "sayVi": "",
+      "key": "Little",
+      "hiCol": "#c88a3b",
+      "speaker": "narrator",
+      "engine": "kokoro",
+      "voice": "af_heart",
+      "speed": 0.87,
+      "enLang": "en-us",
+      "viVoice": "vi-VN-HoaiMyNeural",
+      "viRate": "-4%",
+      "viPitch": "+0Hz"
+    },
+    {
+      "id": "l05",
+      "vt": 24.11,
+      "dur": 4.15,
+      "enDur": 2.15,
+      "t0": 23.97,
+      "t1": 28.68,
+      "en": "I can't find my mommy!",
+      "vi": "Tớ không tìm thấy mẹ!",
+      "sayEn": "I can't find my mommy!",
+      "sayVi": "Tớ không tìm thấy mẹ!",
+      "key": "mommy",
+      "hiCol": "#c88a3b",
+      "speaker": "narrator",
+      "engine": "kokoro",
+      "voice": "af_heart",
+      "speed": 0.87,
+      "enLang": "en-us",
+      "viVoice": "vi-VN-HoaiMyNeural",
+      "viRate": "-4%",
+      "viPitch": "+0Hz"
+    },
+    {
+      "id": "l06",
+      "vt": 28.94,
+      "dur": 5.32,
+      "enDur": 2.51,
+      "t0": 28.8,
+      "t1": 34.68,
+      "en": "Don't worry! We can help you!",
+      "vi": "Đừng lo! Chúng tớ có thể giúp bạn!",
+      "sayEn": "Don't worry! We can help you!",
+      "sayVi": "Đừng lo! Chúng tớ có thể giúp bạn!",
+      "key": "help",
+      "hiCol": "#5a9c46",
+      "speaker": "little_dog",
+      "engine": "kokoro",
+      "voice": "af_sky",
+      "speed": 0.9,
+      "enLang": "en-us",
+      "viVoice": "vi-VN-HoaiMyNeural",
+      "viRate": "+3%",
+      "viPitch": "+3Hz"
+    },
+    {
+      "id": "l07",
+      "vt": 34.94,
+      "dur": 4.96,
+      "enDur": 2.15,
+      "t0": 34.8,
+      "t1": 40.32,
+      "en": "Look! Is that your mommy?",
+      "vi": "Nhìn kìa! Đó có phải mẹ bạn không?",
+      "sayEn": "Look! Is that your mommy?",
+      "sayVi": "Nhìn kìa! Đó có phải mẹ bạn không?",
+      "key": "mommy",
+      "hiCol": "#c88a3b",
+      "speaker": "tabby_cat",
+      "engine": "kokoro",
+      "voice": "bf_emma",
+      "speed": 0.9,
+      "enLang": "en-gb",
+      "viVoice": "vi-VN-HoaiMyNeural",
+      "viRate": "+2%",
+      "viPitch": "+4Hz"
+    },
+    {
+      "id": "l08",
+      "vt": 40.58,
+      "dur": 1.43,
+      "enDur": 1.43,
+      "t0": 40.44,
+      "t1": 42.43,
+      "en": "🐥 Little Duck:",
+      "vi": "",
+      "sayEn": "Little Duck:",
+      "sayVi": "",
+      "key": "Little",
+      "hiCol": "#c88a3b",
+      "speaker": "narrator",
+      "engine": "kokoro",
+      "voice": "af_heart",
+      "speed": 0.87,
+      "enLang": "en-us",
+      "viVoice": "vi-VN-HoaiMyNeural",
+      "viRate": "-4%",
+      "viPitch": "+0Hz"
+    },
+    {
+      "id": "l09",
+      "vt": 43.46,
+      "dur": 5.23,
+      "enDur": 2.15,
+      "t0": 43.32,
+      "t1": 49.11,
+      "en": "Mommy! Mommy! I found you!",
+      "vi": "Mẹ ơi! Mẹ ơi! Con tìm thấy mẹ rồi!",
+      "sayEn": "Mommy! Mommy! I found you!",
+      "sayVi": "Mẹ ơi! Mẹ ơi! Con tìm thấy mẹ rồi!",
+      "key": "Mommy",
+      "hiCol": "#c88a3b",
+      "speaker": "narrator",
+      "engine": "kokoro",
+      "voice": "af_heart",
+      "speed": 0.87,
+      "enLang": "en-us",
+      "viVoice": "vi-VN-HoaiMyNeural",
+      "viRate": "-4%",
+      "viPitch": "+0Hz"
+    },
+    {
+      "id": "l10",
+      "vt": 49.37,
+      "dur": 3.97,
+      "enDur": 1.43,
+      "t0": 49.23,
+      "t1": 53.76,
+      "en": "Hooray! Happy family!",
+      "vi": "Hoan hô! Gia đình đoàn tụ rồi!",
+      "sayEn": "Hooray! Happy family!",
+      "sayVi": "Hoan hô! Gia đình đoàn tụ rồi!",
+      "key": "Happy",
+      "hiCol": "#d98a16",
+      "speaker": "little_dog",
+      "engine": "kokoro",
+      "voice": "af_sky",
+      "speed": 0.9,
+      "enLang": "en-us",
+      "viVoice": "vi-VN-HoaiMyNeural",
+      "viRate": "+3%",
+      "viPitch": "+3Hz"
+    },
+    {
+      "id": "l11",
+      "vt": 54.02,
+      "dur": 5.23,
+      "enDur": 2.15,
+      "t0": 53.88,
+      "t1": 59.67,
+      "en": "Helping others makes us happy!",
+      "vi": "Giúp đỡ người khác khiến chúng ta hạnh phúc!",
+      "sayEn": "Helping others makes us happy!",
+      "sayVi": "Giúp đỡ người khác khiến chúng ta hạnh phúc!",
+      "key": "happy",
+      "hiCol": "#d98a16",
+      "speaker": "tabby_cat",
+      "engine": "kokoro",
+      "voice": "bf_emma",
+      "speed": 0.9,
+      "enLang": "en-gb",
+      "viVoice": "vi-VN-HoaiMyNeural",
+      "viRate": "+2%",
+      "viPitch": "+4Hz"
+    },
+    {
+      "id": "l12",
+      "vt": 60.5,
+      "dur": 2.89,
+      "enDur": 1.43,
+      "t0": 60.36,
+      "t1": 63.81,
+      "en": "THE END! ❤️",
+      "vi": "Hết chuyện rồi!",
+      "sayEn": "The end!",
+      "sayVi": "Hết chuyện rồi!",
+      "key": "",
+      "hiCol": "#472e1e",
+      "speaker": "narrator",
+      "engine": "kokoro",
+      "voice": "af_heart",
+      "speed": 0.87,
+      "enLang": "en-us",
+      "viVoice": "vi-VN-HoaiMyNeural",
+      "viRate": "-4%",
+      "viPitch": "+0Hz"
+    }
+  ],
+  "silences": [
+    {
+      "id": "sil_act2",
+      "t0": 19.43,
+      "t1": 20.58
+    },
+    {
+      "id": "sil_tender",
+      "t0": 22.76,
+      "t1": 23.81
+    }
+  ],
+  "customProps": [
+    {
+      "type": "custom_yellow_duckling",
+      "id": "yellow_duckling",
+      "icon": "🐥",
+      "label": "Vịt con vàng (Yellow Duckling)",
+      "keywords": [
+        "duckling",
+        "duck",
+        "vịt con",
+        "vịt",
+        "yellow"
+      ],
+      "defaultScale": 1,
+      "hit": {
+        "rx": 66,
+        "ry": 66,
+        "oy": -60
+      },
+      "shapes": [
+        {
+          "kind": "poly",
+          "pts": [
+            [
+              15,
+              0
+            ],
+            [
+              25,
+              -8
+            ],
+            [
+              15,
+              -12
+            ],
+            [
+              5,
+              -8
+            ]
+          ],
+          "fill": "ochre",
+          "col": "ink",
+          "w": 6,
+          "p": 0.88,
+          "smooth": true,
+          "noOutline": false
+        },
+        {
+          "kind": "poly",
+          "pts": [
+            [
+              -15,
+              0
+            ],
+            [
+              -25,
+              -8
+            ],
+            [
+              -15,
+              -12
+            ],
+            [
+              -5,
+              -8
+            ]
+          ],
+          "fill": "ochre",
+          "col": "ink",
+          "w": 6,
+          "p": 0.88,
+          "smooth": true,
+          "noOutline": false
+        },
+        {
+          "kind": "ellipse",
+          "x": 0,
+          "y": -40,
+          "rx": 55,
+          "ry": 40,
+          "rot": 3.15,
+          "fill": "yellow",
+          "col": "ink",
+          "w": 6,
+          "p": 0.88,
+          "noOutline": false
+        },
+        {
+          "kind": "poly",
+          "pts": [
+            [
+              40,
+              -50
+            ],
+            [
+              55,
+              -60
+            ],
+            [
+              40,
+              -70
+            ]
+          ],
+          "fill": "yellow",
+          "col": "ink",
+          "w": 6,
+          "p": 0.88,
+          "smooth": true,
+          "noOutline": false
+        },
+        {
+          "kind": "poly",
+          "pts": [
+            [
+              -40,
+              -40
+            ],
+            [
+              -55,
+              -55
+            ],
+            [
+              -40,
+              -70
+            ]
+          ],
+          "fill": "yellow",
+          "col": "ink",
+          "w": 6,
+          "p": 0.88,
+          "smooth": true,
+          "noOutline": false
+        },
+        {
+          "kind": "circle",
+          "x": -15,
+          "y": -90,
+          "r": 30,
+          "fill": "yellow",
+          "col": "ink",
+          "w": 6,
+          "p": 0.9,
+          "noOutline": false
+        },
+        {
+          "kind": "poly",
+          "pts": [
+            [
+              -30,
+              -95
+            ],
+            [
+              -10,
+              -110
+            ],
+            [
+              0,
+              -95
+            ],
+            [
+              -10,
+              -90
+            ]
+          ],
+          "fill": "yellow",
+          "col": "ink",
+          "w": 6,
+          "p": 0.88,
+          "smooth": true,
+          "noOutline": false
+        },
+        {
+          "kind": "dab",
+          "x": -25,
+          "y": -100,
+          "r": 6,
+          "col": "ink",
+          "layer": "line",
+          "p": 0.94
+        },
+        {
+          "kind": "dab",
+          "x": -27,
+          "y": -102,
+          "r": 2.5,
+          "col": "white",
+          "layer": "line",
+          "p": 0.94
+        }
+      ]
+    },
+    {
+      "type": "custom_mother_duck",
+      "id": "mother_duck",
+      "icon": "🦆",
+      "label": "Vịt mẹ (Mother Duck)",
+      "keywords": [
+        "duck",
+        "mother",
+        "vịt",
+        "mẹ"
+      ],
+      "defaultScale": 1,
+      "hit": {
+        "rx": 83,
+        "ry": 77,
+        "oy": -65
+      },
+      "shapes": [
+        {
+          "kind": "poly",
+          "pts": [
+            [
+              -35,
+              0
+            ],
+            [
+              -45,
+              -10
+            ],
+            [
+              -25,
+              -10
+            ],
+            [
+              -15,
+              0
+            ]
+          ],
+          "fill": "ochre",
+          "col": "ink",
+          "w": 6,
+          "p": 0.88,
+          "smooth": true,
+          "noOutline": false
+        },
+        {
+          "kind": "poly",
+          "pts": [
+            [
+              35,
+              0
+            ],
+            [
+              45,
+              -10
+            ],
+            [
+              25,
+              -10
+            ],
+            [
+              15,
+              0
+            ]
+          ],
+          "fill": "ochre",
+          "col": "ink",
+          "w": 6,
+          "p": 0.88,
+          "smooth": true,
+          "noOutline": false
+        },
+        {
+          "kind": "ellipse",
+          "x": 0,
+          "y": -40,
+          "rx": 70,
+          "ry": 45,
+          "rot": 0,
+          "fill": "yellow",
+          "col": "ink",
+          "w": 6.5,
+          "p": 0.88,
+          "noOutline": false
+        },
+        {
+          "kind": "poly",
+          "pts": [
+            [
+              -70,
+              -40
+            ],
+            [
+              -80,
+              -60
+            ],
+            [
+              -60,
+              -65
+            ],
+            [
+              -50,
+              -45
+            ]
+          ],
+          "fill": "yellow",
+          "col": "ink",
+          "w": 6,
+          "p": 0.88,
+          "smooth": true,
+          "noOutline": false
+        },
+        {
+          "kind": "poly",
+          "pts": [
+            [
+              -10,
+              -50
+            ],
+            [
+              -50,
+              -70
+            ],
+            [
+              -40,
+              -90
+            ],
+            [
+              0,
+              -80
+            ],
+            [
+              15,
+              -60
+            ]
+          ],
+          "fill": "yellow",
+          "col": "ink",
+          "w": 6,
+          "p": 0.88,
+          "smooth": true,
+          "noOutline": false
+        },
+        {
+          "kind": "poly",
+          "pts": [
+            [
+              20,
+              -60
+            ],
+            [
+              10,
+              -90
+            ],
+            [
+              25,
+              -100
+            ],
+            [
+              35,
+              -70
+            ]
+          ],
+          "fill": "yellow",
+          "col": "ink",
+          "w": 6,
+          "p": 0.88,
+          "smooth": true,
+          "noOutline": false
+        },
+        {
+          "kind": "circle",
+          "x": 25,
+          "y": -110,
+          "r": 25,
+          "fill": "yellow",
+          "col": "ink",
+          "w": 6,
+          "p": 0.9,
+          "noOutline": false
+        },
+        {
+          "kind": "poly",
+          "pts": [
+            [
+              40,
+              -110
+            ],
+            [
+              55,
+              -105
+            ],
+            [
+              50,
+              -120
+            ],
+            [
+              35,
+              -125
+            ]
+          ],
+          "fill": "ochre",
+          "col": "ink",
+          "w": 6,
+          "p": 0.88,
+          "smooth": true,
+          "noOutline": false
+        },
+        {
+          "kind": "dab",
+          "x": 30,
+          "y": -118,
+          "r": 4,
+          "col": "ink",
+          "layer": "line",
+          "p": 0.94
+        },
+        {
+          "kind": "dab",
+          "x": 28,
+          "y": -120,
+          "r": 2,
+          "col": "white",
+          "layer": "line",
+          "p": 0.94
+        }
+      ]
+    }
+  ],
+  "ending": {
+    "type": "fridge",
+    "tStart": 60,
+    "tEnd": 63.4,
+    "fridgeColor": "#cbe3d7"
+  },
+  "music": {
+    "preset": "morning-garden",
+    "key": "F",
+    "bpm": 106,
+    "gains": {
+      "ukulele": 0.88,
+      "marimba": 0.82,
+      "recorder": 0.9,
+      "bassoon": 0.82,
+      "glock": 1.18,
+      "perc": 0.68,
+      "foley": 0.82,
+      "voice": 1
+    }
+  }
+}
